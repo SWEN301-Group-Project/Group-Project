@@ -4,12 +4,12 @@ Testing a website template for [SWEN301-Group-Project](https://github.com/SWEN30
 ## Getting Started
 
 To begin development:   
-1. Install node onto system   
-1.a. `npm install -g grunt-cli` to install Grunt command line interface onto your system and set environment path    
-1.b. If you do not have the permissions, install grunt locally: `npm install grunt-cli`   
-3. run: `grunt` if you have installed grunt command line or './node_modules/.bin/grunt' if you have isntall grunt locally   
-2. run: `npm install`   
-3. run: `node app.js`   
+1. run: `npm install`     
+2. Install node onto system   
+2.a. `npm install -g grunt-cli` to install Grunt command line interface onto your system and set environment path    
+2.b. If you do not have the permissions, install grunt locally: `npm install grunt-cli`   
+3. run: `grunt` if you have installed grunt command line or `./node_modules/.bin/grunt` if you have isntall grunt locally    
+4. run: `node app.js`   
 
 ## Bugs and Issues
 
