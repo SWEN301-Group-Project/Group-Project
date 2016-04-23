@@ -8,8 +8,7 @@ To begin development:
 2. Install node onto system   
 2.a. `npm install -g grunt-cli` to install Grunt command line interface onto your system and set environment path    
 2.b. If you do not have the permissions, install grunt locally: `npm install grunt-cli`   
-3. run: `grunt` if you have installed grunt command line or `./node_modules/.bin/grunt` if you have isntall grunt locally    
-4. (optional) run: `sass --watch main.scss:main.css` to watch for changes in main stylesheet   
+3. run: `grunt` if you have installed grunt command line or `./node_modules/.bin/grunt` if you have isntall grunt locally   
 5. run: `node app.js`   
 
 ## Bugs and Issues
