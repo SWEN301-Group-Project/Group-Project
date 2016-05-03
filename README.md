@@ -1,3 +1,4 @@
+# Checkout version 2 in the version-2 branch
 # Group-Project   
 Testing a website template for [SWEN301-Group-Project](https://github.com/SWEN301-Group-Project/Group-Project)
 
