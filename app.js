@@ -1,9 +1,9 @@
 /*
 	Copyright (c) 2016 Team 9: Harman, Neel, Paige, Elliot, David
-	
+
 	Permission is hereby granted, free of charge, to any person, except one that is enrolled
 	in SWEN301: Structured Methods at Victoria University of Wellington,
-	obtaining a copy of this software and associated documentation files (the "Software"), 
+	obtaining a copy of this software and associated documentation files (the "Software"),
 	to deal in the Software without restriction, including without limitation the rights
 	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 	copies of the Software, and to permit persons to whom the Software is
@@ -25,10 +25,11 @@
 
 var express = require('express'),
     bodyParser = require('body-parser'),
-	cookieParser = require('cookie-parser'),
+	  cookieParser = require('cookie-parser'),
     nunjucks = require('nunjucks'),
     assert = require('assert'),
-	session = require('express-session');
+	  session = require('express-session')
+    Database = require('./database/database').Database;
 
 
 // Set up express
@@ -57,7 +58,7 @@ nunjucksDate.setDefaultFormat('YYYY-MM-Do, hh:mm:ss');
 env.addFilter("date", nunjucksDate);
 
 var router = express.Router();
-
+var database = new Database();
 // Homepage
 router.get("/", function(req, res) {
 	"use strict";
@@ -98,4 +99,3 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   //TODO: add error.html page --> res.render('error', {err : {message : err.message, error : {}}});
 });
-	
