@@ -65,6 +65,21 @@ router.get("/", function(req, res) {
 	res.render('index',{});
 });
 
+/*
+This is an example of quering the database.
+Here I am getting all locations in the database
+*/
+router.get("/locations", function(req, res) {
+	"use strict";
+  database.getAllLocations(function(locations){
+    for(var i = 0; i < locations.length; i++){
+      console.log(locations[i]);
+    }
+    res.render('index',{});
+  });
+
+});
+
 
 // Use the router routes in our application
 app.use('/', router);

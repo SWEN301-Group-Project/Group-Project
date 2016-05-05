@@ -93,6 +93,7 @@ function Database(){
      1.1 get location based on name
      1.2 get location based on id
      1.3 insert location
+     1.4 delete location
      2. get mails ==> returns array of mail
      2.1 get mail based on id
      2.2 get mail between dates
@@ -102,16 +103,36 @@ function Database(){
      3.1 get company by name
      3.2 get company by id
      3.3 insert company
+     3.4 delete company
      4. get routes ==> returns array of routes
      4.1 get route of origin and destination
      4.2 get route by id
      4.3 insert route
+     4.4 delete route
      5. get list of customer prices ==> returns array of customer prices
      5.1 get customer price by id
      5.2 get customer price for given origin and destination
      5.3 insert customer price
     */
-
+    //Returns an array of location objects.
+    /*
+    Example of return ==> [ { locationid: 1, name: 'Wellington' },
+                            { locationid: 2, name: 'Christchurch' },
+                            { locationid: 3, name: 'Auckland' } ]
+    */
+    this.getAllLocations = function(callback){
+        db.run("INSERT INTO locations (name) values ('Wellington')");
+        // var stmt = db.prepare("SELECT * FROM locations");
+        db.all("SELECT locationid, name FROM locations", function(err, rows){
+            if (err){console.log("Error loading locations: " + err)}
+            else{
+                callback(rows);
+            }
+        });
+    }
+    this.getLocationFromName = function(locationName, callback){
+        // var stmt = 
+    }
 }
 
 module.exports.Database = Database;
