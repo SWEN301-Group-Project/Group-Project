@@ -12,6 +12,12 @@ To begin development:
 3. run: `grunt` if you have installed grunt command line or `./node_modules/.bin/grunt` if you have isntall grunt locally   
 5. run: `node app.js`   
 
+## Using Grunt
+Grunt is used to build less and javascript files into production ready files.
+To make changes to the javascript and css files you need to modify the correct files in the less and js files.   
+For more info on grunt see [here](http://gruntjs.com/getting-started)
+### Less
+less is used for css, less is css with variables for more info see [here](http://lesscss.org/)   
 ## Bugs and Issues
 
 Have a bug or an issue? [Open a new issue](https://github.com/SWEN301-Group-Project/Group-Project/issues) here on GitHub
