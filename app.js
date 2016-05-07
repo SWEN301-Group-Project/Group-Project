@@ -28,8 +28,12 @@ var express = require('express'),
 	  cookieParser = require('cookie-parser'),
     nunjucks = require('nunjucks'),
     assert = require('assert'),
-	  session = require('express-session')
-    Database = require('./database/database').Database;
+	  session = require('express-session'),
+    Database = require('./database/database').Database,
+    //following are used to interact with the database.
+    Company = require('./database/company'),
+    Mail = require('./database/mail'),
+    Location = require('./database/location');
 
 
 // Set up express
@@ -66,17 +70,50 @@ router.get("/", function(req, res) {
 });
 
 /*
-This is an example of quering the database.
-Here I am getting all locations in the database
+
 */
 router.get("/locations", function(req, res) {
 	"use strict";
-  database.getAllLocations(function(locations){
-    for(var i = 0; i < locations.length; i++){
-      console.log(locations[i]);
-    }
-    res.render('index',{});
+  Location.getLocationById(4, function(location){
+      console.log(location);
   });
+  /*
+  Other examples
+  */
+  /*
+  Location.getAllLocations(function(locations){
+    console.log(locations);
+  })
+  */
+});
+
+router.get("/mails", function(req, res) {
+	"use strict"
+
+  var mail = {
+    origin: 1,
+    destination: 2,
+    weight: 50,
+    volume: 20,
+    priority: "Land",
+    totalcustomercost: 500,
+    totalbusinesscost: 100
+  };
+  var date = new Date();
+
+
+  Mail.updateMail(1, mail, function(result){
+    console.log(result);
+  });
+  /*
+  Other examples
+  */
+  /*
+  var date = new Date().toISOString();
+  Mail.getMailByDate(date, function(rows){
+    console.log(rows);
+  })
+  */
 
 });
 
