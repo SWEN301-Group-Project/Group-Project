@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/SWEN301-Group-Project/Group-Project.svg?branch=master)](https://travis-ci.org/SWEN301-Group-Project/Group-Project)
 # NOTE: All development is done on develop branch
 # Group-Project   
 Testing a website template for [SWEN301-Group-Project](https://github.com/SWEN301-Group-Project/Group-Project)
