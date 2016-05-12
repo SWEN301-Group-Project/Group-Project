@@ -12,6 +12,11 @@ To begin development:
 3. run: `grunt` if you have installed grunt command line or `./node_modules/.bin/grunt` if you have isntall grunt locally   
 5. run: `node app.js`   
 
+## Testing
+
+Tests are found in the 'test' folder.
+To run the tests, run 'npm test'
+
 ## Bugs and Issues
 
 Have a bug or an issue? [Open a new issue](https://github.com/SWEN301-Group-Project/Group-Project/issues) here on GitHub
