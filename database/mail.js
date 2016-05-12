@@ -1,9 +1,9 @@
 var sqlite3 = require("sqlite3").verbose(),
-    assert = require("assert");
-
-var dbFile = "./database/test.db";
-var db = new sqlite3.Database(dbFile);
-
+    assert = require("assert"),
+    dbFile = "./database/test.db",
+    db = new sqlite3.Database(dbFile),
+	 Company = require('./company'),
+    Location = require('./location');
 /*
 A mail object looks like:
 var mail = {
@@ -21,17 +21,24 @@ The mail also has a date field, but that is auto generated.
 The date field contains last date the mail was updated/created
 
 The following are the database function implemented by mail.js file:
-    1. getAllMail ==> returns array of mail objects
+    1.getAllMail ==> returns array of mail objects
     2 getLocationByDate ==> returns array of mail object that have date <= Date parameter
     3 getLocationById ==> returns mail object by id
     4 insertMail ==> inserts new mail object to database
     5 deleteMail ==> deletes mail by id
     6 updateMail ==> update Location by id
+
 */
 
 //returns list of all mail objects
 exports.getAllMail = function(callback){
-    var stmt = "SELECT * FROM mails";
+    var stmt = "SELECT mailid, ORIGIN.name AS origin, DEST.name AS destination, weight, volume, priority, totalcustomercost, totalbusinesscost, date "
+    			 + "FROM mails "
+    			 + "LEFT JOIN locations AS ORIGIN ON mails.origin = ORIGIN.locationid "
+    			 + "LEFT JOIN locations AS DEST ON mails.destination = DEST.locationid";
+   
+//    var stmt = "SELECT * from mails";
+    //need to join table with location
     db.all(stmt, function(err, rows){
         if (err){
             console.log("Error loading mails: " + err);
@@ -46,7 +53,11 @@ exports.getAllMail = function(callback){
 //The paramter: dateAsString must be string representation of date.
 // e.g. new Date().toISOString();
 exports.getMailByDate = function(dateAsString, callback){
-    var stmt = "SELECT * FROM mails WHERE date <= $date";
+    var stmt = "SELECT mailid, ORIGIN.name AS origin, DEST.name AS destination, weight, volume, priority, totalcustomercost, totalbusinesscost, date "
+    			 + "FROM mails "
+    			 + "LEFT JOIN locations AS ORIGIN ON mails.origin = ORIGIN.locationid "
+    			 + "LEFT JOIN locations AS DEST ON mails.origin = DEST.locationid "
+    			 + "WHERE date <= $date";
     db.all(stmt, {$date: dateAsString}, function(err, rows){
         if(err){
             console.log("Error loading mail: " + err);
@@ -58,7 +69,11 @@ exports.getMailByDate = function(dateAsString, callback){
 }
 //returns mail object that has id == mailid
 exports.getMailById = function(mailid, callback){
-    var stmt = "SELECT * FROM mails WHERE mailid = $mailid";
+	var stmt = "SELECT mailid, ORIGIN.name AS origin, DEST.name AS destination, weight, volume, priority, totalcustomercost, totalbusinesscost, date "
+    			 + "FROM mails "
+    			 + "LEFT JOIN locations AS ORIGIN ON mails.origin = ORIGIN.locationid "
+    			 + "LEFT JOIN locations AS DEST ON mails.origin = DEST.locationid "
+    			 + "WHERE mailid = $mailid";
     db.get(stmt, {$mailid: mailid}, function(err, mail){
         if(err){
             console.log("Error loading mail: " + err)
@@ -82,7 +97,6 @@ exports.getMailById = function(mailid, callback){
       };*/
 //Origin and destination are foreign keys so they must be integers
 //PostCondition: if return value > 0 ==> mail inserted sucessfully
-//TODO: do left join to return the origin and destination strings
 exports.insertMail = function(mail, callback){
 	var stmt = db.prepare("INSERT INTO mails (origin, destination, weight, volume, priority, totalcustomercost, totalbusinesscost, date) VALUES (?, ?, ?, ?, ?, ?, ?, ?) ");
 

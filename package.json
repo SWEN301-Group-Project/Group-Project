@@ -28,6 +28,8 @@
     "fs": "0.0.2",
     "mocha": "^2.4.5",
     "mocha-cakes": "^0.9.0",
+    "grunt": "^0.4.5",
+    "grunt-cli": "^1.2.0",
     "nunjucks": "~2.2.0",
     "nunjucks-date": "~1.2.0",
     "request": "^2.72.0",
