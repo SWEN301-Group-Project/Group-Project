@@ -69,13 +69,42 @@ router.get("/", function(req, res) {
 	res.render('index',{});
 });
 
-/*
 
-*/
 router.get("/locations", function(req, res) {
 	"use strict";
-  Location.getLocationById(4, function(location){
-      console.log(location);
+  Location.getAllLocations(function(result){
+  	console.log(result)
+  	for(var i = 0; i < result.length; i++){
+  		console.log(result[0].name);
+  });
+  /*
+  Other examples
+  */
+  /*
+  Location.getAllLocations(function(locations){
+    console.log(locations);
+  })
+  */
+});
+
+router.get("/routes", function(req, res) {
+	"use strict";
+	
+	var route = {
+	 company: 2,
+    origin: 1,
+    destination: 2,
+    type: Air/Land/Sea,
+    weightcost: 5,
+    volumecost: 6,
+    maxweight: 350,
+    maxvolume: 50,
+    duration: 16,
+    frequency: 36,
+    day: 0
+	};
+  Location.getAllLocations(function(result){
+  	console.log(result)
   });
   /*
   Other examples
@@ -102,8 +131,9 @@ router.get("/mails", function(req, res) {
   var date = new Date();
 
 
-  Mail.updateMail(1, mail, function(result){
+  Mail.getAllMail(function(result){
     console.log(result);
+  
   });
   /*
   Other examples

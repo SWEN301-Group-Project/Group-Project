@@ -28,6 +28,23 @@ The following are the database function implemented by mail.js file:
     5 deleteMail ==> deletes mail by id
     6 updateMail ==> update Location by id
 
+
+
+
+        db.run('CREATE TABLE IF NOT EXISTS mails ('
+            + 'mailid INTEGER PRIMARY KEY, '
+            + 'origin INTEGER, '
+            + 'destination INTEGER, '
+            + 'weight INTEGER, '
+            + 'volume INTEGER, '
+            + 'priority TEXT, '
+            + 'totalcustomercost REAL, '
+            + 'totalbusinesscost REAL, '
+            + 'date TEXT, ' //storing date as string since it is simplest to work with javascript date object
+            + 'FOREIGN KEY(origin) REFERENCES locations(locationid), '
+            + 'FOREIGN KEY(destination) REFERENCES locations(locationid) '
+            + ')');
+
 */
 
 //returns list of all mail objects
