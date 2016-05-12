@@ -4,7 +4,7 @@
   "description": "SWEN301 Group Assignment, 2016",
   "main": "app.js",
   "scripts": {
-    "test": "./node_modules/.bin/mocha --reporter spec"
+    "test": "./node_modules/.bin/mocha -r mocha-cakes"
   },
   "version": "0.0.1",
   "author": "Team 9, 2016",
@@ -26,6 +26,7 @@
     "express-session": "~1.13.0",
     "fs": "0.0.2",
     "mocha": "^2.4.5",
+    "mocha-cakes": "^0.9.0",
     "nunjucks": "~2.2.0",
     "nunjucks-date": "~1.2.0",
     "request": "^2.72.0",
