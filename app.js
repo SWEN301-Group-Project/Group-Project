@@ -69,6 +69,11 @@ router.get("/", function(req, res) {
 	res.render('index',{});
 });
 
+// Stats
+router.get("/stats", function(req, res) {
+    "use strict";
+    res.render('stats', {});
+});
 
 router.get("/locations", function(req, res) {
 	"use strict";
@@ -118,7 +123,7 @@ router.get("/routes", function(req, res) {
 });
 
 router.get("/mails", function(req, res) {
-	"use strict"
+	"use strict";
 
   var mail = {
     origin: 1,
