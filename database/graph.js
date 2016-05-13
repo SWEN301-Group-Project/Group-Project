@@ -1,6 +1,6 @@
-var routes = require('/database/routes');
-var location = require('/database/location');
-var customerprice = require('/database/customerprice');
+var routes = require('routes');
+var location = require('location');
+var customerprice = require('customerprice');
 
 var segments = [];
 var nodes = {};

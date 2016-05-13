@@ -34,6 +34,8 @@ var express = require('express'),
     Company = require('./database/company'),
     Mail = require('./database/mail'),
     Location = require('./database/location');
+    
+    Graph = require('./database/graph');
 
 
 // Set up express
@@ -70,6 +72,12 @@ router.get("/", function(req, res) {
 });
 
 
+router.get("/graph", function(req, res) {
+	"use strict";
+	Graph.printAll();
+});
+
+
 router.get("/locations", function(req, res) {
 	"use strict";
   Location.getAllLocations(function(result){
@@ -90,7 +98,7 @@ router.get("/locations", function(req, res) {
 
 router.get("/routes", function(req, res) {
 	"use strict";
-	
+
 	var route = {
 	 company: 2,
     origin: 1,
@@ -134,7 +142,7 @@ router.get("/mails", function(req, res) {
 
   Mail.getAllMail(function(result){
     console.log(result);
-  
+
   });
   /*
   Other examples
