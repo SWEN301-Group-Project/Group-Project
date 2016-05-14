@@ -88,10 +88,12 @@ var createNodes = function(locs){
 }
 
 var createSegments = function(costs){
-  for(var i = 0; i < costs.length; i++){
-    this.segment = new segment(nodes[costs[i].destination], nodes[costs[i].origin], costs[i].type, costs[i].weightcost, costs[i].volumecost, costs[i].maxweight, costs[i].maxVolume, costs[i].duration, costs[i].frequency, costs[i].day);
-    segments.push(this.segment);
-    nodes.fromName.segments.push(this.segment);
+  if(typeof locs != 'undefined'){
+    for(var i = 0; i < costs.length; i++){
+      this.segment = new segment(nodes[costs[i].destination], nodes[costs[i].origin], costs[i].type, costs[i].weightcost, costs[i].volumecost, costs[i].maxweight, costs[i].maxVolume, costs[i].duration, costs[i].frequency, costs[i].day);
+      segments.push(this.segment);
+      nodes.fromName.segments.push(this.segment);
+    }
   }
 }
 
