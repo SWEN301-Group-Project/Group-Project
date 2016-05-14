@@ -81,23 +81,23 @@ var removeItem = function(item, array){
 
 var createNodes = function(locs){
   if(typeof locs != 'undefined'){
-    for(i=0;i< locs.length; i++){
+    for(var i = 0;i < locs.length; i++){
       nodes[locs[i].name] = new node(locs[i].id, locs[i].name);
     }
   }
 }
 
 var createSegments = function(costs){
-  for(i =0; i< costs.length; i++){
-    this.segment = new segment(nodes[costs[i].destination], nodes[costs[i].origin], costs[i].type, costs[i].weightcost, tcosts[i].volumecost, costs[i].maxweight, costs[i].maxVolume, costs[i].duration, costs[i].frequency, costs[i].day);
+  for(var i = 0; i < costs.length; i++){
+    this.segment = new segment(nodes[costs[i].destination], nodes[costs[i].origin], costs[i].type, costs[i].weightcost, costs[i].volumecost, costs[i].maxweight, costs[i].maxVolume, costs[i].duration, costs[i].frequency, costs[i].day);
     segments.push(this.segment);
     nodes.fromName.segments.push(this.segment);
   }
 }
 
 exports.loadGraph = function(){
-  routes.getAllRoutes(createSegments);
   location.getAllLocations(createNodes);
+  routes.getAllRoutes(createSegments);
 }
 
 exports.printAll = function(){
