@@ -75,8 +75,6 @@ router.get("/", function(req, res) {
 router.get("/graph", function(req, res) {
 	"use strict";
   Graph.loadGraph();
-	Graph.printAll();
-  //Graph.createNodes([]);
   res.render('index',{});
 });
 

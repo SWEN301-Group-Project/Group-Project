@@ -80,33 +80,47 @@ var removeItem = function(item, array){
 }
 
 var createNodes = function(locs){
+  console.log("Creating Nodes");
   if(typeof locs != 'undefined'){
     for(var i = 0;i < locs.length; i++){
-      nodes[locs[i].name] = new node(locs[i].id, locs[i].name);
+      nodes[locs[i].name] = new node(locs[i].locationid, locs[i].name);
     }
+  }
+  else{
+    console.log("Locs undefined");
   }
 }
 
 var createSegments = function(costs){
-  if(typeof locs != 'undefined'){
+  console.log("Creating Segments");
+  //console.log("Nodes: " + nodes);
+  if(typeof costs != 'undefined'){
+
     for(var i = 0; i < costs.length; i++){
-      this.segment = new segment(nodes[costs[i].destination], nodes[costs[i].origin], costs[i].type, costs[i].weightcost, costs[i].volumecost, costs[i].maxweight, costs[i].maxVolume, costs[i].duration, costs[i].frequency, costs[i].day);
-      segments.push(this.segment);
-      nodes.fromName.segments.push(this.segment);
+
+      //this.segment = new segment(nodes[costs[i].destination], nodes[costs[i].origin], costs[i].type, costs[i].weightcost, costs[i].volumecost, costs[i].maxweight, costs[i].maxvolume, costs[i].duration, costs[i].frequency, costs[i].day);
+      //segments.push(this.segment);
+      //nodes.fromName.segments.push(this.segment);
     }
+  }
+  else{
+    console.log("Locs undefined: ");
   }
 }
 
 exports.loadGraph = function(){
   location.getAllLocations(createNodes);
+  console.log(nodes);
   routes.getAllRoutes(createSegments);
+  //printAll();
 }
 
-exports.printAll = function(){
-  console.log("Printing: ");
+var printAll = function(){
+  console.log("Printing Nodes: ");
   for(var node in nodes){
     console.log(node);
   }
+  console.log("Printing Segments: ");
   for(var seg in segments){
     console.log(seg);
   }
