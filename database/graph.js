@@ -7,9 +7,6 @@ var nodes = {};
 var prices = [];
 
 
-location.getAllLocations(createNodes);
-routes.getAllRoutes(createSegments);
-
 /**
 * @param {mail} mail being delivered
 */
@@ -82,22 +79,29 @@ var removeItem = function(item, array){
   }
 }
 
-
 var createNodes = function(locs){
-  for(i=0;i< this.locs.length; i++){
-    nodes.this.locs[i].name = new node(this.locs[i].id, this.locs[i].name);
+  if(typeof locs != 'undefined'){
+    for(i=0;i< locs.length; i++){
+      nodes[locs[i].name] = new node(locs[i].id, locs[i].name);
+    }
   }
 }
 
 var createSegments = function(costs){
-  for(i =0; i< this.costs.length; i++){
-    this.segment = new segment(nodes[this.costs[i].destination], nodes[this.costs[i].origin], this.costs[i].type, this.costs[i].weightcost, this.costs[i].volumecost, this.costs[i].maxweight, this.costs[i].maxVolume, this.costs[i].duration, this.costs[i].frequency, this.costs[i].day);
+  for(i =0; i< costs.length; i++){
+    this.segment = new segment(nodes[costs[i].destination], nodes[costs[i].origin], costs[i].type, costs[i].weightcost, tcosts[i].volumecost, costs[i].maxweight, costs[i].maxVolume, costs[i].duration, costs[i].frequency, costs[i].day);
     segments.push(this.segment);
     nodes.fromName.segments.push(this.segment);
   }
 }
 
+exports.loadGraph = function(){
+  routes.getAllRoutes(createSegments);
+  location.getAllLocations(createNodes);
+}
+
 exports.printAll = function(){
+  console.log("Printing: ");
   for(var node in nodes){
     console.log(node);
   }

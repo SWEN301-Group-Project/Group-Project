@@ -34,7 +34,7 @@ var express = require('express'),
     Company = require('./database/company'),
     Mail = require('./database/mail'),
     Location = require('./database/location');
-    
+
     Graph = require('./database/graph');
 
 
@@ -74,7 +74,10 @@ router.get("/", function(req, res) {
 
 router.get("/graph", function(req, res) {
 	"use strict";
+  Graph.loadGraph();
 	Graph.printAll();
+  //Graph.createNodes([]);
+  res.render('index',{});
 });
 
 
