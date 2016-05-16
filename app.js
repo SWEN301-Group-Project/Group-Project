@@ -159,6 +159,118 @@ router.get("/mails", function(req, res) {
 
 });
 
+router.get("/price", function(req, res){
+  console.log('PRICE: GET');
+  Location.getAllLocations(function(cb){
+      console.log(cb);
+      res.render('updPrice', {locations: cb});
+  });
+});
+
+router.post("/price", function(req, res){
+  console.log("PRICE: POST");
+	console.log(req.body);
+  var err = []
+  if (!req.body.ori) {err.push('Origin cannot be Blank.');}
+  if (!req.body.dest) {err.push('Destination cannot be Blank.');}
+  if (!req.body.wgt) {err.push('Weight Price cannot be Blank.');}
+  if (!req.body.vol) {err.push('Volume Price cannot be Blank.');}
+  console.log(err);
+  if (err.length) {
+    Location.getAllLocations(function(cb){
+      console.log(cb);
+      res.render('updPrice', {error: err, locations: cb});
+    });
+    // res.render('updPrice', {error: err});
+  } else {
+    // this means that there is nothing wrong, so we can be do the actual work
+    var ori, dest;
+    console.log('getting origin');
+    Location.getLocationByName(req.body.ori, function(location){
+      var ori = location;
+      console.log(ori);
+      console.log('getting destination');
+      Location.getLocationByName(req.body.dest, function(location){
+        var dest = location;
+        console.log(dest);
+        if (!ori){
+          console.log('Origin: {' + req.body.ori +'} not in database, aborting');
+        } else if (!dest){
+          console.log('Destination: {' + req.body.dest +'} not in database, aborting');
+        } else {
+          console.log("We hav enough information to add/update a customer price");
+          var price; // do these return an object?
+          // getPriceByOriginAndDestination(ori, dest, function(priceCB){
+            // var price = priceCB;
+            console.log(price);
+            if (price){
+              // updateCustomerPrice(price,
+              //                    {origin: ori,
+              //                     destination: dest,
+              //                     weightcost: req.body.wgt,
+              //                     volumecost: req.body.vol,
+              //                     priority: req.pri},
+              //                     function(callback){ });
+            } else {
+              // insertCustomerPrice({origin: ori,
+              //                     destination: dest,
+              //                     weightcost: req.body.wgt,
+              //                     volumecost: req.body.vol,
+              //                     priority: req.pri},
+              //                     function(callback){ });
+
+            }
+            // do stuff for log file?
+            Location.getAllLocations(function(cb){
+                console.log(cb);
+                res.render('updPrice', {locations: cb});
+            });
+            return;
+          // })
+          // turn priority into something usefull
+        }
+      })
+    })
+    // we want to do something if ori and dest have no value
+  	Location.getAllLocations(function(cb){
+        console.log(cb);
+        res.render('updPrice', {locations: cb});
+    });
+  }
+});
+
+router.get("/cost", function(req, res){
+	console.log('COST');
+	// console.log('Origin: ' + req.query.ori);
+	// console.log('Destin: ' + req.query.dest);
+	// console.log('Compan: ' + req.query.cmpy);
+	// console.log('Type  : ' + req.query.pri);
+	// console.log('Weight: ' + req.query.wgt);
+	// console.log('Volume: ' + req.query.vol);
+	// console.log('Day   : ' + req.query.day);
+	// console.log('Freque: ' + req.query.freq);
+	// console.log('Durati: ' + req.query.dur);
+	// verify then do database stuff?
+	// res.render('updCost', {});
+  Location.getAllLocations(function(cbLoc){
+    Company.getAllCompanies(function(cbComp){
+      console.log(cbLoc);
+      console.log(cbComp);
+      res.render('updCost', {locations: cbLoc, companies: cbComp});
+    })
+  });
+});
+
+router.post("/cost", function(req, res){
+	console.log(req.body);
+	Location.getAllLocations(function(cbLoc){
+    Company.getAllCompanies(function(cbComp){
+      console.log(cbLoc);
+      console.log(cbComp);
+      res.render('updCost', {locations: cbLoc, companies: cbComp});
+    })
+  });
+})
 
 // Use the router routes in our application
 app.use('/', router);
