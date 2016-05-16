@@ -32,6 +32,9 @@
         <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
 
+    <script type="text/javascript" src="https://rawgit.com/nnnick/Chart.js/v2.0-dev/dist/Chart.js">
+    </script>
+
 </head>
 
 <body id="page-top">
@@ -81,6 +84,34 @@
             </div>
         </div>
     </header>
+
+    <canvas id="myChart" width="2" height="1"></canvas>
+    <script>
+        var ctx = document.getElementById("myChart");
+        var myChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+                datasets: [{
+                    label: 'Income',
+                    data: [32, 16, 8, 4, 2, 1]
+                },
+                    {
+                        label: 'Expenses',
+                        data: [1, 2, 4, 8, 16, 32]
+                    }]
+            },
+            options: {
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero:true
+                        }
+                    }]
+                }
+            }
+        });
+    </script>
 
     <section id="contact">
         <div class="container">
