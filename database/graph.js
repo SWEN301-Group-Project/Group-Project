@@ -80,11 +80,11 @@ var removeItem = function(item, array){
 }
 
 var createNodes = function(locs){
-  console.log("Creating Nodes");
   if(typeof locs != 'undefined'){
     for(var i = 0;i < locs.length; i++){
       nodes[locs[i].name] = new node(locs[i].locationid, locs[i].name);
     }
+    routes.getAllRoutes(createSegments);
   }
   else{
     console.log("Locs undefined");
@@ -92,27 +92,21 @@ var createNodes = function(locs){
 }
 
 var createSegments = function(costs){
-  console.log("Creating Segments");
-  //console.log("Nodes: " + nodes);
   if(typeof costs != 'undefined'){
-
     for(var i = 0; i < costs.length; i++){
-
-      //this.segment = new segment(nodes[costs[i].destination], nodes[costs[i].origin], costs[i].type, costs[i].weightcost, costs[i].volumecost, costs[i].maxweight, costs[i].maxvolume, costs[i].duration, costs[i].frequency, costs[i].day);
-      //segments.push(this.segment);
-      //nodes.fromName.segments.push(this.segment);
+      this.segment = new segment(nodes[costs[i].destination], nodes[costs[i].origin], costs[i].type, costs[i].weightcost, costs[i].volumecost, costs[i].maxweight, costs[i].maxvolume, costs[i].duration, costs[i].frequency, costs[i].day);
+      segments.push(this.segment);
+      nodes[costs[i].origin].segments.push(this.segment);
     }
+    testMail();
   }
   else{
-    console.log("Locs undefined: ");
+    console.log("Costs undefined: ");
   }
 }
 
 exports.loadGraph = function(){
-  location.getAllLocations(createNodes);
-  console.log(nodes);
-  routes.getAllRoutes(createSegments);
-  //printAll();
+    location.getAllLocations(createNodes);
 }
 
 var printAll = function(){
@@ -124,6 +118,12 @@ var printAll = function(){
   for(var seg in segments){
     console.log(seg);
   }
+}
+
+var testMail(){
+  var mail = {
+    this.
+  };
 }
 
 /**
