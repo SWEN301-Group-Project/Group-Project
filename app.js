@@ -71,6 +71,27 @@ router.get("/", function(req, res) {
 	res.render('index',{});
 });
 
+router.get("/logFile", function(req, res) {
+	"use strict";
+	res.render('logFile',{});
+});
+
+// Login page
+router.get("/login", function(req, res) {
+	"use strict";
+	res.render('login',{});
+});
+var password = 1234;
+router.post("/login", function(req, res) {
+	var code = req.body.code;
+	if(code != password){
+		res.render("login", {error: "Invalid code."});
+	}
+	else{
+		loggedin = true;
+		res.redirect('/logFile');
+	}
+});
 
 router.get("/graph", function(req, res) {
 	"use strict";
