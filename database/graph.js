@@ -23,12 +23,14 @@ var findRoute = function(mail){
 }
 
 var findDomesticRoute = function(mail){
+  //TODO store how we got to each node
   //Create a set of all the unvisited nodes called the unvisited set and init node values
   var unvisited = [];
   for(var node in nodes){
     unvisited.push(node);
     node.distance =  Number.POSITIVE_INFINITY;
     node.visited = false;
+    node.fromSegment = null;
   }
   this.currentNode = nodes[mail.from];
   this.currentNode.distance = 0;
@@ -42,7 +44,10 @@ var findDomesticRoute = function(mail){
           this.waitTime = findRouteWaitTime(this.today, segment);
           //calculate tentative distance. Compare tentative distance to the current assigned value
           //assign the smaller one.
-          segment.endNode.distance = min(this.currentNode.distance + segment.duration + this.waitTime, segment.endNode.distance);
+          if((this.currentNode.distance + segment.duration + this.waitTime) < segment.endNode.distance){
+            segment.endNode.distance = this.currentNode.distance + segment.duration + this.waitTime;
+            segment.endNode.fromSegment = segment;
+          }
         }
       }
       //When we are done considering all of the neighbors of the current node, mark the current node as visited and remove it from the unvisited set. A visited node will never be checked again.
@@ -50,12 +55,16 @@ var findDomesticRoute = function(mail){
       removeItem(this.currentNode, unvisited);
       //If the destination node has been visited then stop. The algorithm has finished.
       if(nodes[mail.to].visted){
-        //TODO add cost info to mail object
-        return true;
+        this.cost = 0;
+        for(while this.currentNode != nodes[mail.from]){
+          this.cost += (this.currentNode.fromSegment.weightCost * mail.weight) + (this.currentNode.fromSegment.volumeCost * mail.volume);
+          this.currentNode = this.currentNode.fromSegment.startNode;
+        }
+        return this.cost;
       }
       //if the smallest distance in the unvisited set is infinity, the graph is not connected
       if(getSmallestDistance(unvisited) == Number.POSITIVE_INFINITY){
-        return false;
+        return 0;
       }
       // Otherwise, select the unvisited node that is marked with the smallest tentative distance, set it as the new "current node", and go back to step 3.
       this.minDistance = Number.POSITIVE_INFINITY;
@@ -76,6 +85,7 @@ var findInternationalAirRoute = function(mail){
     unvisited.push(node);
     node.distance =  Number.POSITIVE_INFINITY;
     node.visited = false;
+    node.fromSegment = null;
   }
   this.currentNode = nodes[mail.from];
   this.currentNode.distance = 0;
@@ -98,12 +108,16 @@ var findInternationalAirRoute = function(mail){
       removeItem(this.currentNode, unvisited);
       //If the destination node has been visited then stop. The algorithm has finished.
       if(nodes[mail.to].visted){
-        //TODO add cost info to mail object
-        return true;
+        this.cost = 0;
+        for(while this.currentNode != nodes[mail.from]){
+          this.cost += (this.currentNode.fromSegment.weightCost * mail.weight) + (this.currentNode.fromSegment.volumeCost * mail.volume);
+          this.currentNode = this.currentNode.fromSegment.startNode;
+        }
+        return this.cost;
       }
       //if the smallest distance in the unvisited set is infinity, the graph is not connected by air routes only
       if(getSmallestDistance(unvisited) == Number.POSITIVE_INFINITY){
-        return false;
+        return 0;
       }
       // Otherwise, select the unvisited node that is marked with the smallest tentative distance, set it as the new "current node", and go back to step 3.
       this.minDistance = Number.POSITIVE_INFINITY;
@@ -144,11 +158,11 @@ var findInternationalStandardRoute = function(mail){
       //If the destination node has been visited then stop. The algorithm has finished.
       if(nodes[mail.to].visted){
         //TODO add cost info to mail object
-        return true;
+        return this.currentNode.distance;
       }
       //if the smallest distance in the unvisited set is infinity, the graph is not connected by air routes only
       if(getSmallestDistance(unvisited) == Number.POSITIVE_INFINITY){
-        return false;
+        return 0;
       }
       // Otherwise, select the unvisited node that is marked with the smallest tentative distance, set it as the new "current node", and go back to step 3.
       this.minDistance = Number.POSITIVE_INFINITY;
@@ -277,4 +291,5 @@ var node = function(id, name){
   this.segments = [];
   this.distance = Number.POSITIVE_INFINITY;
   this.visited = false;
+  this.fromSegment = null;
 }
