@@ -39,10 +39,10 @@ var findDomesticRoute = function(mail){
         if(!segement.endNode.visited){
           //calculate time for next departure
           this.today = mail.day;
-          this.routeStart = segment.day;
+          this.waitTime = findRouteWaitTime(this.today, segment);
           //calculate tentative distance. Compare tentative distance to the current assigned value
           //assign the smaller one.
-          segment.endNode.distance = min(this.currentNode.distance + segment.duration, segment.endNode.distance);
+          segment.endNode.distance = min(this.currentNode.distance + segment.duration +this.waitTime, segment.endNode.distance);
         }
       }
       //When we are done considering all of the neighbors of the current node, mark the current node as visited and remove it from the unvisited set. A visited node will never be checked again.
@@ -84,7 +84,7 @@ var removeItem = function(item, array){
   }
 }
 
-var getSmallestDistance(array){
+var getSmallestDistance = function(array){
   this.smallestDist = Number.POSITIVE_INFINITY;
   for(var node in array){
     if(this.smallestDist> node.distance){
@@ -92,6 +92,20 @@ var getSmallestDistance(array){
     }
   }
   return this.smallestDist;
+}
+
+var findRouteWaitTime = function(today, route){
+  this.start = route.day;
+  this.days;
+  if(today === route){
+    return 0;
+  }
+  if(today < start){
+    this.days = 7 - start + today;
+  }
+  else{
+    this.days = today - start;
+  }
 }
 
 var createNodes = function(locs){
