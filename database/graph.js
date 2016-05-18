@@ -34,12 +34,11 @@ var findDomesticRoute = function(mail){
   this.currentNode.distance = 0;
 
   while(true){
-    //TODO checks weight & vol limits
     //For the current node consider all of its unvisited neighbors
       for(var segment in this.currentNode.segments){
-        if(!segement.endNode.visited){
+        if(!segement.endNode.visited && segment.maxWeight >= mail.weight && segment.maxVolume >= mail.volume){
           //calculate time for next departure
-          this.today = mail.day;
+          this.today = mail.date.getDay();
           this.waitTime = findRouteWaitTime(this.today, segment);
           //calculate tentative distance. Compare tentative distance to the current assigned value
           //assign the smaller one.
@@ -84,10 +83,10 @@ var findInternationalAirRoute = function(mail){
   while(true){
     //For the current node consider all of its unvisited neighbors
       for(var segment in this.currentNode.segments){
-        if(!segement.endNode.visited && segment.type === "Air"){
+        if(!segement.endNode.visited && segment.type === "Air" && segment.maxWeight >= mail.weight && segment.maxVolume >= mail.volume){
           //TODO check type format
           //calculate time for next departure
-          this.today = mail.day;
+          this.today = mail.date.getDay();
           this.waitTime = findRouteWaitTime(this.today, segment);
           //calculate tentative distance. Compare tentative distance to the current assigned value
           //assign the smaller one.
@@ -102,7 +101,7 @@ var findInternationalAirRoute = function(mail){
         //TODO add cost info to mail object
         return true;
       }
-      //if the smallest distance in the unvisited set is infinity, the graph is not connected
+      //if the smallest distance in the unvisited set is infinity, the graph is not connected by air routes only
       if(getSmallestDistance(unvisited) == Number.POSITIVE_INFINITY){
         return false;
       }
@@ -117,7 +116,46 @@ var findInternationalAirRoute = function(mail){
 }
 
 var findInternationalStandardRoute = function(mail){
-  //ignore air unless no other options
+  //Create a set of all the unvisited nodes called the unvisited set and init node values
+  var unvisited = [];
+  for(var node in nodes){
+    unvisited.push(node);
+    node.distance =  Number.POSITIVE_INFINITY;
+    node.visited = false;
+  }
+  this.currentNode = nodes[mail.from];
+  this.currentNode.distance = 0;
+
+  while(true){
+    //For the current node consider all of its unvisited neighbors
+      for(var segment in this.currentNode.segments){
+        if(!segement.endNode.visited && (segment.type === "Sea" || segment.type === "Land" ) && segment.maxWeight >= mail.weight && segment.maxVolume >= mail.volume){
+          //TODO check type format
+          //calculate tentative distance. Compare tentative distance to the current assigned value
+          //assign the smaller one.
+          segment.endNode.distance = min(this.currentNode.distance + segment.duration, segment.endNode.distance);
+        }
+      }
+      //When we are done considering all of the neighbors of the current node, mark the current node as visited and remove it from the unvisited set. A visited node will never be checked again.
+      this.currentNode.visited = true;
+      removeItem(this.currentNode, unvisited);
+      //If the destination node has been visited then stop. The algorithm has finished.
+      if(nodes[mail.to].visted){
+        //TODO add cost info to mail object
+        return true;
+      }
+      //if the smallest distance in the unvisited set is infinity, the graph is not connected by air routes only
+      if(getSmallestDistance(unvisited) == Number.POSITIVE_INFINITY){
+        return false;
+      }
+      // Otherwise, select the unvisited node that is marked with the smallest tentative distance, set it as the new "current node", and go back to step 3.
+      this.minDistance = Number.POSITIVE_INFINITY;
+      for(var node in unvisted){
+        if(node.distance< minDistance){
+          this.currentNode = node;
+        }
+      }
+  }
 }
 
 var removeItem = function(item, array){
@@ -130,7 +168,7 @@ var removeItem = function(item, array){
 var getSmallestDistance = function(array){
   this.smallestDist = Number.POSITIVE_INFINITY;
   for(var node in array){
-    if(this.smallestDist> node.distance){
+    if(this.smallestDist > node.distance){
       this.smallestDist = node.distance;
     }
   }
