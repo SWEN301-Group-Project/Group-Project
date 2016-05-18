@@ -1,5 +1,6 @@
 var routes = require('./routes.js');
 var location = require('./location.js');
+var mail = require('./mail.js');
 var customerprice = require('./customerprice.js');
 
 var segments = [];
@@ -56,7 +57,7 @@ var findDomesticRoute = function(mail){
       //If the destination node has been visited then stop. The algorithm has finished.
       if(nodes[mail.to].visted){
         this.cost = 0;
-        for(while this.currentNode != nodes[mail.from]){
+        while(this.currentNode != nodes[mail.from]){
           this.cost += (this.currentNode.fromSegment.weightCost * mail.weight) + (this.currentNode.fromSegment.volumeCost * mail.volume);
           this.currentNode = this.currentNode.fromSegment.startNode;
         }
@@ -109,7 +110,7 @@ var findInternationalAirRoute = function(mail){
       //If the destination node has been visited then stop. The algorithm has finished.
       if(nodes[mail.to].visted){
         this.cost = 0;
-        for(while this.currentNode != nodes[mail.from]){
+        while(this.currentNode != nodes[mail.from]){
           this.cost += (this.currentNode.fromSegment.weightCost * mail.weight) + (this.currentNode.fromSegment.volumeCost * mail.volume);
           this.currentNode = this.currentNode.fromSegment.startNode;
         }
@@ -249,8 +250,10 @@ var printAll = function(){
 }
 
 var testMail = function(){
-  var mail = {
-  };
+  this.mailList = mail.getAllMail();
+  for(var mail in this.mailList){
+    console.log(findRoute(mail));
+  }
 }
 
 /**
