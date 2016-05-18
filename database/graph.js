@@ -5,19 +5,19 @@ var customerprice = require('./customerprice.js');
 var segments = [];
 var nodes = {};
 var prices = [];
-
+var days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
 /**
 * @param {mail} mail being delivered
 */
 var findRoute = function(mail){
-  if(mail.priority === PRIORITY.DOMESTIC_AIR || mail.priority === PRIORITY.DOMESTIC_STANDARD){
+  if(mail.priority === "DOMESTIC_AIR" || mail.priority === "DOMESTIC_STANDARD"){
     return findDomesticRoute(mail);
   }
-  if(mail.priority === PRIORITY.INTERNATIONAL_AIR){
+  if(mail.priority === "INTERNATIONAL_AIR"){
     return findInternationalAirRoute(mail);
   }
-  if(mail.priority === PRIORITY.INTERNATIONAL_STANDARD){
+  if(mail.priority === "INTERNATIONAL_STANDARD"){
     return findInternationalStandardRoute(mail);
   }
 }
@@ -30,7 +30,6 @@ var findDomesticRoute = function(mail){
     node.distance =  Number.POSITIVE_INFINITY;
     node.visited = false;
   }
-  //this.locName = mail.from;
   this.currentNode = nodes[mail.from];
   this.currentNode.distance = 0;
 
@@ -38,6 +37,9 @@ var findDomesticRoute = function(mail){
     //For the current node consider all of its unvisited neighbors
       for(var segment in this.currentNode.segments){
         if(!segement.endNode.visited){
+          //calculate time for next departure
+          this.today = mail.day;
+          this.routeStart = segment.day;
           //calculate tentative distance. Compare tentative distance to the current assigned value
           //assign the smaller one.
           segment.endNode.distance = min(this.currentNode.distance + segment.duration, segment.endNode.distance);
@@ -48,8 +50,12 @@ var findDomesticRoute = function(mail){
       removeItem(this.currentNode, unvisited);
       //If the destination node has been visited then stop. The algorithm has finished.
       if(nodes[mail.to].visted){
-        //TODO return actual route
-        return;
+        //TODO add cost info to mail object
+        return true;
+      }
+      //if the smallest distance in the unvisited set is infinity, the graph is not connected
+      if(getSmallestDistance(unvisited) == Number.POSITIVE_INFINITY){
+        return false;
       }
       // Otherwise, select the unvisited node that is marked with the smallest tentative distance, set it as the new "current node", and go back to step 3.
       this.minDistance = Number.POSITIVE_INFINITY;
@@ -58,7 +64,6 @@ var findDomesticRoute = function(mail){
           this.currentNode = node;
         }
       }
-      //TODO check if destination can actually be reached
   }
 
 
@@ -79,37 +84,61 @@ var removeItem = function(item, array){
   }
 }
 
+var getSmallestDistance(array){
+  this.smallestDist = Number.POSITIVE_INFINITY;
+  for(var node in array){
+    if(this.smallestDist> node.distance){
+      this.smallestDist = node.distance;
+    }
+  }
+  return this.smallestDist;
+}
+
 var createNodes = function(locs){
   if(typeof locs != 'undefined'){
     for(var i = 0;i < locs.length; i++){
-      nodes[locs[i].name] = new node(locs[i].id, locs[i].name);
+      nodes[locs[i].name] = new node(locs[i].locationid, locs[i].name);
     }
+    routes.getAllRoutes(createSegments);
+  }
+  else{
+    console.log("Locs undefined");
   }
 }
 
 var createSegments = function(costs){
-  if(typeof locs != 'undefined'){
+  if(typeof costs != 'undefined'){
     for(var i = 0; i < costs.length; i++){
-      this.segment = new segment(nodes[costs[i].destination], nodes[costs[i].origin], costs[i].type, costs[i].weightcost, costs[i].volumecost, costs[i].maxweight, costs[i].maxVolume, costs[i].duration, costs[i].frequency, costs[i].day);
+      this.segment = new segment(nodes[costs[i].destination], nodes[costs[i].origin], costs[i].type, costs[i].weightcost, costs[i].volumecost, costs[i].maxweight, costs[i].maxvolume, costs[i].duration, costs[i].frequency, costs[i].day);
       segments.push(this.segment);
-      nodes.fromName.segments.push(this.segment);
+      nodes[costs[i].origin].segments.push(this.segment);
     }
+    testMail();
+  }
+  else{
+    console.log("Costs undefined: ");
   }
 }
 
 exports.loadGraph = function(){
-  location.getAllLocations(createNodes);
-  routes.getAllRoutes(createSegments);
+    location.getAllLocations(createNodes);
 }
 
-exports.printAll = function(){
-  console.log("Printing: ");
+var printAll = function(){
+  console.log("Printing Nodes: ");
   for(var node in nodes){
     console.log(node);
   }
+  console.log("Printing Segments: ");
   for(var seg in segments){
     console.log(seg);
   }
+}
+
+var testMail(){
+  var mail = {
+    this.
+  };
 }
 
 /**
