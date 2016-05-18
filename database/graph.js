@@ -70,11 +70,53 @@ var findDomesticRoute = function(mail){
 }
 
 var findInternationalAirRoute = function(mail){
+  //Create a set of all the unvisited nodes called the unvisited set and init node values
+  var unvisited = [];
+  for(var node in nodes){
+    unvisited.push(node);
+    node.distance =  Number.POSITIVE_INFINITY;
+    node.visited = false;
+  }
+  this.currentNode = nodes[mail.from];
+  this.currentNode.distance = 0;
 
+  while(true){
+    //For the current node consider all of its unvisited neighbors
+      for(var segment in this.currentNode.segments){
+        if(!segement.endNode.visited && segment.type === "Air"){
+          //TODO check type format
+          //calculate time for next departure
+          this.today = mail.day;
+          this.waitTime = findRouteWaitTime(this.today, segment);
+          //calculate tentative distance. Compare tentative distance to the current assigned value
+          //assign the smaller one.
+          segment.endNode.distance = min(this.currentNode.distance + segment.duration + this.waitTime, segment.endNode.distance);
+        }
+      }
+      //When we are done considering all of the neighbors of the current node, mark the current node as visited and remove it from the unvisited set. A visited node will never be checked again.
+      this.currentNode.visited = true;
+      removeItem(this.currentNode, unvisited);
+      //If the destination node has been visited then stop. The algorithm has finished.
+      if(nodes[mail.to].visted){
+        //TODO add cost info to mail object
+        return true;
+      }
+      //if the smallest distance in the unvisited set is infinity, the graph is not connected
+      if(getSmallestDistance(unvisited) == Number.POSITIVE_INFINITY){
+        return false;
+      }
+      // Otherwise, select the unvisited node that is marked with the smallest tentative distance, set it as the new "current node", and go back to step 3.
+      this.minDistance = Number.POSITIVE_INFINITY;
+      for(var node in unvisted){
+        if(node.distance< minDistance){
+          this.currentNode = node;
+        }
+      }
+  }
 }
 
 var findInternationalStandardRoute = function(mail){
-
+  //ignore air unless no other options
 }
 
 var removeItem = function(item, array){
@@ -95,6 +137,7 @@ var getSmallestDistance = function(array){
 }
 
 var findRouteWaitTime = function(today, route){
+  //TODO mail's day is in date form
   this.start = route.day;
   this.days;
   if(today === route){
@@ -106,6 +149,7 @@ var findRouteWaitTime = function(today, route){
   else{
     this.days = today - start;
   }
+  return (route.frequency - ((24 * this.days) % route.frequency))
 }
 
 var createNodes = function(locs){
