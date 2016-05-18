@@ -34,6 +34,7 @@ var findDomesticRoute = function(mail){
   this.currentNode.distance = 0;
 
   while(true){
+    //TODO checks weight & vol limits
     //For the current node consider all of its unvisited neighbors
       for(var segment in this.currentNode.segments){
         if(!segement.endNode.visited){
@@ -193,9 +194,8 @@ var printAll = function(){
   }
 }
 
-var testMail(){
+var testMail = function(){
   var mail = {
-    this.
   };
 }
 
