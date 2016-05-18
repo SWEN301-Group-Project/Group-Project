@@ -11,13 +11,13 @@ var days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", 
 * @param {mail} mail being delivered
 */
 var findRoute = function(mail){
-  if(mail.priority === "DOMESTIC_AIR" || mail.priority === "DOMESTIC_STANDARD"){
+  if(mail.priority.toUppercase() === "DOMESTIC AIR" || mail.priority === "DOMESTIC STANDARD"){
     return findDomesticRoute(mail);
   }
-  if(mail.priority === "INTERNATIONAL_AIR"){
+  if(mail.priority.toUppercase() === "INTERNATIONAL AIR"){
     return findInternationalAirRoute(mail);
   }
-  if(mail.priority === "INTERNATIONAL_STANDARD"){
+  if(mail.priority.toUppercase() === "INTERNATIONAL STANDARD"){
     return findInternationalStandardRoute(mail);
   }
 }
