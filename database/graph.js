@@ -42,7 +42,7 @@ var findDomesticRoute = function(mail){
           this.waitTime = findRouteWaitTime(this.today, segment);
           //calculate tentative distance. Compare tentative distance to the current assigned value
           //assign the smaller one.
-          segment.endNode.distance = min(this.currentNode.distance + segment.duration +this.waitTime, segment.endNode.distance);
+          segment.endNode.distance = min(this.currentNode.distance + segment.duration + this.waitTime, segment.endNode.distance);
         }
       }
       //When we are done considering all of the neighbors of the current node, mark the current node as visited and remove it from the unvisited set. A visited node will never be checked again.
@@ -116,6 +116,7 @@ var findInternationalAirRoute = function(mail){
 }
 
 var findInternationalStandardRoute = function(mail){
+  //TODO allow use of air if no other option
   //Create a set of all the unvisited nodes called the unvisited set and init node values
   var unvisited = [];
   for(var node in nodes){
@@ -131,9 +132,10 @@ var findInternationalStandardRoute = function(mail){
       for(var segment in this.currentNode.segments){
         if(!segement.endNode.visited && (segment.type === "Sea" || segment.type === "Land" ) && segment.maxWeight >= mail.weight && segment.maxVolume >= mail.volume){
           //TODO check type format
-          //calculate tentative distance. Compare tentative distance to the current assigned value
+          //calculate tentative cost. Compare tentative distance to the current assigned value
           //assign the smaller one.
-          segment.endNode.distance = min(this.currentNode.distance + segment.duration, segment.endNode.distance);
+          this.cost = (segement.weightCost * mail.weight) + (segment.volumeCost * mail.volume);
+          segment.endNode.distance = min(this.currentNode.distance + this.cost, segment.endNode.distance);
         }
       }
       //When we are done considering all of the neighbors of the current node, mark the current node as visited and remove it from the unvisited set. A visited node will never be checked again.
