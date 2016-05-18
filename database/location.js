@@ -32,7 +32,7 @@ exports.getAllLocations = function(callback){
 //TODO: ask group if they want array of locations rather than the first location
 exports.getLocationByName = function(locationName, callback){
     var stmt = "SELECT locationid, name FROM locations WHERE name = $locationName";
-    db.get(stmt, {$locationName: locationName.toLowerCase()}, function(err, location){
+    db.get(stmt, {$locationName: locationName}, function(err, location){
         if(err){console.log("Error loading location: " + err); callback();}
         else if (callback){
             callback(location);

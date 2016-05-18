@@ -75,7 +75,7 @@ exports.getRouteByOrigin = function(originid, callback){
     var stmt = "SELECT routeid, company, type, ORIGIN.name AS origin, DEST.name AS destination, weightcost, volumecost, maxweight, maxvolume, frequency, duration, day "
     			 + "FROM routes "
     			 + "LEFT JOIN locations AS ORIGIN ON routes.origin = ORIGIN.locationid "
-    			 + "LEFT JOIN locations AS DEST ON routes.origin = DEST.locationid "
+    			 + "LEFT JOIN locations AS DEST ON routes.destination = DEST.locationid "
     			 + "WHERE routes.origin = $originid";
     			 
     db.all(stmt, {$originid: originid}, function(err, rows){
@@ -94,7 +94,7 @@ exports.getRouteByOriginAndDestination = function(originid, destinationid, callb
     var stmt = "SELECT routeid, company, type, ORIGIN.name AS origin, DEST.name AS destination, weightcost, volumecost, maxweight, maxvolume, frequency, duration, day "
     			 + "FROM routes "
     			 + "LEFT JOIN locations AS ORIGIN ON routes.origin = ORIGIN.locationid "
-    			 + "LEFT JOIN locations AS DEST ON routes.origin = DEST.locationid "
+    			 + "LEFT JOIN locations AS DEST ON routes.destination = DEST.locationid "
     			 + "WHERE routes.origin = $originid AND routes.destination = $destinationid";
     			 
     db.all(stmt, {$originid: originid, $destinationid: destinationid}, function(err, rows){
