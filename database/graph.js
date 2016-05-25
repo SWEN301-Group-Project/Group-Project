@@ -120,11 +120,11 @@ var printAll = function(){
   }
 }
 
-var testMail(){
+/*var testMail(){
   var mail = {
     this.
   };
-}
+}*/
 
 /**
 * @param {int} id Unique identifier

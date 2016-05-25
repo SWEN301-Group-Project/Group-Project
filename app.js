@@ -82,15 +82,22 @@ router.get("/login", function(req, res) {
 	res.render('login',{});
 });
 var password = 1234;
+var loggedin = false;
 router.post("/login", function(req, res) {
 	var code = req.body.code;
 	if(code != password){
+        loggedin = false;
 		res.render("login", {error: "Invalid code."});
 	}
 	else{
 		loggedin = true;
 		res.redirect('/logFile');
 	}
+});
+
+router.get("/logout",function(request,response) {
+    loggedin = false;
+    renderHomepage(request, response);
 });
 
 router.get("/graph", function(req, res) {
