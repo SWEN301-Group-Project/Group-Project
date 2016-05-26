@@ -25,16 +25,15 @@
 
 var express = require('express'),
     bodyParser = require('body-parser'),
-	  cookieParser = require('cookie-parser'),
+    cookieParser = require('cookie-parser'),
     nunjucks = require('nunjucks'),
     assert = require('assert'),
-	  session = require('express-session'),
+    session = require('express-session'),
     Database = require('./database/database').Database,
     //following are used to interact with the database.
     Company = require('./database/company'),
     Mail = require('./database/mail'),
-    Location = require('./database/location');
-
+    Location = require('./database/location'),
     Graph = require('./database/graph');
 
 
@@ -65,6 +64,8 @@ env.addFilter("date", nunjucksDate);
 
 var router = express.Router();
 var database = new Database();
+
+
 // Homepage
 router.get("/", function(req, res) {
 	"use strict";
@@ -72,89 +73,89 @@ router.get("/", function(req, res) {
 });
 
 
-router.get("/graph", function(req, res) {
-	"use strict";
-  Graph.loadGraph();
-  res.render('index',{});
+router.get("/graph", function (req, res) {
+    "use strict";
+    Graph.loadGraph();
+    res.render('index', {});
 });
 
 
 router.get("/locations", function(req, res) {
 	"use strict";
-  Location.getAllLocations(function(result){
-  	console.log(result);
-  	for(var i = 0; i < result.length; i++){
-  		console.log(result[0].name);
-    }
-  });
-  /*
-  Other examples
-  */
-  /*
-  Location.getAllLocations(function(locations){
-    console.log(locations);
-  })
-  */
+    Location.getAllLocations(function(result){
+        console.log(result);
+        for (var i = 0; i < result.length; i++) {
+            console.log(result[i].name);
+        }
+    });
 });
 
 router.get("/routes", function(req, res) {
 	"use strict";
 
-	var route = {
-	 company: 2,
-    origin: 1,
-    destination: 2,
-    type: Air/Land/Sea,
-    weightcost: 5,
-    volumecost: 6,
-    maxweight: 350,
-    maxvolume: 50,
-    duration: 16,
-    frequency: 36,
-    day: 0
-	};
-  Location.getAllLocations(function(result){
-  	console.log(result)
-  });
-  /*
-  Other examples
-  */
-  /*
-  Location.getAllLocations(function(locations){
-    console.log(locations);
-  })
-  */
+    var route = {
+        company: 2,
+        origin: 1,
+        destination: 2,
+        type: Air / Land / Sea,
+        weightcost: 5,
+        volumecost: 6,
+        maxweight: 350,
+        maxvolume: 50,
+        duration: 16,
+        frequency: 36,
+        day: 0
+    };
+    Location.getAllLocations(function (result) {
+        console.log(result)
+        res.render(index);
+    });
+});
+
+router.post("/addMail", function(req,res, next){
+   "use strict";
+    console.log(req.body);
+    var mail = req.body;
+
+    //error check
+    //destination and origin cannot be the same
+    if (mail.destination == mail.origin) {
+        console.log("error");
+        Location.getAllLocations(function (locations) {
+            Mail.getAllMail(function (mails) {
+                res.render('mails', {mailActive: true, mail: mail, mails: mails, locations: locations});
+            });
+        });
+    } else {
+        //perform error checking such as determine if route can be calculated
+        /*
+         If route can be calculated then update the business and customer cost
+         Then add mail to event and insert into database
+         */
+        Mail.insertMail(mail, function (result) {
+            console.log("mail entered");
+            console.log(result);
+            Location.getAllLocations(function(locations){
+                Mail.getAllMail(function(mails){
+                    res.render('mails', {mailActive: true, mailAdded: true, locations: locations, mails: mails});
+                });
+            });
+
+        });
+
+    }
+
 });
 
 router.get("/mails", function(req, res) {
 	"use strict"
 
-  var mail = {
-    origin: 1,
-    destination: 2,
-    weight: 50,
-    volume: 20,
-    priority: "Land",
-    totalcustomercost: 500,
-    totalbusinesscost: 100
-  };
-  var date = new Date();
-
-
-  Mail.getAllMail(function(result){
-    console.log(result);
-
-  });
-  /*
-  Other examples
-  */
-  /*
-  var date = new Date().toISOString();
-  Mail.getMailByDate(date, function(rows){
-    console.log(rows);
-  })
-  */
-
+    Location.getAllLocations(function(locations){
+        console.log(locations);
+        Mail.getAllMail(function(mails){
+            res.render('mails', {mailActive:true, mails:mails, locations:locations});
+        });
+    });
 });
 
 router.get("/price", function(req, res){
