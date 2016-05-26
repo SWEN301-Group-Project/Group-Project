@@ -12,13 +12,13 @@ var days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", 
 * @param {mail} mail being delivered
 */
 var findRoute = function(mail){
-  if(mail.priority.toUppercase() === "DOMESTIC AIR" || mail.priority === "DOMESTIC STANDARD"){
+  if(mail.priority.toUpperCase() === "DOMESTIC AIR" || mail.priority.toUpperCase() === "DOMESTIC STANDARD"){
     return findDomesticRoute(mail);
   }
-  if(mail.priority.toUppercase() === "INTERNATIONAL AIR"){
+  if(mail.priority.toUpperCase() === "INTERNATIONAL AIR"){
     return findInternationalAirRoute(mail);
   }
-  if(mail.priority.toUppercase() === "INTERNATIONAL STANDARD"){
+  if(mail.priority.toUpperCase() === "INTERNATIONAL STANDARD"){
     return findInternationalStandardRoute(mail);
   }
 }
@@ -250,9 +250,15 @@ var printAll = function(){
 }
 
 var testMail = function(){
-  this.mailList = mail.getAllMail();
-  for(var mail in this.mailList){
-    console.log(findRoute(mail));
+  mail.getAllMail(mailFunction);
+}
+
+var mailFunction = function(mailList){
+  for(var mail in mailList){
+    //TODO mail location ids
+    console.log(mailList);
+    console.log(mail);
+    console.log(findRoute(mailList[mail]));
   }
 }
 
