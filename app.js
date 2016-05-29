@@ -32,7 +32,7 @@ var express = require('express'),
     Database = require('./database/database').Database,
     //following are used to interact with the database.
     Company = require('./database/company'),
-    Mail = require('./database/mail'),
+    Mail = require('./database/mail').Mail,
     Location = require('./database/location'),
     Graph = require('./database/graph');
 
@@ -63,7 +63,14 @@ nunjucksDate.setDefaultFormat('YYYY-MM-Do, hh:mm:ss');
 env.addFilter("date", nunjucksDate);
 
 var router = express.Router();
-var database = new Database();
+
+
+/**
+ * Initialise the database.
+ */
+var database = new Database().init();
+Mail = new Mail();
+
 
 
 // Homepage
@@ -97,7 +104,7 @@ router.get("/routes", function(req, res) {
         company: 2,
         origin: 1,
         destination: 2,
-        type: Air / Land / Sea,
+        type: 'Air / Land / Sea',
         weightcost: 5,
         volumecost: 6,
         maxweight: 350,
