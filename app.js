@@ -124,7 +124,7 @@ router.post("/addMail", function(req,res, next){
     console.log(req.body);
     var mail = req.body;
 
-    //error check
+    //server-side error checking
     //destination and origin cannot be the same
     if (mail.destination == mail.origin) {
         console.log("error");
@@ -169,25 +169,24 @@ router.get("/price", function(req, res){
   console.log('PRICE: GET');
   Location.getAllLocations(function(cb){
       console.log(cb);
-      res.render('updPrice', {locations: cb});
+      res.render('updPrice', {priceActive: true, locations: cb});
   });
 });
 
 router.post("/price", function(req, res){
-  console.log("PRICE: POST");
-	console.log(req.body);
+    console.log("PRICE: POST");
+    console.log(req.body);
   var err = []
-  if (!req.body.ori) {err.push('Origin cannot be Blank.');}
-  if (!req.body.dest) {err.push('Destination cannot be Blank.');}
+  if (!req.body.sourceLocation) {err.push('Origin cannot be Blank.');}
+  if (!req.body.destLocation) {err.push('Destination cannot be Blank.');}
   if (!req.body.wgt) {err.push('Weight Price cannot be Blank.');}
   if (!req.body.vol) {err.push('Volume Price cannot be Blank.');}
   console.log(err);
   if (err.length) {
     Location.getAllLocations(function(cb){
       console.log(cb);
-      res.render('updPrice', {error: err, locations: cb});
+      res.render('updPrice', {priceActive: true, error: err, locations: cb});
     });
-    // res.render('updPrice', {error: err});
   } else {
     // this means that there is nothing wrong, so we can be do the actual work
     var ori, dest;
@@ -229,7 +228,7 @@ router.post("/price", function(req, res){
             // do stuff for log file?
             Location.getAllLocations(function(cb){
                 console.log(cb);
-                res.render('updPrice', {locations: cb});
+                res.render('updPrice', {priceActive: true, locations: cb});
             });
             return;
           // })
@@ -240,7 +239,7 @@ router.post("/price", function(req, res){
     // we want to do something if ori and dest have no value
   	Location.getAllLocations(function(cb){
         console.log(cb);
-        res.render('updPrice', {locations: cb});
+        res.render('updPrice', {priceActive: true, locations: cb});
     });
   }
 });
