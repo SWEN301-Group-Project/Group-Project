@@ -91,10 +91,11 @@ exports.getRouteByOrigin = function(originid, callback){
 //returns route objects where origin == origin parameter AND destination == destination parameter.
 //The paramters: origin and destination must be location id.
 exports.getRouteByOriginAndDestination = function(originid, destinationid, callback){
-    var stmt = "SELECT routeid, company, type, ORIGIN.name AS origin, DEST.name AS destination, weightcost, volumecost, maxweight, maxvolume, frequency, duration, day "
+    var stmt = "SELECT routeid, company, routes.type, ORIGIN.name AS origin, DEST.name AS destination, weightcost, volumecost, maxweight, maxvolume, frequency, duration, day, COMP.name "
     			 + "FROM routes "
     			 + "LEFT JOIN locations AS ORIGIN ON routes.origin = ORIGIN.locationid "
     			 + "LEFT JOIN locations AS DEST ON routes.destination = DEST.locationid "
+                 + "LEFT JOIN companies AS COMP ON routes.company = COMP.companyid "
     			 + "WHERE routes.origin = $originid AND routes.destination = $destinationid";
     			 
     db.all(stmt, {$originid: originid, $destinationid: destinationid}, function(err, rows){
