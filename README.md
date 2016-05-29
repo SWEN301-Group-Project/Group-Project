@@ -7,7 +7,7 @@ Testing a website template for [SWEN301-Group-Project](https://github.com/SWEN30
 To begin development:   
 1. run: `npm install`     
 2. Install node onto system   
-5. run: `npm statrt` or `node app.js` to launch the web app
+5. run: `npm start` or `node app.js` to launch the web app
 
 ## Testing
 
