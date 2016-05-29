@@ -100,7 +100,7 @@
     </section>
 -->
 
-<!-- PRICE UPDATE STUFF IS HERE -->
+<!-- COST UPDATE STUFF IS HERE -->
 
     <section id="costUpdate">
         <div class="container">
@@ -108,12 +108,17 @@
                 <div class="col-lg-12 text-center">
                     <h2 class="section-heading">Update Transport Cost</h2>
                     <hr class="primary">
+                    {% if error %}
+                        {% for row in error -%}
+                            <p style='color: red'> {{ row }} </p>
+                        {% endfor %}
+                    {% endif %}
                 </div>
             </div>
         </div>
         <div class="container">
             <div class="row">  <!-- action="/t" method="post" -->
-                <form name="costUpdate" method="post" action="/price">
+                <form name="costUpdate" method="post" action="/cost">
                     <div class="form-group">
                         <label for="SourceLocation">Origin</label>
                         <input name="ori" type="text" list="locSuggest" class="form-control" id="SourceLocation" placeholder="Origin">
@@ -138,14 +143,7 @@
                     </div>
                     <fieldset class="form-group">
                         <label for="company">Transport Company</label>
-                        {# <select class="form-control" id="company" name="cmpy">
-                            <option>1</option>
-                            <option>2</option>
-                            <option>3</option>
-                            <option>4</option>
-                            <option>5</option>
-                        </select> #}
-                        <input name="dest" type="text" list="compSuggest" class="form-control" id="DestLocation" placeholder="Destination">
+                        <input name="cmpy" type="text" list="compSuggest" class="form-control" id="company" placeholder="Destination">
                         {% if companies %}
                         <datalist id="compSuggest">
                             {% for row in companies -%}
@@ -158,24 +156,42 @@
                     <label for="land">Transport Type:</label>
                     <div class="radio">
                         <label>
-                            <input type="radio" name="pri" id="land" value="land" checked>
+                            <input type="radio" name="pri" id="land" value="Land" checked>
                             Land
                         </label>
                     </div>
                     <div class="radio">
                         <label>
-                            <input type="radio" name="pri" id="air" value="air">
+                            <input type="radio" name="pri" id="air" value="Air">
                             Air
                         </label>
                     </div>
                         <label>New Costs:</label></br>
                     <div class="form-group">
                         <label for="WeightPrice">Weight</label>
-                        <input name="wgt" type="number" class="form-control" id="WeightPrice" placeholder="Weight">
+                        <div class="input-group">
+                            <div class="input-group-addon"> $ </div>
+                            <input name="wgt" type="number" class="form-control" id="WeightPrice" placeholder="Weight" min='0'>
+                        </div>
                         <label for="VolPrice">Volume</label>
-                        <input name="vol" type="number" class="form-control" id="VolPrice" placeholder="Volume">
+                        <div class="input-group">
+                            <div class="input-group-addon"> $ </div>
+                            <input name="vol" type="number" class="form-control" id="VolPrice" placeholder="Volume" min='0'>
+                        </div>
                     </div>
-
+                        <label>New Limits:</label></br>
+                    <div class="form-group">
+                        <label for="WeightLimit">Weight</label>
+                        <div class="input-group">
+                            <div class="input-group-addon"> Kg </div>
+                            <input name="mwgt" type="number" class="form-control" id="WeightLimit" placeholder="Weight" min='0'>
+                        </div>
+                        <label for="VolLimit">Volume</label>
+                        <div class="input-group">
+                            <div class="input-group-addon"> Kg </div>
+                            <input name="mvol" type="number" class="form-control" id="VolLimit" placeholder="Volume" min='0'>
+                        </div>
+                    </div>
                     <fieldset class="form-group">
                         <label for="day">Departure Day</label>
                         <select class="form-control" id="day" name="day">
@@ -183,16 +199,22 @@
                             <option>Monday</option>
                             <option>Tuesday</option>
                             <option>Wednesday</option>
-                            <option>Thurdays</option>
+                            <option>Thursday</option>
                             <option>Friday</option>
                             <option>Saturday</option>
                         </select>
                     </fieldset>
                     <div class="form-group">
                         <label for="Frequency">Departure Frequency</label>
-                        <input name="freq" type="number" class="form-control" id="Frequency" placeholder="Frequency">
+                        <div class="input-group">
+                            <div class="input-group-addon"> Hours </div>
+                            <input name="freq" type="number" class="form-control" id="Frequency" placeholder="Frequency" min='0'>
+                        </div> 
                         <label for="Duration">Transport Duration</label>
-                        <input name="dur" type="number" class="form-control" id="Duration" placeholder="Duration">
+                        <div class="input-group">
+                            <div class="input-group-addon"> Hours </div>
+                            <input name="dur" type="number" class="form-control" id="Duration" placeholder="Duration" min='0'>
+                        </div>
                     </div>
 
                     <button type="submit" class="btn btn-primary">Submit</button>
@@ -218,6 +240,86 @@
 
     <!-- Custom Theme JavaScript -->
     <script src="/static/js/creative.js"></script>
+
+    <script type="text/javascript" language="JavaScript">
+        var origin;
+        var destination;
+        var company;
+        var type = "Land";
+        var route;
+
+        var routes;
+
+        $("#DestLocation").on('change', function(event){
+            console.log(event.target.value);
+            destination = event.target.value;
+            request();
+            change();
+        });
+
+        $("#SourceLocation").on('change', function(event){
+            console.log(event.target.value);
+            origin = event.target.value;
+            request();
+            change();
+        });
+
+        $('#company').on('change', function(event){
+            console.log(event.target.value);
+            company = event.target.value;
+            change();
+        });
+
+        $("input[name=pri]").on('change', function(event){
+            console.log(event.target.value);
+            type = event.target.value;
+            change();
+        });
+
+        function change(){
+            if (type && company && routes){
+                route = routes.find(function(search){
+                    return search.type === type && search.name === company;
+                });
+                // console.log(route);
+                if (route) {
+                    // cost vol + weight
+                    $("#WeightPrice").val(route.weightcost);
+                    $("#VolPrice").val(route.volumecost);
+                    // limit vol + weight
+                    $("#WeightLimit").val(route.maxweight);
+                    $("#VolLimit").val(route.maxvolume);
+                    // day
+                    $("#day").val(route.day);
+                    // freq
+                    $("#Frequency").val(route.frequency);
+                    // duration
+                    $("#Duration").val(route.duration);
+                }
+            }
+        }
+
+        function request(){
+            if (origin && destination){
+                console.log('both')
+                $.ajax({
+                    type: "POST",
+                    url: '/cost/getcost/' + origin + '/' + destination,
+                    contentType: "application/json; charset=utf-8",
+                    success: function(data){
+                        console.log(data);
+                        routes = data;
+                        // $("#VolPrice").val(data.volumecost);
+                        // $("#WeightPrice").val(data.weightcost);
+                    },
+                    error: function(){
+                        console.log('problems getting price')
+                    }
+                });
+            }
+        }
+
+    </script>
 
 </body>
 

@@ -109,12 +109,12 @@
                     <h2 class="section-heading">Update Customer Price</h2>
                     <hr class="primary">
                     {% if error %}
-                    <p> text </p>
-
-
+                        {% for row in error -%}
+                            <p style='color: red'> {{ row }} </p>
+                        {% endfor %}
                     {% endif %}
                 </div>
-            </div>
+            </div> {# https://twitter.github.io/typeahead.js/ #}
         </div>
         <div class="container">
             <div class="row">  <!-- action="/t" method="post" -->
@@ -130,9 +130,9 @@
                         </datalist>
                         {% endif %}
                         <label for="DestLocation">Destination</label>
-                        <input name="dest" type="text" list="destSuggest" class="form-control" id="DestLocation" placeholder="Destination">
-                        {% if locations %}
+                        <input name="dest" type="text" list="destSuggest" class="form-control" id="DestLocation" placeholder="Destination" >
                         <datalist id="destSuggest">
+                        {% if locations %}
                             {% for row in locations -%}
                                 <option value= "{{ row.name }}">
                             {% endfor %}
@@ -166,9 +166,15 @@
                         <label>New Prices:</label>
                     <!-- <div class="form-group"> -->
                         <label for="WeightPrice">Weight</label>
-                        <input name="wgt" type="number" class="form-control" id="WeightPrice" placeholder="Weight">
+                        <div class="input-group">
+                            <div class="input-group-addon"> $ </div>
+                            <input name="wgt" type="number" class="form-control" id="WeightPrice" placeholder="Weight" min='0'>
+                        </div>
                         <label for="VolPrice">Volume</label>
-                        <input name="vol" type="number" class="form-control" id="VolPrice" placeholder="Volume">
+                        <div class="input-group">
+                            <div class="input-group-addon"> $ </div>
+                            <input name="vol" type="number" class="form-control" id="VolPrice" placeholder="Volume" min='0'>
+                        </div>
                     </div>
                     <button type="submit" class="btn btn-primary">Submit</button>
                 </form>
@@ -193,6 +199,42 @@
 
     <!-- Custom Theme JavaScript -->
     <script src="/static/js/creative.js"></script>
+
+    <script type="text/javascript" language="JavaScript">
+        var origin;
+        var destination;
+        $("#DestLocation").on('change', function(event){
+            console.log(event.target.value);
+            destination = event.target.value;
+            request();
+        });
+
+        $("#SourceLocation").on('change', function(event){
+            console.log(event.target.value);
+            origin = event.target.value;
+            request();
+        });
+
+        function request(){
+            if (origin && destination){
+                console.log('both')
+                $.ajax({
+                    type: "POST",
+                    url: '/price/getprice/' + origin + '/' + destination,
+                    contentType: "application/json; charset=utf-8",
+                    success: function(data){
+                        // console.log(data);
+                        $("#VolPrice").val(data.volumecost);
+                        $("#WeightPrice").val(data.weightcost);
+                    },
+                    error: function(){
+                        console.log('problems getting price')
+                    }
+                });
+            }
+        }
+
+    </script>
 
 </body>
 
