@@ -52,7 +52,7 @@ exports.getPriceByOrigin = function(originid, callback){
     var stmt = "SELECT priceid, ORIGIN.name AS origin, DEST.name AS destination, weightcost, volumecost, priority "
     			 + "FROM customerprice "
     			 + "LEFT JOIN locations AS ORIGIN ON customerprice.origin = ORIGIN.locationid "
-    			 + "LEFT JOIN locations AS DEST ON customerprice.origin = DEST.locationid "
+    			 + "LEFT JOIN locations AS DEST ON customerprice.destination = DEST.locationid "
     			 + "WHERE customerprice.origin = $originid";
     			 
     db.all(stmt, {$originid: originid}, function(err, rows){
@@ -71,7 +71,7 @@ exports.getPriceByOriginAndDestination = function(originid, destinationid, callb
     var stmt = "SELECT priceid, ORIGIN.name AS origin, DEST.name AS destination, weightcost, volumecost, priority "
     			 + "FROM customerprice "
     			 + "LEFT JOIN locations AS ORIGIN ON customerprice.origin = ORIGIN.locationid "
-    			 + "LEFT JOIN locations AS DEST ON customerprice.origin = DEST.locationid "
+    			 + "LEFT JOIN locations AS DEST ON customerprice.destination = DEST.locationid "
     			 + "WHERE customerprice.origin = $originid AND customerprice.destination = $destinationid";
     			 
     db.all(stmt, {$originid: originid, $destinationid: destinationid}, function(err, rows){
