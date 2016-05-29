@@ -4,7 +4,7 @@
   "description": "SWEN301 Group Assignment, 2016",
   "main": "app.js",
   "scripts": {
-    "test": "./node_modules/.bin/mocha -r mocha-cakes",
+    "test": "rm -r -f ./database/test2.db && ./node_modules/.bin/mocha -r mocha-cakes",
     "start": "node app.js"
   },
   "version": "0.0.1",

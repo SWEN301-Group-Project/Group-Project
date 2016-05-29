@@ -15,8 +15,6 @@
     <!-- Bootstrap core CSS     -->
     <link href="/static/css/bootstrap.min.css" rel="stylesheet" />
 
-    <!-- Bootstrap core CSS     -->
-    <link href="/static/css/style.css" rel="stylesheet" />
 
     <!-- Animation library for notifications   -->
     <link href="/static/css/animate.min.css" rel="stylesheet"/>
@@ -29,6 +27,9 @@
 
     <!-- CSS for selectize -->
     <link rel="stylesheet" type="text/css" href="/static/selectize/css/selectize.css" />
+
+    <!-- Default style sheet that you can use to override the template     -->
+    <link href="/static/css/style.css" rel="stylesheet" />
 
     <!--  Fonts and icons     -->
     <link href="http://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css" rel="stylesheet">
@@ -93,7 +94,7 @@
                             <div class="content">
                                 Relevant data includes: origin, destination, weight, volume, time of entry
                                 into the system, and the priority.
-                                    <form method="post" action="/addMail">
+                                    <form method="post" action="/addMail" id="mailform">
                                         <div class="row">
                                             <div class="col-md-6">
                                                 <div class="form-group">
@@ -132,7 +133,7 @@
                                             </div>
                                             <div class="col-md-4">
                                                 <div class="form-group">
-                                                    <label>Priority</label>
+                                                    <label for="priority">Priority</label>
                                                     <select id="priority" name="priority" class="form-control" required>
                                                         <option value="" selected="selected">(select priority)</option>
                                                         <option value="DOMESTIC STANDARD">Domestic Standard</option>
@@ -224,7 +225,8 @@
 <!--   Core JS Files   -->
 <script src="/static/js/jquery-1.10.2.js" type="text/javascript"></script>
 <script src="/static/js/bootstrap.min.js" type="text/javascript"></script>
-
+//hosted by Microsoft Ajax CDN
+<script src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.9/jquery.validate.min.js"></script>
 <!--  Checkbox, Radio & Switch Plugins -->
 <script src="/static/js/bootstrap-checkbox-radio.js"></script>
 
@@ -243,10 +245,10 @@
 <script type="text/javascript" src="/static/selectize/js/standalone/selectize.min.js"></script>
 <script>
     $(function() {
-        $('#origin').selectize({
-            dropdownParent: "body",
-        });
+        $('#origin').selectize({});
+
         $('#destination').selectize();
     });
 </script>
+<script type="text/javascript" src="/static/js/validation/mails.js"></script>
 </html>
