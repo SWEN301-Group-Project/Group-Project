@@ -130,6 +130,7 @@ router.post("/addMail", function(req,res, next){
         console.log("error");
         Location.getAllLocations(function (locations) {
             Mail.getAllMail(function (mails) {
+                res.status(404);
                 res.render('mails', {mailActive: true, mail: mail, mails: mails, locations: locations});
             });
         });

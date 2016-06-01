@@ -18,11 +18,11 @@
                         required:true,
                         notEqual: "#sourceLocation",
                     },
-                    WeightPrice: {
+                    wgt: {
                         required: true,
                         greaterThanZero : true
                     },
-                    VolPrice: {
+                    vol: {
                         required: true,
                         greaterThanZero: true,
                     }
@@ -33,11 +33,11 @@
                         required: "Please choose destination from list",
                         notEqual: "Destination must be different from origin"
                     },
-                    WeightPrice: {
+                    wgt: {
                         required: "Please provide a weight cost",
                         greaterThanZero: "Weight cost must be greater than 0"
                     },
-                    VolPrice: {
+                    vol: {
                         required: "Please provide a volume cost",
                         greaterThanZero: "Volume cost must be greater than 0"
                     }
