@@ -143,19 +143,31 @@ router.post("/addMail", function(req,res, next){
          If route can be calculated then update the business and customer cost
          Then add mail to event and insert into database
          */
-        Mail.insertMail(mail, function (result) {
-            console.log("mail entered");
-            console.log(result);
-            Location.getAllLocations(function(locations){
-                Mail.getAllMail(function(mails){
-                    res.render('mails', {mailActive: true, mailAdded: true, locations: locations, mails: mails});
-                });
-            });
-
-        });
-
+        /**
+         * 1. render the confirmation page while sending the mail object
+         */
+        req.session.mail = mail;
+        res.render('confirmMail', {mail: mail, mailActive: true});
     }
+});
 
+router.get('/confirmMail', function(req,res){
+    //insert mail
+    console.log
+    var mail = req.session.mail;
+    console.log('confirmMail');
+    console.log(mail);
+    Mail.insertMail(mail, function (result) {
+        console.log("mail entered");
+        console.log(result);
+        Location.getAllLocations(function(locations){
+            Mail.getAllMail(function(mails){
+                //add notification of mail added successfully
+                res.render('mails', {mailActive: true, mailAdded: true, locations: locations, mails: mails});
+                req.session.mail = null;
+            });
+        });
+    });
 });
 
 router.get("/mails", function(req, res) {
