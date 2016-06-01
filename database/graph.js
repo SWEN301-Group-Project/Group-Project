@@ -42,15 +42,19 @@ var findDomesticRoute = function(mail){
     //If the destination node has been visited then stop. The algorithm has finished.
     if(nodes[mail.destination].visited){
       console.log("Reached Destination. Route:");
+      this.data = new mailRouteData();
       this.cost = 0;
       this.currentNode = nodes[mail.destination];
       while(this.currentNode != nodes[mail.origin]){
+        this.data.routeTaken.push(this.currentNode.fromSegment.id);
         console.log(this.currentNode.name + " from " + this.currentNode.fromSegment.startNode.name);
         this.cost += (this.currentNode.fromSegment.weightCost * mail.weight) + (this.currentNode.fromSegment.volumeCost * mail.volume);
         this.currentNode = this.currentNode.fromSegment.startNode;
       }
+      this.data.routeTaken.reverse();
+      this.data.costToCompany = this.cost;
       console.log("");
-      return this.cost;
+      return this.data;
     }
     //date and time mail arrived at current node
     this.arrivalTime = sentDate + this.currentNode.distance;
@@ -140,14 +144,18 @@ var findInternationalAirRoute = function(mail){
 
     //If the destination node has been visited then stop. The algorithm has finished.
     if(nodes[mail.destination].visited){
+      this.data = new mailRouteData();
       console.log("Reached Destination. Route:");
       this.cost = 0;
       this.currentNode = nodes[mail.destination];
       while(this.currentNode != nodes[mail.origin]){
+        this.data.routeTaken.push(this.currentNode.fromSegment.id);
         console.log(this.currentNode.name + " from " + this.currentNode.fromSegment.startNode.name);
         this.cost += (this.currentNode.fromSegment.weightCost * mail.weight) + (this.currentNode.fromSegment.volumeCost * mail.volume);
         this.currentNode = this.currentNode.fromSegment.startNode;
       }
+      this.data.routeTaken.reverse();
+      this.data.costToCompany = this.cost;
       console.log("");
       return this.cost;
     }
@@ -236,18 +244,20 @@ var findInternationalStandardRoute = function(mail){
 
     //If the destination node has been visited then stop. The algorithm has finished.
     if(nodes[mail.destination].visited){
+      this.data = new mailRouteData();
       console.log("Reached Destination. Route:");
-      //TODO create return object
       this.cost = 0;
-      //Fill out return Objectt
       this.currentNode = nodes[mail.destination];
       while(this.currentNode != nodes[mail.origin]){
+        this.data.routeTaken.push(this.currentNode.fromSegment.id);
         console.log(this.currentNode.name + " from " + this.currentNode.fromSegment.startNode.name);
         this.cost += (this.currentNode.fromSegment.weightCost * mail.weight) + (this.currentNode.fromSegment.volumeCost * mail.volume);
         this.currentNode = this.currentNode.fromSegment.startNode;
       }
+      this.data.routeTaken.reverse();
+      this.data.costToCompany = this.cost;
       console.log("");
-      return this.cost;
+      return this.data;
     }
     //For the current node consider all of its unvisited neighbors
       for(var segmentId in this.currentNode.segments){
@@ -322,7 +332,6 @@ var createSegments = function(costs){
       segments.push(this.segment);
       nodes[costs[i].origin].segments.push(this.segment);
     }
-    testMail();
   }
   else{
     console.log("Costs undefined: ");
@@ -405,8 +414,6 @@ var node = function(id, name){
 
 
 var mailRouteData = function(){
-  this.routeTaken = [];
-  this.costToCompany;
-  this.customerPrice;
-  this.timeTake;
+  this.routeTaken = [];//a list of route Id's, in order from origin to destination
+  this.costToCompany;//total cost to company
 }
