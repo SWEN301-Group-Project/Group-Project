@@ -92,8 +92,11 @@
                                 <h4 class="title">Add new Mail</h4>
                             </div>
                             <div class="content">
-                                Relevant data includes: origin, destination, weight, volume, time of entry
-                                into the system, and the priority.
+                                {% if error %}
+                                    <div class="alert alert-danger">
+                                        <span>{{ error }}</span>
+                                    </div>
+                                {% endif %}
                                     <form method="post" action="/addMail" id="mailform">
                                         <div class="row">
                                             <div class="col-md-6">
@@ -101,7 +104,7 @@
                                                     <label for="origin">Origin</label>
                                                     <select id="origin" name="origin" required>
                                                         {% for location in locations %}
-                                                        <option value={{location.locationid}}>{{location.name}}</option>
+                                                        <option value={{location.locationid}} {% if location.locationid| isMailOrigin(mail)  %}selected{% endif %}>{{location.name}}</option>
                                                         {% endfor %}
                                                     </select>
                                                 </div>
@@ -111,7 +114,7 @@
                                                     <label for="destination">Destination</label>
                                                     <select id="destination" name="destination" required>
                                                         {% for location in locations %}
-                                                        <option value={{location.locationid}}>{{location.name}}</option>
+                                                        <option value={{location.locationid}} {% if location.locationid| isMailDestination(mail)  %}selected{% endif %}>{{location.name}}</option>
                                                         {% endfor %}
                                                     </select>
                                                 </div>
@@ -122,13 +125,13 @@
                                             <div class="col-md-4">
                                                 <div class="form-group">
                                                     <label for="weight">Weight</label>
-                                                    <input type="number" id="weight" name="weight" class="form-control border-input" placeholder="Weight" required>
+                                                    <input type="number" id="weight" name="weight" class="form-control border-input" placeholder="Weight" {% if mail %}value = {{mail.weight}} {% endif %} required>
                                                 </div>
                                             </div>
                                             <div class="col-md-4">
                                                 <div class="form-group">
                                                     <label for="volume">Volume</label>
-                                                    <input type="number" id="volume" name="volume" class="form-control border-input" placeholder="Volume" required>
+                                                    <input type="number" id="volume" name="volume" class="form-control border-input" placeholder="Volume" {% if mail %}value = {{mail.volume}} {% endif %} required>
                                                 </div>
                                             </div>
                                             <div class="col-md-4">

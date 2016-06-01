@@ -58,8 +58,19 @@ var env = nunjucks.configure('views', {
     autoescape: true,
     express: app
 });
-
+/*
+    Custom methods for nunjucks
+ */
 var nunjucksEnv = new nunjucks.Environment();
+
+env.addFilter('isMailOrigin', function(locationid, mail) {
+    return mail ? locationid == mail.origin : false;
+});
+
+env.addFilter('isMailDestination', function(locationid, mail) {
+    return mail ? locationid == mail.destination : false;
+});
+
 
 var nunjucksDate = require('nunjucks-date');
 nunjucksDate.setDefaultFormat('YYYY-MM-Do, hh:mm:ss');
@@ -126,15 +137,17 @@ router.post("/addMail", function(req,res, next){
    "use strict";
     console.log(req.body);
     var mail = req.body;
-
+    req.session.mail = mail; //save mail in session
+    var error = "";
     //server-side error checking
     //destination and origin cannot be the same
     if (mail.destination == mail.origin) {
         console.log("error");
+        error += "Destination cannot be same as Origin.";
         Location.getAllLocations(function (locations) {
             Mail.getAllMail(function (mails) {
                 res.status(404);
-                res.render('mails', {mailActive: true, mail: mail, mails: mails, locations: locations});
+                res.render('mails', {mailActive: true, error:error, mail: mail, mails: mails, locations: locations});
             });
         });
     } else {
@@ -143,28 +156,43 @@ router.post("/addMail", function(req,res, next){
          If route can be calculated then update the business and customer cost
          Then add mail to event and insert into database
          */
-        Mail.insertMail(mail, function (result) {
-            console.log("mail entered");
-            console.log(result);
-            Location.getAllLocations(function(locations){
-                Mail.getAllMail(function(mails){
-                    res.render('mails', {mailActive: true, mailAdded: true, locations: locations, mails: mails});
-                });
+        /**
+         * 1. render the confirmation page while sending the mail object
+         */
+        Location.getLocationById(mail.origin, function(originLocation){
+            Location.getLocationById(mail.destination, function(destinationLocation){
+                res.render('confirmMail', {mail: mail, origin: originLocation, destination: destinationLocation, mailActive: true});
+
             });
-
         });
-
     }
+});
 
+router.get('/confirmMail', function(req,res){
+    //insert mail
+    console.log
+    var mail = req.session.mail;
+    console.log('confirmMail');
+    console.log(mail);
+    Mail.insertMail(mail, function (result) {
+        console.log("mail entered");
+        console.log(result);
+        Location.getAllLocations(function(locations){
+            Mail.getAllMail(function(mails){
+                //add notification of mail added successfully
+                res.render('mails', {mailActive: true, mailAdded: true, locations: locations, mails: mails});
+                req.session.mail = null;
+            });
+        });
+    });
 });
 
 router.get("/mails", function(req, res) {
-	"use strict"
-
+	"use strict";
     Location.getAllLocations(function(locations){
         console.log(locations);
         Mail.getAllMail(function(mails){
-            res.render('mails', {mailActive:true, mails:mails, locations:locations});
+            res.render('mails', {mailActive:true, mail : req.session.mail, mails:mails, locations:locations});
         });
     });
 });
