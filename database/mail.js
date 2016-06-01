@@ -1,7 +1,7 @@
 var sqlite3 = require("sqlite3").verbose(),
     assert = require("assert"),
-    dbFile = "./database/test.db",
-    db = new sqlite3.Database(dbFile),
+    // dbFile = "./database/test.db",
+    // db = new sqlite3.Database(dbFile),
 	 Company = require('./company'),
     Location = require('./location');
 /*
@@ -29,135 +29,145 @@ The following are the database function implemented by mail.js file:
     6 updateMail ==> update Location by id
 
 */
+var Mail = function(dbFile){
 
-//returns list of all mail objects
-exports.getAllMail = function(callback){
-    var stmt = "SELECT mailid, ORIGIN.name AS origin, DEST.name AS destination, weight, volume, priority, totalcustomercost, totalbusinesscost, date "
-    			 + "FROM mails "
-    			 + "LEFT JOIN locations AS ORIGIN ON mails.origin = ORIGIN.locationid "
-    			 + "LEFT JOIN locations AS DEST ON mails.destination = DEST.locationid";
-   
+    this._dbFile = dbFile ? dbFile : "./database/test.db";
+    this.db = new sqlite3.Database(this._dbFile);
+
+
+    //returns list of all mail objects
+    this.getAllMail = function(callback){
+        var stmt = "SELECT mailid, ORIGIN.name AS origin, DEST.name AS destination, weight, volume, priority, totalcustomercost, totalbusinesscost, date "
+            + "FROM mails "
+            + "LEFT JOIN locations AS ORIGIN ON mails.origin = ORIGIN.locationid "
+            + "LEFT JOIN locations AS DEST ON mails.destination = DEST.locationid";
+
 //    var stmt = "SELECT * from mails";
-    //need to join table with location
-    db.all(stmt, function(err, rows){
-        if (err){
-            console.log("Error loading mails: " + err);
-            callback([]);
-        } else if (callback){
-            callback(rows);
-        }
-    });
-}
+        //need to join table with location
+        this.db.all(stmt, function(err, rows){
+            if (err){
+                console.log("Error loading mails: " + err);
+                callback([]);
+            } else if (callback){
+                callback(rows);
+            }
+        });
+    },
 
 //returns mail objects where date <= dateAsString paramters.
 //The paramter: dateAsString must be string representation of date.
 // e.g. new Date().toISOString();
-exports.getMailByDate = function(dateAsString, callback){
-    var stmt = "SELECT mailid, ORIGIN.name AS origin, DEST.name AS destination, weight, volume, priority, totalcustomercost, totalbusinesscost, date "
-    			 + "FROM mails "
-    			 + "LEFT JOIN locations AS ORIGIN ON mails.origin = ORIGIN.locationid "
-    			 + "LEFT JOIN locations AS DEST ON mails.origin = DEST.locationid "
-    			 + "WHERE date <= $date";
-    db.all(stmt, {$date: dateAsString}, function(err, rows){
-        if(err){
-            console.log("Error loading mail: " + err);
-            callback([]);
-        } else if (callback){
-            callback(rows);
-        }
-    });
-}
+    this.getMailByDate = function(dateAsString, callback){
+        var stmt = "SELECT mailid, ORIGIN.name AS origin, DEST.name AS destination, weight, volume, priority, totalcustomercost, totalbusinesscost, date "
+            + "FROM mails "
+            + "LEFT JOIN locations AS ORIGIN ON mails.origin = ORIGIN.locationid "
+            + "LEFT JOIN locations AS DEST ON mails.origin = DEST.locationid "
+            + "WHERE date <= $date";
+        this.db.all(stmt, {$date: dateAsString}, function(err, rows){
+            if(err){
+                console.log("Error loading mail: " + err);
+                callback([]);
+            } else if (callback){
+                callback(rows);
+            }
+        });
+    },
 //returns mail object that has id == mailid
-exports.getMailById = function(mailid, callback){
-	var stmt = "SELECT mailid, ORIGIN.name AS origin, DEST.name AS destination, weight, volume, priority, totalcustomercost, totalbusinesscost, date "
-    			 + "FROM mails "
-    			 + "LEFT JOIN locations AS ORIGIN ON mails.origin = ORIGIN.locationid "
-    			 + "LEFT JOIN locations AS DEST ON mails.origin = DEST.locationid "
-    			 + "WHERE mailid = $mailid";
-    db.get(stmt, {$mailid: mailid}, function(err, mail){
-        if(err){
-            console.log("Error loading mail: " + err)
-            callback();
-        } else if (callback){
-            callback(mail);
-        }
-    });
-}
+    this.getMailById = function(mailid, callback){
+        var stmt = "SELECT mailid, ORIGIN.name AS origin, DEST.name AS destination, weight, volume, priority, totalcustomercost, totalbusinesscost, date "
+            + "FROM mails "
+            + "LEFT JOIN locations AS ORIGIN ON mails.origin = ORIGIN.locationid "
+            + "LEFT JOIN locations AS DEST ON mails.origin = DEST.locationid "
+            + "WHERE mailid = $mailid";
+        this.db.get(stmt, {$mailid: mailid}, function(err, mail){
+            if(err){
+                console.log("Error loading mail: " + err)
+                callback();
+            } else if (callback){
+                callback(mail);
+            }
+        });
+    },
 
 //Adds a new mail row to the mails table
 //The mail object must similar to:
-/*    var mail = {
-        origin: 1,
-        destination: 2,
-        weight: 50,
-        volume: 20,
-        priority: "Land",
-        totalcustomercost: 500,
-        totalbusinesscost: 100
-      };*/
+    /*    var mail = {
+     origin: 1,
+     destination: 2,
+     weight: 50,
+     volume: 20,
+     priority: "Land",
+     totalcustomercost: 500,
+     totalbusinesscost: 100
+     };*/
 //Origin and destination are foreign keys so they must be integers
 //PostCondition: if return value > 0 ==> mail inserted sucessfully
-exports.insertMail = function(mail, callback){
-	var stmt = db.prepare("INSERT INTO mails (origin, destination, weight, volume, priority, totalcustomercost, totalbusinesscost, date) VALUES (?, ?, ?, ?, ?, ?, ?, ?) ");
+    this.insertMail = function(mail, callback){
+        var stmt = this.db.prepare("INSERT INTO mails (origin, destination, weight, volume, priority, totalcustomercost, totalbusinesscost, date) VALUES (?, ?, ?, ?, ?, ?, ?, ?) ");
 
-	stmt.run([
-        mail.origin,
-        mail.destination,
-        mail.weight,
-        mail.volume,
-        mail.priority,
-        mail.totalcustomercost,
-        mail.totalbusinesscost,
-        new Date().toISOString()
+        stmt.run([
+            mail.origin,
+            mail.destination,
+            mail.weight,
+            mail.volume,
+            mail.priority,
+            mail.totalcustomercost,
+            mail.totalbusinesscost,
+            new Date().toISOString()
 
-    ], function(err){
-        if(err){
-            callback(0)}
-        else{
-            console.log(this);
-            callback(this.changes);
-        }
-    });
-}
+        ], function(err){
+            if(err){
+                callback(0)}
+            else{
+                console.log(this);
+                callback(this.changes);
+            }
+        });
+    },
 
 //removes a mail from table by its id
 //The number of rows removed is returned
 //PostCondition: if return > 0 ==> {return} rows deleted successfully
-exports.deleteMail = function(mailid, callback){
-    db.run("DELETE FROM mails WHERE mailid = $id", {$id: mailid}, function(err){
-        if(err){
-            console.log("Error removing mail with id: " + mailid);
-            callback(0);
-        }else{
-            console.log(this);
-            if(callback){
-                callback(this.changes);
+    this.deleteMail = function(mailid, callback){
+        this.db.run("DELETE FROM mails WHERE mailid = $id", {$id: mailid}, function(err){
+            if(err){
+                console.log("Error removing mail with id: " + mailid);
+                callback(0);
+            }else{
+                console.log(this);
+                if(callback){
+                    callback(this.changes);
+                }
             }
-        }
-    });
+        });
 
-}
+    },
 
 //updates a mail row specified by the id
 //the newMail object must be similar to mail object of insertMail paramters
 //Returns the number of rows changed
-exports.updateMail = function(mailid, newMail, callback){
-    db.run("UPDATE mails SET origin = $origin, destination=$destination, weight=$weight, volume=$volume, priority=$priority, totalcustomercost=$totalcustomercost, totalbusinesscost=$totalbusinesscost, date=$date WHERE mailid = $id", {
-		$id: mailid,
-		$origin: newMail.origin,
-        $destination : newMail.destination,
-        $weight: newMail.weight,
-        $volume: newMail.volume,
-        $priority: newMail.priority,
-        $totalcustomercost:newMail.totalcustomercost,
-        $totalbusinesscost:newMail.totalbusinesscost,
-        $date: new Date().toISOString()
-	}, function(err){
-        if(err){
-            console.log("Error updating mail with id: " + mailid);
-        }else{
-            console.log(this);
-            callback(this.changes);
-        }
-    });
-}
+    this.updateMail = function(mailid, newMail, callback){
+        this.db.run("UPDATE mails SET origin = $origin, destination=$destination, weight=$weight, volume=$volume, priority=$priority, totalcustomercost=$totalcustomercost, totalbusinesscost=$totalbusinesscost, date=$date WHERE mailid = $id", {
+            $id: mailid,
+            $origin: newMail.origin,
+            $destination : newMail.destination,
+            $weight: newMail.weight,
+            $volume: newMail.volume,
+            $priority: newMail.priority,
+            $totalcustomercost:newMail.totalcustomercost,
+            $totalbusinesscost:newMail.totalbusinesscost,
+            $date: new Date().toISOString()
+        }, function(err){
+            if(err){
+                console.log("Error updating mail with id: " + mailid);
+            }else{
+                console.log(this);
+                callback(this.changes);
+            }
+        });
+    }
+
+
+};
+
+module.exports.Mail = Mail;

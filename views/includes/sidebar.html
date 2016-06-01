@@ -1,0 +1,48 @@
+<div class="sidebar" data-background-color="white" data-active-color="danger">
+
+    <!--
+        Tip 1: you can change the color of the sidebar's background using: data-background-color="white | black"
+        Tip 2: you can change the color of the active button using the data-active-color="primary | info | success | warning | danger"
+    -->
+
+    <div class="sidebar-wrapper">
+        <div class="logo">
+            <a href="/" class="simple-text">
+                KPSmart Mail
+            </a>
+        </div>
+
+        <ul class="nav">
+            <li>
+                <a href="/">
+                    <i class="ti-panel"></i>
+                    <p>Dashboard</p>
+                </a>
+            </li>
+            <li {% if mailActive %} class ="active" {% endif %} >
+                <a href="/mails">
+                    <i class="ti-email"></i>
+                    <p>Mails</p>
+                </a>
+            </li>
+            <li {% if priceActive %} class ="active" {% endif %}>
+                <a href="/price">
+                    <i class="ti-view-list-alt"></i>
+                    <p>Prices</p>
+                </a>
+            </li>
+            <li {% if transportActive %} class ="active" {% endif %}>
+                <a href="#">
+                    <i class="ti-truck"></i>
+                    <p>Transport Costs</p>
+                </a>
+            </li>
+            <li {% if mapsActive %} class ="active" {% endif %}>
+                <a href="#">
+                    <i class="ti-map"></i>
+                    <p>Maps</p>
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>

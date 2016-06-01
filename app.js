@@ -25,14 +25,14 @@
 
 var express = require('express'),
     bodyParser = require('body-parser'),
-	  cookieParser = require('cookie-parser'),
+    cookieParser = require('cookie-parser'),
     nunjucks = require('nunjucks'),
     assert = require('assert'),
-	  session = require('express-session'),
+    session = require('express-session'),
     Database = require('./database/database').Database,
     //following are used to interact with the database.
     Company = require('./database/company'),
-    Mail = require('./database/mail'),
+    Mail = require('./database/mail').Mail,
     Location = require('./database/location'),
     Route = require('./database/routes'),
     Price = require('./database/customerprice'),
@@ -66,7 +66,16 @@ nunjucksDate.setDefaultFormat('YYYY-MM-Do, hh:mm:ss');
 env.addFilter("date", nunjucksDate);
 
 var router = express.Router();
-var database = new Database();
+
+
+/**
+ * Initialise the database.
+ */
+var database = new Database().init();
+Mail = new Mail();
+
+
+
 // Homepage
 router.get("/", function(req, res) {
 	"use strict";
@@ -74,96 +83,97 @@ router.get("/", function(req, res) {
 });
 
 
-router.get("/graph", function(req, res) {
-	"use strict";
-  Graph.loadGraph();
-  res.render('index',{});
+router.get("/graph", function (req, res) {
+    "use strict";
+    Graph.loadGraph();
+    res.render('index', {});
 });
 
 
 router.get("/locations", function(req, res) {
 	"use strict";
-  Location.getAllLocations(function(result){
-  	console.log(result);
-  	for(var i = 0; i < result.length; i++){
-  		console.log(result[0].name);
-    }
-  });
-  /*
-  Other examples
-  */
-  /*
-  Location.getAllLocations(function(locations){
-    console.log(locations);
-  })
-  */
+    Location.getAllLocations(function(result){
+        console.log(result);
+        for (var i = 0; i < result.length; i++) {
+            console.log(result[i].name);
+        }
+    });
 });
 
 router.get("/routes", function(req, res) {
 	"use strict";
 
-	var route = {
-	 company: 2,
-    origin: 1,
-    destination: 2,
-    type: Air/Land/Sea,
-    weightcost: 5,
-    volumecost: 6,
-    maxweight: 350,
-    maxvolume: 50,
-    duration: 16,
-    frequency: 36,
-    day: 0
-	};
-  Location.getAllLocations(function(result){
-  	console.log(result)
-  });
-  /*
-  Other examples
-  */
-  /*
-  Location.getAllLocations(function(locations){
-    console.log(locations);
-  })
-  */
+    var route = {
+        company: 2,
+        origin: 1,
+        destination: 2,
+        type: 'Air / Land / Sea',
+        weightcost: 5,
+        volumecost: 6,
+        maxweight: 350,
+        maxvolume: 50,
+        duration: 16,
+        frequency: 36,
+        day: 0
+    };
+    Location.getAllLocations(function (result) {
+        console.log(result)
+        res.render(index);
+    });
+});
+
+router.post("/addMail", function(req,res, next){
+   "use strict";
+    console.log(req.body);
+    var mail = req.body;
+
+    //server-side error checking
+    //destination and origin cannot be the same
+    if (mail.destination == mail.origin) {
+        console.log("error");
+        Location.getAllLocations(function (locations) {
+            Mail.getAllMail(function (mails) {
+                res.status(404);
+                res.render('mails', {mailActive: true, mail: mail, mails: mails, locations: locations});
+            });
+        });
+    } else {
+        //perform error checking such as determine if route can be calculated
+        /*
+         If route can be calculated then update the business and customer cost
+         Then add mail to event and insert into database
+         */
+        Mail.insertMail(mail, function (result) {
+            console.log("mail entered");
+            console.log(result);
+            Location.getAllLocations(function(locations){
+                Mail.getAllMail(function(mails){
+                    res.render('mails', {mailActive: true, mailAdded: true, locations: locations, mails: mails});
+                });
+            });
+
+        });
+
+    }
+
 });
 
 router.get("/mails", function(req, res) {
 	"use strict"
 
-  var mail = {
-    origin: 1,
-    destination: 2,
-    weight: 50,
-    volume: 20,
-    priority: "Land",
-    totalcustomercost: 500,
-    totalbusinesscost: 100
-  };
-  var date = new Date();
-
-
-  Mail.getAllMail(function(result){
-    console.log(result);
-
-  });
-  /*
-  Other examples
-  */
-  /*
-  var date = new Date().toISOString();
-  Mail.getMailByDate(date, function(rows){
-    console.log(rows);
-  })
-  */
-
+    Location.getAllLocations(function(locations){
+        console.log(locations);
+        Mail.getAllMail(function(mails){
+            res.render('mails', {mailActive:true, mails:mails, locations:locations});
+        });
+    });
 });
 
 router.get("/price", function(req, res){
   console.log('PRICE: GET');
   Location.getAllLocations(function(cb){
       console.log(cb);
-      res.render('updPrice', {locations: cb});
+      res.render('updPrice', {priceActive: true, locations: cb});
   });
 });
 
@@ -187,34 +197,34 @@ router.post("/price/getprice/:origin/:destination", function(req, res){
 });
 
 router.post("/price", function(req, res){
-  console.log("PRICE: POST");
-	console.log(req.body);
+    console.log("PRICE: POST");
+    console.log(req.body);
   var err = []
-  if (!req.body.ori) {err.push('Origin cannot be Blank.');}
-  if (!req.body.dest) {err.push('Destination cannot be Blank.');}
+  if (!req.body.sourceLocation) {err.push('Origin cannot be Blank.');}
+  if (!req.body.destLocation) {err.push('Destination cannot be Blank.');}
   if (!req.body.wgt) {err.push('Weight Price cannot be Blank.');}
   if (!req.body.vol) {err.push('Volume Price cannot be Blank.');}
   console.log(err);
   if (err.length) {
     Location.getAllLocations(function(cb){
-      res.render('updPrice', {error: err, locations: cb});
+      console.log(cb);
+      res.render('updPrice', {priceActive: true, error: err, locations: cb});
     });
-    // res.render('updPrice', {error: err});
   } else {
     // this means that there is nothing wrong, so we can be do the actual work
     var ori, dest;
     console.log('getting origin');
-    Location.getLocationByName(req.body.ori, function(cbOrigin){
+    Location.getLocationById(req.body.sourceLocation, function(cbOrigin){
       var ori = cbOrigin;
       console.log(ori);
       console.log('getting destination');
-      Location.getLocationByName(req.body.dest, function(cbDest){
+      Location.getLocationById(req.body.destLocation, function(cbDest){
         var dest = cbDest;
         console.log(dest);
         if (!ori){
-          console.log('Origin: {' + req.body.ori +'} not in database, aborting');
+          console.log('Origin: {' + req.body.sourceLocation +'} not in database, aborting');
         } else if (!dest){
-          console.log('Destination: {' + req.body.dest +'} not in database, aborting');
+          console.log('Destination: {' + req.body.destLocation +'} not in database, aborting');
         } else {
           console.log("We have enough information to add/update a customer price");
           var price; // do these return an object?
@@ -242,11 +252,12 @@ router.post("/price", function(req, res){
                                   function(callback){ });
             }
             // do stuff for log file?
-            // Location.getAllLocations(function(cb){
-            //     console.log(cb);
-            //     res.render('updPrice', {locations: cb});
-            // });
-            // return;
+
+/*             Location.getAllLocations(function(cb){
+                console.log(cb);
+                res.render('updPrice', {priceActive: true, locations: cb});
+            });
+            return; */
           });
           // turn priority into something usefull
         }
@@ -254,8 +265,8 @@ router.post("/price", function(req, res){
     });
     // we want to do something if ori and dest have no value
   	Location.getAllLocations(function(cb){
-        // console.log(cb);
-        res.render('updPrice', {locations: cb});
+        console.log(cb);
+        res.render('updPrice', {priceActive: true, locations: cb});
     });
   }
 });
@@ -296,14 +307,14 @@ router.post("/cost", function(req, res){
 
   // verify input
   var err = []
-  if (!req.body.ori) {err.push('Origin cannot be Blank.');}
-  if (!req.body.dest) {err.push('Destination cannot be Blank.');}
-  if (!req.body.wgt) {err.push('Weight Price cannot be Blank.');}
-  if (!req.body.vol) {err.push('Volume Price cannot be Blank.');}
-  if (!req.body.freq) {err.push('Frequency cannot be Blank.');}
-  if (!req.body.dur) {err.push('Duration cannot be Blank.');}
-  if (!req.body.mwgt) {err.push('Weight Limit cannot be Blank.');}
-  if (!req.body.mvol) {err.push('Volume Limit cannot be Blank.');}
+  if (!req.body.sourceLocation) {err.push('Origin cannot be Blank.');}
+  if (!req.body.destLocation) {err.push('Destination cannot be Blank.');}
+  if (!req.body.weightCost) {err.push('Weight Cost cannot be Blank.');}
+  if (!req.body.volumeCost) {err.push('Volume Cost cannot be Blank.');}
+  if (!req.body.frequency) {err.push('Frequency cannot be Blank.');}
+  if (!req.body.duration) {err.push('Duration cannot be Blank.');}
+  if (!req.body.weightLimit) {err.push('Weight Limit cannot be Blank.');}
+  if (!req.body.volumeLimit) {err.push('Volume Limit cannot be Blank.');}
   if (err.length){
     Location.getAllLocations(function(cbLoc){
       Company.getAllCompanies(function(cbComp){
@@ -313,32 +324,32 @@ router.post("/cost", function(req, res){
       })
     });
   } else {
-  
+
     // check if the locations exist, if not then add them
     Location.getAllLocations(function(cbLoc){
       var origin = cbLoc.find(function(find){
-        return find.name.toLowerCase() === req.body.ori.toLowerCase();
+        return find.locationid == req.body.sourceLocation;
       });
       if (!origin){
-        Location.insertLocation({name: req.body.ori}, function(cb){
-        console.log(req.body.ori + ' not found in Location database, inserting');
+        console.log(req.body.sourceLocation + ' not found in Location database, inserting');
+/*         Location.insertLocation({name: req.body.sourceLocation}, function(cb){
           console.log(cb);
-        });
+        }); */
       }
       var destination = cbLoc.find(function(find){
-        return find.name.toLowerCase() === req.body.dest.toLowerCase();
+        return find.locationid == req.body.destLocation;
       });
       if (!destination){
-        Location.insertLocation({name: req.body.dest}, function(cb){
-        console.log(req.body.dest + ' not found in Location database, inserting');
+        console.log(req.body.destLocation + ' not found in Location database, inserting');
+/*         Location.insertLocation({name: req.body.destLocation}, function(cb){
           console.log(cb);
-        });
+        }); */
       }
     });
     // check if the company exists, if not then add it
-    Company.getCompanyByNameAndType(req.body.cmpy, req.body.pri, function(cbCompany){
+    Company.getCompanyByNameAndType(req.body.company, req.body.pri, function(cbCompany){
       if (!cbCompany){
-        Company.insertCompany({name: req.body.cmpy, type: req.body.pri}, function(callback){
+        Company.insertCompany({name: req.body.company, type: req.body.pri}, function(callback){
           if (callback){
             console.log(callback);
           }
@@ -349,18 +360,19 @@ router.post("/cost", function(req, res){
     // then get them again, because callbacks
     // but this time we are going to trust that they exist....
     Location.getAllLocations(function(cbLoc){
+      console.log(cbLoc);
       var origin = cbLoc.find(function(find){
-        return find.name.toLowerCase() === req.body.ori.toLowerCase();
+        return find.locationid == req.body.sourceLocation;
       });
       console.log('Origin: ')
       console.log(origin);
       var destination = cbLoc.find(function(find){
-        return find.name.toLowerCase() === req.body.dest.toLowerCase();
+        return find.locationid == req.body.destLocation;
       });
       console.log('Destination: ')
       console.log(destination);
       // next we get the company
-      Company.getCompanyByNameAndType(req.body.cmpy, req.body.pri, function(cbCompany){
+      Company.getCompanyByNameAndType(req.body.company, req.body.pri, function(cbCompany){
         if (!cbCompany){
           // no company so we are screwed?
           console.log("There was no company, aborting");
@@ -373,7 +385,7 @@ router.post("/cost", function(req, res){
             console.log('Route: ');
             console.log(cbRoute);
             var route = cbRoute.find(function(find){
-              return find.type == req.body.pri && find.name == req.body.cmpy;
+              return find.type == req.body.pri && find.name == req.body.company;
             });
             console.log(route);
             if (!route){
@@ -383,12 +395,12 @@ router.post("/cost", function(req, res){
                                 origin: origin.locationid,
                                 destination: destination.locationid,
                                 type: req.body.pri,
-                                weightcost: req.body.wgt,
-                                volumecost: req.body.vol,
-                                maxweight: req.body.mwgt,
-                                maxvolume: req.body.mvol,
-                                duration: req.body.dur,
-                                frequency: req.body.freq,
+                                weightcost: req.body.weightCost,
+                                volumecost: req.body.volumeCost,
+                                maxweight: req.body.weightLimit,
+                                maxvolume: req.body.volumeLimit,
+                                duration: req.body.duration,
+                                frequency: req.body.frequency,
                                 day: req.body.day}, function(cbInsRoute){
                                   console.log(cbInsRoute);
                                 });
@@ -398,12 +410,12 @@ router.post("/cost", function(req, res){
                                 origin: origin.id,
                                 destination: destination.id,
                                 type: req.body.pri,
-                                weightcost: req.body.wgt,
-                                volumecost: req.body.vol,
-                                maxweight: req.body.mwgt,
-                                maxvolume: req.body.mvol,
-                                duration: req.body.dur,
-                                frequency: req.body.freq,
+                                weightcost: req.body.weightCost,
+                                volumecost: req.body.volumeCost,
+                                maxweight: req.body.weightLimit,
+                                maxvolume: req.body.volumeLimit,
+                                duration: req.body.duration,
+                                frequency: req.body.frequency,
                                 day: req.body.day}, function(cbInsRoute){
                                   console.log(cbInsRoute);
                                 });
@@ -413,13 +425,13 @@ router.post("/cost", function(req, res){
             // });
           });
         }
-        
+
       });
-  
-  
+
+
     });
-  
-  
+
+
     Location.getAllLocations(function(cbLoc){
       Company.getAllCompanies(function(cbComp){
         // console.log(cbLoc);
