@@ -47,7 +47,7 @@ exports.getAllMail = function(callback){
             callback(rows);
         }
     });
-}
+};
 
 //returns mail objects where date <= dateAsString paramters.
 //The paramter: dateAsString must be string representation of date.
@@ -66,7 +66,8 @@ exports.getMailByDate = function(dateAsString, callback){
             callback(rows);
         }
     });
-}
+};
+
 //returns mail object that has id == mailid
 exports.getMailById = function(mailid, callback){
 	var stmt = "SELECT mailid, ORIGIN.name AS origin, DEST.name AS destination, weight, volume, priority, totalcustomercost, totalbusinesscost, date "
@@ -82,7 +83,7 @@ exports.getMailById = function(mailid, callback){
             callback(mail);
         }
     });
-}
+};
 
 //Adds a new mail row to the mails table
 //The mail object must similar to:
@@ -118,7 +119,7 @@ exports.insertMail = function(mail, callback){
             callback(this.changes);
         }
     });
-}
+};
 
 //removes a mail from table by its id
 //The number of rows removed is returned
@@ -135,8 +136,7 @@ exports.deleteMail = function(mailid, callback){
             }
         }
     });
-
-}
+};
 
 //updates a mail row specified by the id
 //the newMail object must be similar to mail object of insertMail paramters

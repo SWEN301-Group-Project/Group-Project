@@ -71,12 +71,6 @@ router.get("/", function(req, res) {
 	res.render('index',{});
 });
 
-// Stats
-router.get("/stats", function(req, res) {
-    "use strict";
-    res.render('stats', {});
-});
-
 router.get("/graph", function(req, res) {
 	"use strict";
   Graph.loadGraph();
@@ -162,6 +156,18 @@ router.get("/mails", function(req, res) {
 
 });
 
+router.get("/stats", function(req, res){
+    "use strict";
+    var date = new Date();
+    console.log(date.getDate() + '/' + date.getMonth() + '/' + date.getFullYear());
+    console.log(date.toJSON());
+    console.log("STATS: GET");
+    Mail.getMailByDate("18/5/2016", function(result){
+        console.log(result);
+        res.render('stats', {stats: result});
+    });
+});
+
 router.get("/price", function(req, res){
   console.log('PRICE: GET');
   Location.getAllLocations(function(cb){
@@ -173,7 +179,7 @@ router.get("/price", function(req, res){
 router.post("/price", function(req, res){
   console.log("PRICE: POST");
 	console.log(req.body);
-  var err = []
+  var err = [];
   if (!req.body.ori) {err.push('Origin cannot be Blank.');}
   if (!req.body.dest) {err.push('Destination cannot be Blank.');}
   if (!req.body.wgt) {err.push('Weight Price cannot be Blank.');}
