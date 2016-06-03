@@ -79,7 +79,10 @@ Mail = new Mail();
 // Homepage
 router.get("/", function(req, res) {
 	"use strict";
-	res.render('index',{});
+
+    Mail.getMailStats(function(){
+        res.render('index');
+    });
 });
 
 
