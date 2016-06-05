@@ -103,11 +103,20 @@ router.get("/graph", function (req, res) {
 
 router.get("/locations", function(req, res) {
 	"use strict";
-    Location.getAllLocations(function(result){
+    Location.getAllLocations(function(allLocations){
+        res.render('location', {locationActive: true, title: "Location", locations: allLocations});
+    });
+});
+
+router.post("/locations", function(req, res){
+    console.log(req.body);
+    var newLocation = req.body;
+    Location.insertLocation(newLocation, function(result){
         console.log(result);
-        for (var i = 0; i < result.length; i++) {
-            console.log(result[i].name);
-        }
+        Location.getAllLocations(function(allLocations){
+            //TODO: Add notification of successful insertion of location
+            res.render('location', {locationActive: true, title: "Location", locations: allLocations});
+        });
     });
 });
 

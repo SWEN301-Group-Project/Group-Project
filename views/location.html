@@ -43,44 +43,7 @@
     {% include "includes/sidebar.html" %}
 
     <div class="main-panel">
-        <nav class="navbar navbar-default">
-            <div class="container-fluid">
-                <div class="navbar-header">
-                    <button type="button" class="navbar-toggle">
-                        <span class="sr-only">Toggle navigation</span>
-                        <span class="icon-bar bar1"></span>
-                        <span class="icon-bar bar2"></span>
-                        <span class="icon-bar bar3"></span>
-                    </button>
-                    <a class="navbar-brand" href="#">Locations</a>
-                </div>
-                <div class="collapse navbar-collapse">
-                    <ul class="nav navbar-nav navbar-right">
-                        <li class="dropdown">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                                <i class="ti-bell"></i>
-                                <p class="notification">5</p>
-                                <p>Notifications</p>
-                                <b class="caret"></b>
-                            </a>
-                            <ul class="dropdown-menu">
-                                <li><a href="#">Notification 1</a></li>
-                                <li><a href="#">Notification 2</a></li>
-                                <li><a href="#">Notification 3</a></li>
-                                <li><a href="#">Notification 4</a></li>
-                                <li><a href="#">Another notification</a></li>
-                            </ul>
-                        </li>
-                        <li>
-                            <a href="#">
-                                <i class="ti-user"></i>
-                                <p>Login</p>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </nav>
+        {% include "includes/navbar.html" %}
 
 
         <div class="content">
@@ -97,26 +60,12 @@
                                     <span>{{ error }}</span>
                                 </div>
                                 {% endif %}
-                                <form method="post" action="/addMail" id="mailform">
+                                <form method="post" action="/locations" id="locationform">
                                     <div class="row">
-                                        <div class="col-md-6">
+                                        <div class="col-md-12">
                                             <div class="form-group">
-                                                <label for="origin">Origin</label>
-                                                <select id="origin" name="origin" required>
-                                                    {% for location in locations %}
-                                                    <option value={{location.locationid}} {% if location.locationid| isMailOrigin(mail)  %}selected{% endif %}>{{location.name}}</option>
-                                                    {% endfor %}
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label for="destination">Destination</label>
-                                                <select id="destination" name="destination" required>
-                                                    {% for location in locations %}
-                                                    <option value={{location.locationid}} {% if location.locationid| isMailDestination(mail)  %}selected{% endif %}>{{location.name}}</option>
-                                                    {% endfor %}
-                                                </select>
+                                                <label for="name">Name</label>
+                                                <input type="text" id="name" name="name" class="form-control border-input" placeholder="Name" {% if location %}value = {{location.name}} {% endif %} required>
                                             </div>
                                         </div>
                                     </div>
@@ -124,31 +73,23 @@
                                     <div class="row">
                                         <div class="col-md-4">
                                             <div class="form-group">
-                                                <label for="weight">Weight</label>
-                                                <input type="number" id="weight" name="weight" class="form-control border-input" placeholder="Weight" {% if mail %}value = {{mail.weight}} {% endif %} required>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <div class="form-group">
-                                                <label for="volume">Volume</label>
-                                                <input type="number" id="volume" name="volume" class="form-control border-input" placeholder="Volume" {% if mail %}value = {{mail.volume}} {% endif %} required>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <div class="form-group">
-                                                <label for="priority">Priority</label>
-                                                <select id="priority" name="priority" class="form-control" required>
-                                                    <option value="" selected="selected">(select priority)</option>
-                                                    <option value="DOMESTIC STANDARD">Domestic Standard</option>
-                                                    <option value="DOMESTIC AIR">Domestic Air</option>
-                                                    <option value="INTERNATIONAL STANDARD">International Standard</option>
-                                                    <option value="INTERNATIONAL AIR">International Air</option>
-                                                </select>
+                                                <div class="radio">
+                                                    <label>
+                                                        <input type="radio" name="isInternational" value="1" checked>
+                                                        International
+                                                    </label>
+                                                </div>
+                                                <div class="radio">
+                                                    <label>
+                                                        <input type="radio" name="isInternational" value="0">
+                                                        Domestic
+                                                    </label>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="text-center pull-left">
-                                        <button type="submit" class="btn btn-info btn-fill btn-wd">Submit Mail</button>
+                                        <button type="submit" class="btn btn-info btn-fill btn-wd">Add Location</button>
                                     </div>
                                     <div class="clearfix"></div>
                                 </form>
@@ -160,35 +101,27 @@
                     <div class="col-md-12">
                         <div class="card">
                             <div class="header">
-                                <h4 class="title">Mail History</h4>
+                                <h4 class="title">Locations</h4>
                             </div>
                             <div class="content">
                                 <table id="example-table" class="table table-striped table-responsive">
                                     <thead>
                                     <tr>
-                                        <th>Mail Number</th>
-                                        <th>Date Modified</th>
-                                        <th>Origin</th>
-                                        <th>Destination</th>
-                                        <th>Weight</th>
-                                        <th>Volume</th>
-                                        <th>Priority</th>
-                                        <th>Revenue</th>
-                                        <th>Expense</th>
+                                        <th>Location</th>
+                                        <th>International</th>
                                     </tr>
                                     </thead>
                                     <tbody>
-                                    {% for mail in mails %}
+                                    {% for location in locations %}
                                     <tr>
-                                        <td>{{mail.mailid}}</td>
-                                        <td>{{mail.date}}</td>
-                                        <td>{{mail.origin}}</td>
-                                        <td>{{mail.destination}}</td>
-                                        <td>{{mail.weight}}</td>
-                                        <td>{{mail.volume}}</td>
-                                        <td>{{mail.priority}}</td>
-                                        <td>{{mail.totalcustomercost}}</td>
-                                        <td>{{mail.totalbusinesscost}}</td>
+                                        <td>{{location.name | capitalize}}</td>
+                                        <td class="fit">
+                                            {% if location.isInternational %}
+                                                International
+                                            {% else %}
+                                                Domestic
+                                            {% endif %}
+                                        </td>
                                     </tr>
                                     {% endfor %}
                                     </tbody>

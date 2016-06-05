@@ -32,9 +32,15 @@
                 </a>
             </li>
             <li {% if transportActive %} class ="active" {% endif %}>
-                <a href="#">
+                <a href="/cost">
                     <i class="ti-truck"></i>
                     <p>Transport Costs</p>
+                </a>
+            </li>
+            <li {% if locationActive %} class ="active" {% endif %}>
+                <a href="/locations">
+                    <i class="ti-location-arrow"></i>
+                    <p>Locations</p>
                 </a>
             </li>
             <li {% if mapsActive %} class ="active" {% endif %}>
