@@ -90,24 +90,76 @@ Mail = new Mail();
 // Homepage
 router.get("/", function(req, res) {
 	"use strict";
-	res.render('index',{});
+	res.render('index',{title: "Dashboard", homeActive: true});
 });
 
 
 router.get("/graph", function (req, res) {
     "use strict";
     Graph.loadGraph();
-    res.render('index', {});
+    res.render('index', {title: "Dashboard", homeActive: true});
 });
 
 
 router.get("/locations", function(req, res) {
 	"use strict";
-    Location.getAllLocations(function(result){
+    Location.getAllLocations(function(allLocations){
+        res.render('location', {locationActive: true, title: "Location", locations: allLocations});
+    });
+});
+
+router.get("/locations/:locationid", function(req, res){
+    var locationid = req.params.locationid;
+    Location.getLocationById(locationid, function(location){
+        console.log(location);
+        res.render('updateLocation', {
+            locationActive: true,
+            title: "Update Location",
+            locationid: locationid,
+            location: location
+        })
+    });
+});
+
+router.post("/locations/delete/:locationid", function(req,res){
+    var locationid = req.params.locationid;
+
+    Location.deleteLocation(locationid, function(result){
         console.log(result);
-        for (var i = 0; i < result.length; i++) {
-            console.log(result[i].name);
-        }
+        //TODO: Harman
+        //use result to send notification
+        //if result is success then render location page
+        //if result is failure then render locations/:locationid page
+        Location.getAllLocations(function(allLocations){
+            res.render('location', {locationActive: true, title: "Location", locations: allLocations});
+        });
+    });
+});
+
+router.post("/locations/update/:locationid", function(req,res){
+    var location = req.body;
+    var locationid = req.params.locationid;
+    Location.updateLocation(locationid, location, function(result){
+        console.log(result);
+        //TODO: Harman
+        //use result to send notification if successful
+        //if result is success then render location page
+        //if result is failure then render locations/:locationid page
+        Location.getAllLocations(function(allLocations){
+            res.render('location', {locationActive: true, title: "Location", locations: allLocations});
+        });
+    });
+});
+
+router.post("/locations", function(req, res){
+    console.log(req.body);
+    var newLocation = req.body;
+    Location.insertLocation(newLocation, function(result){
+        console.log(result);
+        Location.getAllLocations(function(allLocations){
+            //TODO: Harman ==> Add notification of successful insertion of new location
+            res.render('location', {locationActive: true, title: "Location", locations: allLocations});
+        });
     });
 });
 
@@ -129,7 +181,7 @@ router.get("/routes", function(req, res) {
     };
     Location.getAllLocations(function (result) {
         console.log(result)
-        res.render(index);
+        res.render(index, {title: "Dashboard", homeActive: true});
     });
 });
 
@@ -138,16 +190,21 @@ router.post("/addMail", function(req,res, next){
     console.log(req.body);
     var mail = req.body;
     req.session.mail = mail; //save mail in session
-    var error = "";
-    //server-side error checking
-    //destination and origin cannot be the same
+    var error = ""; //server side error message to be displayed
+    //server-side error checking. Destination and origin cannot be the same
     if (mail.destination == mail.origin) {
-        console.log("error");
         error += "Destination cannot be same as Origin.";
         Location.getAllLocations(function (locations) {
             Mail.getAllMail(function (mails) {
                 res.status(404);
-                res.render('mails', {mailActive: true, error:error, mail: mail, mails: mails, locations: locations});
+                res.render('mails', {
+                    mailActive: true,
+                    title: "Mails",
+                    error: error,
+                    mail: mail,
+                    mails: mails,
+                    locations: locations
+                });
             });
         });
     } else {
@@ -161,8 +218,13 @@ router.post("/addMail", function(req,res, next){
          */
         Location.getLocationById(mail.origin, function(originLocation){
             Location.getLocationById(mail.destination, function(destinationLocation){
-                res.render('confirmMail', {mail: mail, origin: originLocation, destination: destinationLocation, mailActive: true});
-
+                res.render('confirmMail', {
+                    mail: mail,
+                    title: "Mails",
+                    origin: originLocation,
+                    destination: destinationLocation,
+                    mailActive: true
+                });
             });
         });
     }
@@ -180,7 +242,13 @@ router.get('/confirmMail', function(req,res){
         Location.getAllLocations(function(locations){
             Mail.getAllMail(function(mails){
                 //add notification of mail added successfully
-                res.render('mails', {mailActive: true, mailAdded: true, locations: locations, mails: mails});
+                res.render('mails', {
+                    mailActive: true,
+                    title: "Mails",
+                    mailAdded: true,
+                    locations: locations,
+                    mails: mails
+                });
                 req.session.mail = null;
             });
         });
@@ -192,7 +260,13 @@ router.get("/mails", function(req, res) {
     Location.getAllLocations(function(locations){
         console.log(locations);
         Mail.getAllMail(function(mails){
-            res.render('mails', {mailActive:true, mail : req.session.mail, mails:mails, locations:locations});
+            res.render('mails', {
+                mailActive: true,
+                title: "Mails",
+                mail: req.session.mail,
+                mails: mails,
+                locations: locations
+            });
         });
     });
 });
@@ -201,7 +275,7 @@ router.get("/price", function(req, res){
   console.log('PRICE: GET');
   Location.getAllLocations(function(cb){
       console.log(cb);
-      res.render('updPrice', {priceActive: true, locations: cb});
+      res.render('updPrice', {priceActive: true, title: "Customer Prices", locations: cb});
   });
 });
 
@@ -236,7 +310,7 @@ router.post("/price", function(req, res){
   if (err.length) {
     Location.getAllLocations(function(cb){
       console.log(cb);
-      res.render('updPrice', {priceActive: true, error: err, locations: cb});
+      res.render('updPrice', {priceActive: true, title: "Customer Prices", error: err, locations: cb});
     });
   } else {
     // this means that there is nothing wrong, so we can be do the actual work
@@ -294,7 +368,7 @@ router.post("/price", function(req, res){
     // we want to do something if ori and dest have no value
   	Location.getAllLocations(function(cb){
         console.log(cb);
-        res.render('updPrice', {priceActive: true, locations: cb});
+        res.render('updPrice', {priceActive: true, title: "Customer Prices", locations: cb});
     });
   }
 });
@@ -305,7 +379,7 @@ router.get("/cost", function(req, res){
     Company.getAllCompanies(function(cbComp){
       console.log(cbLoc);
       console.log(cbComp);
-      res.render('updCost', {locations: cbLoc, companies: cbComp});
+      res.render('updCost', {costActive: true, title: "Route Costs", locations: cbLoc, companies: cbComp});
     })
   });
 });
@@ -347,7 +421,13 @@ router.post("/cost", function(req, res){
     Location.getAllLocations(function(cbLoc){
       Company.getAllCompanies(function(cbComp){
         console.log('COST: POST: Error: ' + err);
-        res.render('updCost', {error: err, locations: cbLoc, companies: cbComp});
+          res.render('updCost', {
+              costActive: true,
+              title: "Route Costs",
+              error: err,
+              locations: cbLoc,
+              companies: cbComp
+          });
         return;
       })
     });
@@ -464,11 +544,11 @@ router.post("/cost", function(req, res){
       Company.getAllCompanies(function(cbComp){
         // console.log(cbLoc);
         // console.log(cbComp);
-        res.render('updCost', {locations: cbLoc, companies: cbComp});
+        res.render('updCost', {costActive: true, title: "Route Costs", locations: cbLoc, companies: cbComp});
       })
     });
   }
-})
+});
 
 // Use the router routes in our application
 app.use('/', router);

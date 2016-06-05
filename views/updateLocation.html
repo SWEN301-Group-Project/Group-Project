@@ -11,8 +11,10 @@
     <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0' name='viewport' />
     <meta name="viewport" content="width=device-width" />
 
+
     <!-- Bootstrap core CSS     -->
     <link href="/static/css/bootstrap.min.css" rel="stylesheet" />
+
 
     <!-- Animation library for notifications   -->
     <link href="/static/css/animate.min.css" rel="stylesheet"/>
@@ -48,62 +50,62 @@
             <div class="container-fluid">
                 <div class="row">
                     <div class="col-md-12">
-                        <div class="card confirmMail">
-                            <div class="header row">
-                                <div class="col-md-6 col-md-offset-3">
-                                    <h1><i class="icon-success ti-check-box"></i>Confirm Mail</h1>
-                                </div>
+                        <div class="card">
+                            <div class="header">
+                                <h4 class="title">Edit or Delete Location</h4>
                             </div>
                             <div class="content">
-                                <form method="get" action="/confirmMail" id="mailform">
-                                    <h3>Mail will be dispatched: {day and date from graph}</h3>
-                                    <div class="form-group row">
-                                        <label class="col-sm-2 form-control-label">Origin</label>
-                                        <div class="col-sm-10">
-                                            <p class="form-control-static">{{origin.name}}</p>
+                                {% if error %}
+                                <div class="alert alert-danger">
+                                    <span>{{ error }}</span>
+                                </div>
+                                {% endif %}
+                                <form method="post" action="/locations/update/{{locationid}}" id="locationform">
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <div class="form-group">
+                                                <label for="name">Name</label>
+                                                <input type="text" id="name" name="name" class="form-control border-input" placeholder="Name" {% if location %}value = {{location.name}} {% endif %} required>
+                                            </div>
                                         </div>
                                     </div>
-                                    <div class="form-group row">
-                                        <label class="col-sm-2 form-control-label">Destination</label>
-                                        <div class="col-sm-10">
-                                            <p class="form-control-static">{{destination.name}}</p>
+
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <div class="radio">
+                                                    <label>
+                                                        <input type="radio" name="isInternational" value="1" {% if location.isInternational %}checked{% endif %}>
+                                                        International
+                                                    </label>
+                                                </div>
+                                                <div class="radio">
+                                                    <label>
+                                                        <input type="radio" name="isInternational" value="0" {% if not location.isInternational %}checked{% endif %}>
+                                                        Domestic
+                                                    </label>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
-                                    <div class="form-group row">
-                                        <label class="col-sm-2 form-control-label">Weight</label>
-                                        <div class="col-sm-10">
-                                            <p class="form-control-static">{{mail.weight}}</p>
-                                        </div>
-                                    </div>
-                                    <div class="form-group row">
-                                        <label class="col-sm-2 form-control-label">Volume</label>
-                                        <div class="col-sm-10">
-                                            <p class="form-control-static">{{mail.volume}}</p>
-                                        </div>
-                                    </div>
-                                    <div class="form-group row">
-                                        <label class="col-sm-2 form-control-label">Priority</label>
-                                        <div class="col-sm-10">
-                                            <p class="form-control-static">{{mail.priority}}</p>
-                                        </div>
-                                    </div>
-                                    <div class="form-group row">
-                                        <label class="col-sm-2 form-control-label">Cost</label>
-                                        <div class="col-sm-10">
-                                            <p class="form-control-static">${{mail.totalbusinesscost}}</p>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <button type="submit" style="margin-bottom:10px;"class="btn btn-success btn-fill btn-wd">Confirm</button>
-                                        </br>
-                                        <a href="/mails" id="back-button">Or Go Back</a>
+                                    <div class="text-center pull-left">
+                                        <button type="submit" class="btn btn-warning btn-fill btn-wd">Update</button>
                                     </div>
                                     <div class="clearfix"></div>
                                 </form>
+                                <div class="footer">
+                                    <hr>
+                                    <form method="post" action="/locations/delete/{{locationid}}">
+                                        <div class="stats">
+                                            <button type="submit" class="btn-link"><i class="ti-trash"></i> Delete</button>
+                                        </div>
+                                    </form>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
+
             </div>
         </div>
 
@@ -135,7 +137,7 @@
 <!--   Core JS Files   -->
 <script src="/static/js/jquery-1.10.2.js" type="text/javascript"></script>
 <script src="/static/js/bootstrap.min.js" type="text/javascript"></script>
-//hosted by Microsoft Ajax CDN
+<!-- hosted by Microsoft Ajax CDN -->
 <script src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.9/jquery.validate.min.js"></script>
 <!--  Checkbox, Radio & Switch Plugins -->
 <script src="/static/js/bootstrap-checkbox-radio.js"></script>

@@ -38,7 +38,8 @@ function Database(){
                 //assume that each location has unique name
                 db.run('CREATE TABLE IF NOT EXISTS locations ('
                     + 'locationid INTEGER PRIMARY KEY, '
-                    + 'name TEXT'
+                    + 'name TEXT, '
+                    + 'isInternational INTEGER'
                     + ')');
 
                 db.run('CREATE TABLE IF NOT EXISTS companies ('

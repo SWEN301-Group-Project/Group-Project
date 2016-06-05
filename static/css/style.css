@@ -1,9 +1,15 @@
-th {
+th.medium {
     font-size:medium;
 }
 
-tr {
+tr.small {
     font-size:small;
 }
 
 label.error {color:#EB5E28;}
+
+td.fit,
+th.fit {
+    white-space: nowrap;
+    width: 1%;
+}
