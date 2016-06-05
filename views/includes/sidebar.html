@@ -13,7 +13,7 @@
         </div>
 
         <ul class="nav">
-            <li>
+            <li {% if homeActive %} class ="active" {% endif %}>
                 <a href="/">
                     <i class="ti-panel"></i>
                     <p>Dashboard</p>
@@ -31,7 +31,7 @@
                     <p>Prices</p>
                 </a>
             </li>
-            <li {% if transportActive %} class ="active" {% endif %}>
+            <li {% if costActive %} class ="active" {% endif %}>
                 <a href="/cost">
                     <i class="ti-truck"></i>
                     <p>Transport Costs</p>
