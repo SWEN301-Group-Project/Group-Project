@@ -7,18 +7,31 @@ var segments = [];
 var nodes = {};
 var prices = [];
 var days = {"Sunday" : 0, "Tuesday": 1, "Wednesday" : 2, "Thursday" : 3, "Friday" : 4, "Saturday" : 5, "Monday" : 6};
+var isGraphLoaded = false;
 
 /**
 * @param {mail} mail being delivered
 */
 var findRoute = function(mail){
   if(mail.priority.toUpperCase() === "DOMESTIC PRIORITY" || mail.priority.toUpperCase() === "DOMESTIC STANDARD"){
+      this.data = new mailRouteData();
+      this.data.errorMessage = "This mail must be sent via International Priority";
+      return this.data;
+    }
     return findDomesticRoute(mail);
   }
   if(mail.priority.toUpperCase() === "INTERNATIONAL PRIORITY"){
+      this.data = new mailRouteData();
+      this.data.errorMessage = "This mail must be sent via Domestic Priority";
+      return this.data;
+    }
     return findInternationalAirRoute(mail);
   }
   if(mail.priority.toUpperCase() === "INTERNATIONAL STANDARD"){
+      this.data = new mailRouteData();
+      this.data.errorMessage = "This mail must be sent via Domestic Priority";
+      return this.data;
+    }
     return findInternationalStandardRoute(mail);
   }
 }
@@ -53,6 +66,7 @@ var findDomesticRoute = function(mail){
       }
       this.data.routeTaken.reverse();
       this.data.costToCompany = this.cost;
+      this.data.errorMessage = false;
       console.log("");
       return this.data;
     }
@@ -114,7 +128,9 @@ var findDomesticRoute = function(mail){
       if(this.smallestNode.distance == Number.POSITIVE_INFINITY){
         console.log("No route");
         console.log("");
-        return 0;
+        this.data = new mailRouteData();
+        this.data.errorMessage = "No route";
+        return this.data;
       }
 
       // Otherwise, select the unvisited node that is marked with the smallest tentative distance, set it as the new "current node", and go back to step 3.
@@ -156,6 +172,7 @@ var findInternationalAirRoute = function(mail){
       }
       this.data.routeTaken.reverse();
       this.data.costToCompany = this.cost;
+      this.data.errorMessage = false;
       console.log("");
       return this.cost;
     }
@@ -214,8 +231,9 @@ var findInternationalAirRoute = function(mail){
       //if the smallest distance in the unvisited set is infinity, the graph is not connected
       if(this.smallestNode.distance == Number.POSITIVE_INFINITY){
         console.log("No route");
-        console.log("");
-        return 0;
+        this.data = new mailRouteData();
+        this.data.errorMessage = "No route";
+        return this.data;
       }
 
       // Otherwise, select the unvisited node that is marked with the smallest tentative distance, set it as the new "current node", and go back to step 3.
@@ -256,6 +274,7 @@ var findInternationalStandardRoute = function(mail){
       }
       this.data.routeTaken.reverse();
       this.data.costToCompany = this.cost;
+      this.data.errorMessage = false;
       console.log("");
       return this.data;
     }
@@ -301,22 +320,26 @@ var findInternationalStandardRoute = function(mail){
       //if the smallest distance in the unvisited set is infinity, the graph is not connected
       if(this.smallestNode.distance == Number.POSITIVE_INFINITY){
         console.log("No route");
-        console.log("");
-        return 0;
+        this.data = new mailRouteData();
+        this.data.errorMessage = "No route";
+        return this.data;
       }
       // Otherwise, select the unvisited node that is marked with the smallest tentative distance, set it as the new "current node", and go back to step 3.
       this.currentNode = this.smallestNode;
   }
 }
 
-var findRouteWaitTime = function(getDay, route){
-  return 0;
+
+var createPrices = function(customerprices){
+  prices = customerprices;
+  isGraphLoaded = true;
 }
 
 var createNodes = function(locs){
   if(typeof locs != 'undefined'){
     for(var i = 0;i < locs.length; i++){
-      nodes[locs[i].name] = new node(locs[i].locationid, locs[i].name);
+      console.log(locs[i]);
+      nodes[locs[i].name] = new node(locs[i].locationid, locs[i].name, locs[i].isInternational);
     }
     routes.getAllRoutes(createSegments);
   }
@@ -332,6 +355,7 @@ var createSegments = function(costs){
       segments.push(this.segment);
       nodes[costs[i].origin].segments.push(this.segment);
     }
+    customerprice.getAllPrices(createPrices);
   }
   else{
     console.log("Costs undefined: ");
@@ -358,12 +382,6 @@ var testMail = function(){
 }
 
 var mailFunction = function(mailList){
-  //0 Domestic Standard - fail too big
-  //1 international standard - success
-  //2 international priority - fail - no air
-  //3 Domestic Standard - success
-  //4 international priority - fail - can't reach dest
-  //5 international priority - success
   for(var mail in mailList){
       console.log("Finding route from "+ mailList[mail].origin + " to " + mailList[mail].destination + " with priority " + mailList[mail].priority);
       mailList[mail].date = new Date();
@@ -402,18 +420,22 @@ var segment = function(id, sNode, eNode, type, wc, vc, mw, mv, dur, freq, day){
 /**
 * @param {int} id Unique identifier
 * @param {string} name Name of location
+* @param {int} inter Is location international
 */
-var node = function(id, name){
+var node = function(id, name, inter){
   this.id = id;
   this.name = name;
   this.segments = [];
   this.distance = Number.POSITIVE_INFINITY;
   this.visited = false;
   this.fromSegment = null;
+  this.international = inter;
 }
 
 
 var mailRouteData = function(){
   this.routeTaken = [];//a list of route Id's, in order from origin to destination
   this.costToCompany;//total cost to company
+  this.costToCustomer;//customer price
+  this.errorMessage;//if search was success this is false, else it contains a string
 }
