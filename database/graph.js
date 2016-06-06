@@ -13,30 +13,48 @@ var isGraphLoaded = false;
 * @param {mail} mail being delivered
 */
 var findRoute = function(mail){
+  this.data = new mailRouteData();
+  //if graph hasn't loaded,return error
+  if(!isGraphLoaded){
+    this.data.errorMessage = "The graph has not finished loading";
+    return this.data;
+  }
+  //check if we have a price for this routes
+  for(var price in prices){
+    if(price.destination === mail.destination && price.origin === mail.origin){
+      this.wCost = price.weightcost * mail.weight;
+      this.vCost = price.volumecost * mail.volume;
+      this.data.costToCustomer = this.wCost + this.vCost;
+      break;
+    }
+    this.data.errorMessage = "We don't ship from" + mail.origin + " to " + mail.destination;
+    return this.data;
+  }
+
   if(mail.priority.toUpperCase() === "DOMESTIC PRIORITY" || mail.priority.toUpperCase() === "DOMESTIC STANDARD"){
-      this.data = new mailRouteData();
+    if(mail.destination.international > 0){
       this.data.errorMessage = "This mail must be sent via International Priority";
       return this.data;
     }
-    return findDomesticRoute(mail);
+    return findDomesticRoute(mail, this.data);
   }
   if(mail.priority.toUpperCase() === "INTERNATIONAL PRIORITY"){
-      this.data = new mailRouteData();
+    if(mail.destination.international == 0){
       this.data.errorMessage = "This mail must be sent via Domestic Priority";
       return this.data;
     }
-    return findInternationalAirRoute(mail);
+    return findInternationalAirRoute(mail, this.data);
   }
   if(mail.priority.toUpperCase() === "INTERNATIONAL STANDARD"){
-      this.data = new mailRouteData();
+    if(mail.destination.international == 0){
       this.data.errorMessage = "This mail must be sent via Domestic Priority";
       return this.data;
     }
-    return findInternationalStandardRoute(mail);
+    return findInternationalStandardRoute(mail, this.data);
   }
 }
 
-var findDomesticRoute = function(mail){
+var findDomesticRoute = function(mail, data){
   //Create a set of all the unvisited nodes called the unvisited set and init node values
   var unvisited = [];
   for(var node in nodes){
@@ -45,7 +63,7 @@ var findDomesticRoute = function(mail){
     nodes[node].visited = false;
     nodes[node].fromSegment = null;
   }
-
+  this.data = data;
   this.currentNode = nodes[mail.origin];
   this.currentNode.distance = 0;
   var sentDate = new Date().getTime();
@@ -55,7 +73,6 @@ var findDomesticRoute = function(mail){
     //If the destination node has been visited then stop. The algorithm has finished.
     if(nodes[mail.destination].visited){
       console.log("Reached Destination. Route:");
-      this.data = new mailRouteData();
       this.cost = 0;
       this.currentNode = nodes[mail.destination];
       while(this.currentNode != nodes[mail.origin]){
@@ -127,8 +144,6 @@ var findDomesticRoute = function(mail){
       //if the smallest distance in the unvisited set is infinity, the graph is not connected
       if(this.smallestNode.distance == Number.POSITIVE_INFINITY){
         console.log("No route");
-        console.log("");
-        this.data = new mailRouteData();
         this.data.errorMessage = "No route";
         return this.data;
       }
@@ -139,7 +154,7 @@ var findDomesticRoute = function(mail){
 
 }
 
-var findInternationalAirRoute = function(mail){
+var findInternationalAirRoute = function(mail, data){
   //Create a set of all the unvisited nodes called the unvisited set and init node values
   var unvisited = [];
   for(var node in nodes){
@@ -150,6 +165,7 @@ var findInternationalAirRoute = function(mail){
     nodes[node].fromSegment = null;
   }
 
+  this.data = data;
   //Set up starting node
   this.currentNode = nodes[mail.origin];
   this.currentNode.distance = 0;
@@ -160,7 +176,6 @@ var findInternationalAirRoute = function(mail){
 
     //If the destination node has been visited then stop. The algorithm has finished.
     if(nodes[mail.destination].visited){
-      this.data = new mailRouteData();
       console.log("Reached Destination. Route:");
       this.cost = 0;
       this.currentNode = nodes[mail.destination];
@@ -231,7 +246,6 @@ var findInternationalAirRoute = function(mail){
       //if the smallest distance in the unvisited set is infinity, the graph is not connected
       if(this.smallestNode.distance == Number.POSITIVE_INFINITY){
         console.log("No route");
-        this.data = new mailRouteData();
         this.data.errorMessage = "No route";
         return this.data;
       }
@@ -241,7 +255,7 @@ var findInternationalAirRoute = function(mail){
   }
 }
 
-var findInternationalStandardRoute = function(mail){
+var findInternationalStandardRoute = function(mail, data){
 
   //Create a set of all the unvisited nodes called the unvisited set and init node values
   var unvisited = [];
@@ -253,6 +267,8 @@ var findInternationalStandardRoute = function(mail){
     nodes[node].fromSegment = null;
   }
 
+  this.data = data;
+
   //set up starting node
   this.currentNode = nodes[mail.origin];
   this.currentNode.distance = 0;
@@ -262,7 +278,6 @@ var findInternationalStandardRoute = function(mail){
 
     //If the destination node has been visited then stop. The algorithm has finished.
     if(nodes[mail.destination].visited){
-      this.data = new mailRouteData();
       console.log("Reached Destination. Route:");
       this.cost = 0;
       this.currentNode = nodes[mail.destination];
@@ -320,7 +335,6 @@ var findInternationalStandardRoute = function(mail){
       //if the smallest distance in the unvisited set is infinity, the graph is not connected
       if(this.smallestNode.distance == Number.POSITIVE_INFINITY){
         console.log("No route");
-        this.data = new mailRouteData();
         this.data.errorMessage = "No route";
         return this.data;
       }
