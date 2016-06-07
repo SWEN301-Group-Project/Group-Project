@@ -90,7 +90,16 @@ Mail = new Mail();
 // Homepage
 router.get("/", function(req, res) {
 	"use strict";
-	res.render('index',{title: "Dashboard", homeActive: true});
+    Mail.getMailStats(function(labels, series){
+        res.render('index', {
+            title: 'Business Figures',
+            homeActive: true,
+            labels: labels,
+            series: series
+        });
+    });
+
+    //res.render('index',{title: "Dashboard", homeActive: true});
 });
 
 
