@@ -113,8 +113,28 @@
 
 <script type="text/javascript">
     $(document).ready(function(){
-        
-        chart.initChartist(labels, series);
+		//creating array of labels to add to chart initChartist
+		
+        var labels = [];
+		{% for label in labels %}
+			//to access value we have to use {{label}} if we want the value from res.render
+			labels.push('{{label}}');
+		{% endfor%}
+		//now create series array. Each nested array represents a dataset
+		
+		var series = [];
+		//loop through the outer array
+		{% for serie in series %}
+			var values = [];
+			//add values from inner array to values array
+			{% for value in serie %}
+				values.push({{value}}); //note use of {{value}} to inject value from res.render
+			{% endfor %}
+			
+			series.push(values); //append inner array into series array
+		{% endfor %}
+
+        chart.initChartist(labels, series); //we are using the local variables instead of res.render therefore we do not use curly braces
 
         $.notify({
             icon: 'ti-info',
