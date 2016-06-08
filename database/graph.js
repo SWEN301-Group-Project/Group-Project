@@ -352,7 +352,6 @@ var createPrices = function(customerprices){
 var createNodes = function(locs){
   if(typeof locs != 'undefined'){
     for(var i = 0;i < locs.length; i++){
-      console.log(locs[i]);
       nodes[locs[i].name] = new node(locs[i].locationid, locs[i].name, locs[i].isInternational);
     }
     routes.getAllRoutes(createSegments);
