@@ -163,6 +163,69 @@ router.post("/locations", function(req, res){
     });
 });
 
+//company
+router.get("/companies", function(req, res) {
+    "use strict";
+    Company.getAllCompanies(function(allCompanies){
+        res.render('company', {companyActive: true, title: "Company", companies: allCompanies});
+    });
+});
+
+router.get("/companies/:companyid", function(req, res){
+    var companyid = req.params.companyid;
+    Company.getCompanyById(companyid, function(company){
+        console.log(company);
+        res.render('updateCompany', {
+            companyActive: true,
+            title: "Update Company",
+            companyid: companyid,
+            company: company
+        })
+    });
+});
+
+router.post("/companies/delete/:companyid", function(req,res){
+    var companyid = req.params.companyid;
+
+    Company.deleteCompany(companyid, function(result){
+        console.log(result);
+        //TODO: Harman
+        //use result to send notification
+        //if result is success then render company page
+        //if result is failure then render companies/:companyid page
+        Company.getAllCompanies(function(allCompanies){
+            res.render('company', {companyActive: true, title: "Company", companies: allCompanies});
+        });
+    });
+});
+
+router.post("/companies/update/:companyid", function(req,res){
+    var company = req.body;
+    var companyid = req.params.companyid;
+    Company.updateCompany(companyid, company, function(result){
+        console.log(result);
+        //TODO: Harman
+        //use result to send notification if successful
+        //if result is success then render company page
+        //if result is failure then render companies/:companyid page
+        Company.getAllCompanies(function(allCompanies){
+            res.render('company', {companyActive: true, title: "Company", companies: allCompanies});
+        });
+    });
+});
+
+router.post("/companies", function(req, res){
+    console.log(req.body);
+    var newCompany = req.body;
+    Company.insertCompany(newCompany, function(result){
+        console.log(result);
+        Company.getAllCompanies(function(allCompanies){
+            //TODO: Harman ==> Add notification of successful insertion of new location
+            res.render('company', {companyActive: true, title: "Company", companies: allCompanies});
+        });
+    });
+});
+
 router.get("/routes", function(req, res) {
 	"use strict";
 
