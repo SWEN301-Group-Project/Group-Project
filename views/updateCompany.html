@@ -11,19 +11,14 @@
     <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0' name='viewport' />
     <meta name="viewport" content="width=device-width" />
 
-
     <!-- Bootstrap core CSS     -->
     <link href="/static/css/bootstrap.min.css" rel="stylesheet" />
-
 
     <!-- Animation library for notifications   -->
     <link href="/static/css/animate.min.css" rel="stylesheet"/>
 
     <!--  Paper Dashboard core CSS    -->
     <link href="/static/css/paper-dashboard.css" rel="stylesheet"/>
-
-    <!--  CSS for Datatables  -->
-    <link rel="stylesheet" type="text/css" href="/static/css/datatables.min.css"/>
 
     <!-- CSS for selectize -->
     <link rel="stylesheet" type="text/css" href="/static/selectize/css/selectize.css" />
@@ -65,7 +60,7 @@
                                         <div class="col-md-12">
                                             <div class="form-group">
                                                 <label for="name">Name</label>
-                                                <input type="text" id="name" name="name" class="form-control border-input" placeholder="Name" {% if company %}value = {{company.name}} {% endif %} required>
+                                                <input type="text" id="name" name="name" class="form-control border-input" placeholder="Name" {% if company %}value = "{{company.name}}" {% endif %} required>
                                             </div>
                                         </div>
                                     </div>
@@ -151,13 +146,18 @@
 <!--  Notifications Plugin    -->
 <script src="/static/js/bootstrap-notify.js"></script>
 
-<!-- Datatables Plugin -->
-<script type="text/javascript" src="/static/js/datatables.min.js"></script>
 <script>
     $(document).ready(function() {
-        $('#example-table').DataTable({
-            "dom": '<"search pull-left"f>rt<"bottom"lip><"clear">'
+        {% if notify %}
+        $.notify({
+            icon: 'ti-location-arrow',
+            message: "{{notify}}"
+
+        },{
+            type: '{% if notifyType %}{{notifyType}}{% else %}success{% endif %}',
+            timer: 300
         });
+        {% endif %}
     } );
 </script>
 <script type="text/javascript" src="/static/selectize/js/standalone/selectize.min.js"></script>

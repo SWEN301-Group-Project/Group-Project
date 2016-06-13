@@ -22,9 +22,6 @@
     <!--  Paper Dashboard core CSS    -->
     <link href="/static/css/paper-dashboard.css" rel="stylesheet"/>
 
-    <!--  CSS for Datatables  -->
-    <link rel="stylesheet" type="text/css" href="/static/css/datatables.min.css"/>
-
     <!-- CSS for selectize -->
     <link rel="stylesheet" type="text/css" href="/static/selectize/css/selectize.css" />
 
@@ -65,7 +62,7 @@
                                         <div class="col-md-12">
                                             <div class="form-group">
                                                 <label for="name">Name</label>
-                                                <input type="text" id="name" name="name" class="form-control border-input" placeholder="Name" {% if location %}value = {{location.name}} {% endif %} required>
+                                                <input type="text" id="name" name="name" class="form-control border-input" placeholder="Name" {% if location %}value = "{{location.name}}" {% endif %} required>
                                             </div>
                                         </div>
                                     </div>
@@ -145,15 +142,7 @@
 <!--  Notifications Plugin    -->
 <script src="/static/js/bootstrap-notify.js"></script>
 
-<!-- Datatables Plugin -->
-<script type="text/javascript" src="/static/js/datatables.min.js"></script>
-<script>
-    $(document).ready(function() {
-        $('#example-table').DataTable({
-            "dom": '<"search pull-left"f>rt<"bottom"lip><"clear">'
-        });
-    } );
-</script>
+
 <script type="text/javascript" src="/static/selectize/js/standalone/selectize.min.js"></script>
 <script>
     $(function() {
@@ -161,6 +150,20 @@
 
         $('#destination').selectize();
     });
+</script>
+<script>
+    $(document).ready(function() {
+        {% if notify %}
+        $.notify({
+            icon: 'ti-location-arrow',
+            message: "{{notify}}"
+
+        },{
+            type: '{% if notifyType %}{{notifyType}}{% else %}success{% endif %}',
+            timer: 300
+        });
+        {% endif %}
+    } );
 </script>
 <script type="text/javascript" src="/static/js/validation/mails.js"></script>
 </html>

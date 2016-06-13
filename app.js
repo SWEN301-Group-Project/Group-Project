@@ -45,7 +45,8 @@ app = express();
 app.set('view engine', 'html');
 app.set('views', __dirname + '/views');
 app.use('/static', express.static(__dirname + '/static'));
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({ extended: false }))
 app.use(cookieParser());
 app.use(session({secret: 'apparentlythishastobeaverylongsessionsecret'}));
 
@@ -100,7 +101,7 @@ router.get("/graph", function (req, res) {
     res.render('index', {title: "Dashboard", homeActive: true});
 });
 
-
+// Location routes
 router.get("/locations", function(req, res) {
 	"use strict";
     Location.getAllLocations(function(allLocations){
@@ -117,7 +118,7 @@ router.get("/locations/:locationid", function(req, res){
             title: "Update Location",
             locationid: locationid,
             location: location
-        })
+        });
     });
 });
 
@@ -126,13 +127,24 @@ router.post("/locations/delete/:locationid", function(req,res){
 
     Location.deleteLocation(locationid, function(result){
         console.log(result);
-        //TODO: Harman
-        //use result to send notification
-        //if result is success then render location page
-        //if result is failure then render locations/:locationid page
-        Location.getAllLocations(function(allLocations){
-            res.render('location', {locationActive: true, title: "Location", locations: allLocations});
-        });
+        if(result){
+            //success
+            Location.getAllLocations(function(allLocations){
+                res.render('location', {locationActive: true, title: "Location", locations: allLocations, notify: "Location successfully deleted", notifyType:"warning"});
+            });
+        } else {
+            Location.getLocationById(locationid, function(location){
+                console.log(location);
+                res.render('updateLocation', {
+                    locationActive: true,
+                    title: "Update Location",
+                    locationid: locationid,
+                    location: location,
+                    notify: "Error deleting location: " + location.name,
+                    notifyType: "danger"
+                });
+            });
+        }
     });
 });
 
@@ -141,13 +153,24 @@ router.post("/locations/update/:locationid", function(req,res){
     var locationid = req.params.locationid;
     Location.updateLocation(locationid, location, function(result){
         console.log(result);
-        //TODO: Harman
-        //use result to send notification if successful
-        //if result is success then render location page
-        //if result is failure then render locations/:locationid page
-        Location.getAllLocations(function(allLocations){
-            res.render('location', {locationActive: true, title: "Location", locations: allLocations});
-        });
+        if (result){
+            Location.getAllLocations(function(allLocations){
+                res.render('location', {locationActive: true, title: "Location", locations: allLocations, notify: location.name + " successfully updated", notifyType: "warning"});
+            });
+        } else {
+            //could not update the location
+            Location.getLocationById(locationid, function(location){
+                console.log(location);
+                res.render('updateLocation', {
+                    locationActive: true,
+                    title: "Update Location",
+                    locationid: locationid,
+                    location: location,
+                    notify: "Error updating location: " + location.name,
+                    notifyType: "danger"
+                });
+            });
+        }
     });
 });
 
@@ -157,8 +180,22 @@ router.post("/locations", function(req, res){
     Location.insertLocation(newLocation, function(result){
         console.log(result);
         Location.getAllLocations(function(allLocations){
-            //TODO: Harman ==> Add notification of successful insertion of new location
-            res.render('location', {locationActive: true, title: "Location", locations: allLocations});
+            if (result) {
+                res.render('location', {
+                    locationActive: true,
+                    title: "Location",
+                    locations: allLocations,
+                    notify: "Successfully added: " + newLocation.name
+                });
+            } else {
+                res.render('location', {
+                    locationActive: true,
+                    title: "Location",
+                    locations: allLocations,
+                    notify: "Error occurred",
+                    notifyType: "danger"
+                });
+            }
         });
     });
 });
@@ -180,7 +217,7 @@ router.get("/companies/:companyid", function(req, res){
             title: "Update Company",
             companyid: companyid,
             company: company
-        })
+        });
     });
 });
 
@@ -189,13 +226,23 @@ router.post("/companies/delete/:companyid", function(req,res){
 
     Company.deleteCompany(companyid, function(result){
         console.log(result);
-        //TODO: Harman
-        //use result to send notification
-        //if result is success then render company page
-        //if result is failure then render companies/:companyid page
-        Company.getAllCompanies(function(allCompanies){
-            res.render('company', {companyActive: true, title: "Company", companies: allCompanies});
-        });
+        if(result){
+            //success
+            Company.getAllCompanies(function(allCompanies){
+                res.render('company', {companyActive: true, title: "Company", companies: allCompanies, notify: "company successfully deleted", notifyType:"warning"});
+            });
+        } else {
+            Company.getCompanyById(companyid, function(company){
+                res.render('updateCompany', {
+                    companyActive: true,
+                    title: "Update Company",
+                    companyid: companyid,
+                    company: company,
+                    notify: "Error deleting company: " + company.name,
+                    notifyType: "danger"
+                });
+            });
+        };
     });
 });
 
@@ -204,24 +251,46 @@ router.post("/companies/update/:companyid", function(req,res){
     var companyid = req.params.companyid;
     Company.updateCompany(companyid, company, function(result){
         console.log(result);
-        //TODO: Harman
-        //use result to send notification if successful
-        //if result is success then render company page
-        //if result is failure then render companies/:companyid page
-        Company.getAllCompanies(function(allCompanies){
-            res.render('company', {companyActive: true, title: "Company", companies: allCompanies});
-        });
+        if (result){
+            Company.getAllCompanies(function(allCompanies){
+                res.render('company', {companyActive: true, title: "Company", companies: allCompanies, notify: company.name + " successfully updated", notifyType: "warning"});
+            });
+        } else {
+            //could not update the location
+            Company.getCompanyById(companyid, function(company){
+                res.render('updateCompany', {
+                    companyActive: true,
+                    title: "Update Company",
+                    companyid: companyid,
+                    company: company,
+                    notify: "Error deleting company: " + company.name,
+                    notifyType: "danger"
+                });
+            });
+        }
     });
 });
 
-router.post("/companies", function(req, res){
+router.post("/companies", function (req, res) {
     console.log(req.body);
     var newCompany = req.body;
-    Company.insertCompany(newCompany, function(result){
+    Company.insertCompany(newCompany, function (result) {
         console.log(result);
-        Company.getAllCompanies(function(allCompanies){
-            //TODO: Harman ==> Add notification of successful insertion of new location
-            res.render('company', {companyActive: true, title: "Company", companies: allCompanies});
+        Company.getAllCompanies(function (allCompanies) {
+            if (result) {
+                res.render('company', {
+                    companyActive: true,
+                    title: "Company",
+                    companies: allCompanies,
+                    notify: "Successfully added: " + newCompany.name
+                });
+            } else {
+                res.render('company', {
+                    companyActive: true, title: "Company", companies: allCompanies,
+                    notify: "Error occurred",
+                    notifyType: "danger"
+                });
+            }
         });
     });
 });
@@ -250,12 +319,16 @@ router.get("/routes", function(req, res) {
 
 router.post("/addMail", function(req,res, next){
    "use strict";
+    console.log("/addMail");
     console.log(req.body);
     var mail = req.body;
     req.session.mail = mail; //save mail in session
     var error = ""; //server side error message to be displayed
     //server-side error checking. Destination and origin cannot be the same
     if (mail.destination == mail.origin) {
+        if (mail.destination) {
+            error += "Unknown error occurred.\n";
+        }
         error += "Destination cannot be same as Origin.";
         Location.getAllLocations(function (locations) {
             Mail.getAllMail(function (mails) {

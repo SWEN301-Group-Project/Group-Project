@@ -177,6 +177,16 @@
         $('#example-table').DataTable({
             "dom": '<"search pull-left"f>rt<"bottom"lip><"clear">'
         });
+        {% if notify %}
+        $.notify({
+            icon: 'ti-location-arrow',
+            message: "{{notify}}"
+
+        },{
+            type: '{% if notifyType %}{{notifyType}}{% else %}success{% endif %}',
+            timer: 300
+        });
+        {% endif %}
     } );
 </script>
 <script type="text/javascript" src="/static/js/validation/mails.js"></script>

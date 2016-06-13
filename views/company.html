@@ -65,7 +65,7 @@
                                         <div class="col-md-12">
                                             <div class="form-group">
                                                 <label for="name">Name</label>
-                                                <input type="text" id="name" name="name" class="form-control border-input" placeholder="Name" {% if location %}value = {{location.name}} {% endif %} required>
+                                                <input type="text" id="name" name="name" class="form-control border-input" placeholder="Name" {% if location %}value = "{{location.name}}" {% endif %} required>
                                             </div>
                                         </div>
                                     </div>
@@ -87,7 +87,7 @@
                                                 </div>
                                                 <div class="radio">
                                                     <label>
-                                                        <input type="radio" name="isInternational" value="air">
+                                                        <input type="radio" name="type" value="air">
                                                         Air
                                                     </label>
                                                 </div>
@@ -175,6 +175,16 @@
         $('#example-table').DataTable({
             "dom": '<"search pull-left"f>rt<"bottom"lip><"clear">'
         });
+        {% if notify %}
+        $.notify({
+            icon: 'ti-location-arrow',
+            message: "{{notify}}"
+
+        },{
+            type: '{% if notifyType %}{{notifyType}}{% else %}success{% endif %}',
+            timer: 300
+        });
+        {% endif %}
     } );
 </script>
 <script type="text/javascript" src="/static/js/validation/mails.js"></script>
