@@ -63,13 +63,14 @@
 
                     <div class="dropdown-menu" aria-labelledby="dropdownMenu1">
                         <ul>
-                            {% if loggedin == true %}
-                                <li><a class="dropdown-item" href="logFile"> Logfile </a></li>
-                                <li><a class="dropdown-item" href="index"> Logout </a></li>
+                            {% if loggedin %}
+                            <li><a class="dropdown-item" href="logFile"> Logfile </a></li>
+
                             {% else %}
-                                <li><a class="dropdown-item" href="login"> Login </a></li>
-                                <li><a class="dropdown-item" href="#"> Logout </a></li>
+                            <li><a class="dropdown-item" href="login"> Login </a></li>
+
                             {% endif %}
+                            <li><a class="dropdown-item" href="login"> Logout </a></li>
                         </ul>
                     </div>
                 </li>
