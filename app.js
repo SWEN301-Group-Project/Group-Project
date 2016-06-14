@@ -94,6 +94,34 @@ router.get("/", function(req, res) {
 	res.render('index',{title: "Dashboard", homeActive: true});
 });
 
+router.get("/logFile", function(req, res) {
+    "use strict";
+    res.render('logFile',{loggedin: loggedin});
+});
+
+// Login page
+router.get("/login", function(req, res) {
+    "use strict";
+    res.render('login',{});
+});
+var password = 1234;
+var loggedin = false;
+router.post("/login", function(req, res) {
+    var code = req.body.code;
+    if(code != password){
+        loggedin = false;
+        res.render("login", {loggedin: loggedin, error: "Invalid code."});
+    }
+    else {
+        loggedin = true;
+        res.render('logFile', {loggedin: loggedin});
+    }
+});
+
+router.get("/logout",function(request,response) {
+    loggedin = false;
+    res.render('login', {loggedin: loggedin});
+});
 
 router.get("/graph", function (req, res) {
     "use strict";
