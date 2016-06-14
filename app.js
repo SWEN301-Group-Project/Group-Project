@@ -90,12 +90,13 @@ Mail = new Mail();
 // Homepage
 router.get("/", function(req, res) {
 	"use strict";
-    Mail.getMailStats(function(labels, series){
+    Mail.getMailStats(function(labels, series, range){
         res.render('index', {
             title: 'Business Figures',
             homeActive: true,
             labels: labels,
-            series: series
+            series: series,
+            dateRange: range
         });
     });
 

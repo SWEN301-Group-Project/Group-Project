@@ -46,12 +46,13 @@ var Mail = function(dbFile){
                 callback([]);
             } else if (callback){
 
-                console.log(rows);
-
                 var date = new Date();
+
                 while (date.getDay() != 1) {
                     date.setDate(date.getDate() - 1);
                 }
+
+                var range = date.getDate() + "/" + date.getMonth() + "/" + date.getFullYear();
 
                 var labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
@@ -60,13 +61,16 @@ var Mail = function(dbFile){
                     date.setDate(date.getDate() + 1);
                 }
 
+                date.setDate(date.getDate() - 1);
+
+                range = range + " to " + date.getDate() + "/" + date.getMonth() + "/" + date.getFullYear();
 
                 var series = [
                     [287, 385, 490, 562, 594, 626, 698],
                     [67, 152, 193, 240, 387, 435, 535]
                 ];
 
-                callback(labels, series);
+                callback(labels, series, range);
             }
         });
     },
