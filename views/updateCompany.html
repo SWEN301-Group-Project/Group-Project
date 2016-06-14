@@ -11,10 +11,8 @@
     <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0' name='viewport' />
     <meta name="viewport" content="width=device-width" />
 
-
     <!-- Bootstrap core CSS     -->
     <link href="/static/css/bootstrap.min.css" rel="stylesheet" />
-
 
     <!-- Animation library for notifications   -->
     <link href="/static/css/animate.min.css" rel="stylesheet"/>
@@ -49,7 +47,7 @@
                     <div class="col-md-12">
                         <div class="card">
                             <div class="header">
-                                <h4 class="title">Edit or Delete Location</h4>
+                                <h4 class="title">Edit or Delete Company</h4>
                             </div>
                             <div class="content">
                                 {% if error %}
@@ -57,12 +55,12 @@
                                     <span>{{ error }}</span>
                                 </div>
                                 {% endif %}
-                                <form method="post" action="/locations/update/{{locationid}}" id="locationform">
+                                <form method="post" action="/companies/update/{{companyid}}" id="companyForm">
                                     <div class="row">
                                         <div class="col-md-12">
                                             <div class="form-group">
                                                 <label for="name">Name</label>
-                                                <input type="text" id="name" name="name" class="form-control border-input" placeholder="Name" {% if location %}value = "{{location.name}}" {% endif %} required>
+                                                <input type="text" id="name" name="name" class="form-control border-input" placeholder="Name" {% if company %}value = "{{company.name}}" {% endif %} required>
                                             </div>
                                         </div>
                                     </div>
@@ -72,14 +70,20 @@
                                             <div class="form-group">
                                                 <div class="radio">
                                                     <label>
-                                                        <input type="radio" name="isInternational" value="1" {% if location.isInternational %}checked{% endif %}>
-                                                        International
+                                                        <input type="radio" name="type" value="land">
+                                                        Land
                                                     </label>
                                                 </div>
                                                 <div class="radio">
                                                     <label>
-                                                        <input type="radio" name="isInternational" value="0" {% if not location.isInternational %}checked{% endif %}>
-                                                        Domestic
+                                                        <input type="radio" name="type" value="sea">
+                                                        Sea
+                                                    </label>
+                                                </div>
+                                                <div class="radio">
+                                                    <label>
+                                                        <input type="radio" name="type" value="air">
+                                                        Air
                                                     </label>
                                                 </div>
                                             </div>
@@ -92,7 +96,7 @@
                                 </form>
                                 <div class="footer">
                                     <hr>
-                                    <form method="post" action="/locations/delete/{{locationid}}">
+                                    <form method="post" action="/companies/delete/{{companyid}}">
                                         <div class="stats">
                                             <button type="submit" class="btn-link"><i class="ti-trash"></i> Delete</button>
                                         </div>
@@ -142,15 +146,6 @@
 <!--  Notifications Plugin    -->
 <script src="/static/js/bootstrap-notify.js"></script>
 
-
-<script type="text/javascript" src="/static/selectize/js/standalone/selectize.min.js"></script>
-<script>
-    $(function() {
-        $('#origin').selectize({});
-
-        $('#destination').selectize();
-    });
-</script>
 <script>
     $(document).ready(function() {
         {% if notify %}
@@ -164,6 +159,14 @@
         });
         {% endif %}
     } );
+</script>
+<script type="text/javascript" src="/static/selectize/js/standalone/selectize.min.js"></script>
+<script>
+    $(function() {
+        $('#origin').selectize({});
+
+        $('#destination').selectize();
+    });
 </script>
 <script type="text/javascript" src="/static/js/validation/mails.js"></script>
 </html>

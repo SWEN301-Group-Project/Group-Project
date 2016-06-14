@@ -14,7 +14,7 @@ A location object looks like:
 The id is the primary key and is autoincremented. So when updating or inserting
 a location object you do not need to supply the id.
 
-The following are the database function implemented by location.js file:
+The following are the database function implemented by locations.js file:
     1. getAllLocations ==> returns array of location objects
     2 getLocationByName ==> returns location object that has name equal to parameter
     3 getLocationById ==> returns location object that has id == parameter
