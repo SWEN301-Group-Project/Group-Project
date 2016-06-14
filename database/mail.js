@@ -34,7 +34,7 @@ var Mail = function(dbFile){
     this._dbFile = dbFile ? dbFile : "./database/test.db";
     this.db = new sqlite3.Database(this._dbFile);
 
-    this.getMailStats = function(callback) {
+    this.getMailStats = function(stringOffset, callback) {
         var stmt = "SELECT mailid, ORIGIN.name AS origin, DEST.name AS destination, weight, volume, priority, totalcustomercost, totalbusinesscost, date "
             + "FROM mails "
             + "LEFT JOIN locations AS ORIGIN ON mails.origin = ORIGIN.locationid "
@@ -46,11 +46,15 @@ var Mail = function(dbFile){
                 callback([]);
             } else if (callback){
 
+                var dateOffset = parseInt(stringOffset);
+
                 var date = new Date();
 
                 while (date.getDay() != 1) {
                     date.setDate(date.getDate() - 1);
                 }
+
+                date.setDate(date.getDate() + (dateOffset * 7));
 
                 var range = date.getDate() + "/" + date.getMonth() + "/" + date.getFullYear();
 
@@ -70,7 +74,7 @@ var Mail = function(dbFile){
                     [67, 152, 193, 240, 387, 435, 535]
                 ];
 
-                callback(labels, series, range);
+                callback(labels, series, range, dateOffset - 1, dateOffset + 1);
             }
         });
     },

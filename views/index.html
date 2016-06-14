@@ -48,8 +48,8 @@
                             <div class="header">
                                 <h4 class="title">Weekly income and expenses</h4>
                                 <p class="category">For the week of {{ dateRange }}</p>
-                                <a href="#">Previous</a>
-                                <a href="#">Next</a>
+                                <a href="{{ prevDate }}">Previous</a>
+                                <a href="{{ nextDate }}">Next</a>
                             </div>
                             <div>
                             </div>
@@ -140,14 +140,14 @@
 
         chart.initChartist(labels, series); //we are using the local variables instead of res.render therefore we do not use curly braces
 
-        $.notify({
-            icon: 'ti-info',
-            message: "Welcome to <b>KPSmart Delivery</b> - this page contains business figures for now"
-
-        },{
-            type: 'success',
-            timer: 300
-        });
+//        $.notify({
+//            icon: 'ti-info',
+//            message: "Welcome to <b>KPSmart Delivery</b> - this page contains business figures for now"
+//
+//        },{
+//            type: 'success',
+//            timer: 300
+//        });
 
     });
 </script>

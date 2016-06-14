@@ -85,18 +85,22 @@ var router = express.Router();
 var database = new Database().init();
 Mail = new Mail();
 
-
+router.get("/", function(req, res) {
+    res.redirect('/0');
+});
 
 // Homepage
-router.get("/", function(req, res) {
+router.get("/:dateOffset", function(req, res) {
 	"use strict";
-    Mail.getMailStats(function(labels, series, range){
+    Mail.getMailStats(req.params.dateOffset, function(labels, series, range, prev, next){
         res.render('index', {
             title: 'Business Figures',
             homeActive: true,
             labels: labels,
             series: series,
-            dateRange: range
+            dateRange: range,
+            prevDate: prev,
+            nextDate: next
         });
     });
 
