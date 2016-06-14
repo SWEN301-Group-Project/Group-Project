@@ -87,11 +87,15 @@ var database = new Database().init();
 Mail = new Mail();
 
 router.get("/", function(req, res) {
-    res.redirect('/0');
+   res.redirect('/stats/0')
+});
+
+router.get("/stats", function(req, res) {
+    res.redirect('/stats/0');
 });
 
 // Homepage
-router.get("/:dateOffset", function(req, res) {
+router.get("/stats/:dateOffset", function(req, res) {
 	"use strict";
     Mail.getMailStats(req.params.dateOffset, function(labels, series, range, prev, next){
         res.render('index', {
