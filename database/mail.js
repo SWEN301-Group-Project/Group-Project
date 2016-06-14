@@ -46,7 +46,21 @@ var Mail = function(dbFile){
                 callback([]);
             } else if (callback){
 
+                console.log(rows);
+
+                var date = new Date();
+                while (date.getDay() != 1) {
+                    date.setDate(date.getDate() - 1);
+                }
+
                 var labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+                for (var i = 0; i < 7; i++) {
+                    labels[i] = labels[i] + ", " + date.getDate() + "/" + date.getMonth();
+                    date.setDate(date.getDate() + 1);
+                }
+
+
                 var series = [
                     [287, 385, 490, 562, 594, 626, 698],
                     [67, 152, 193, 240, 387, 435, 535]
