@@ -73,7 +73,7 @@ router.get("/", function(req, res) {
 
 router.get("/logFile", function(req, res) {
 	"use strict";
-	res.render('logFile',{});
+	res.render('logFile',{loggedin: loggedin});
 });
 
 // Login page
@@ -87,17 +87,17 @@ router.post("/login", function(req, res) {
 	var code = req.body.code;
 	if(code != password){
         loggedin = false;
-		res.render("login", {error: "Invalid code."});
+		res.render("login", {loggedin: loggedin, error: "Invalid code."});
 	}
-	else{
-		loggedin = true;
-		res.redirect('/logFile');
-	}
+	else {
+        loggedin = true;
+        res.render('logFile', {loggedin: loggedin});
+    }
 });
 
 router.get("/logout",function(request,response) {
     loggedin = false;
-    renderHomepage(request, response);
+    res.render('login', {loggedin: loggedin});
 });
 
 router.get("/graph", function(req, res) {
