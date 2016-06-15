@@ -197,7 +197,7 @@ var findInternationalAirRoute = function(mail, data){
     //For the current node consider all of its unvisited neighbors
       for(var segmentId in this.currentNode.segments){
         var segment = this.currentNode.segments[segmentId];
-        if(!segment.endNode.visited && segment.type === "Air" && segment.maxWeight >= mail.weight && segment.maxVolume >= mail.volume){
+        if(!segment.endNode.visited && segment.type.toLowerCase() === "air" && segment.maxWeight >= mail.weight && segment.maxVolume >= mail.volume){
           //calculate time for next departure
           this.currentDay = new Date(this.arrivalTime).getDay();
           //calculate time for next departure
@@ -299,7 +299,7 @@ var findInternationalStandardRoute = function(mail, data){
         if(!segment.endNode.visited && segment.maxWeight >= mail.weight && segment.maxVolume >= mail.volume){
           //Add weighting penalty for using air
           this.airPenalty = 0;
-          if(segment.type === "Air"){
+          if(segment.type.toLowerCase() === "air"){
             this.airPenalty = 1000;
           }
           this.weightCost = mail.weight * segment.weightCost;
@@ -347,7 +347,7 @@ var findInternationalStandardRoute = function(mail, data){
 var createPrices = function(customerprices){
   prices = customerprices;
   isGraphLoaded = true;
-}
+};
 
 var createNodes = function(locs){
   if(typeof locs != 'undefined'){
@@ -377,7 +377,8 @@ var createSegments = function(costs){
 
 exports.loadGraph = function(){
     location.getAllLocations(createNodes);
-}
+};
+module.exports.findRoute = findRoute;
 
 var printAll = function(){
   console.log("Printing Nodes: ");
@@ -392,7 +393,7 @@ var printAll = function(){
 
 var testMail = function(){
   mail.getAllMail(mailFunction);
-}
+};
 
 var mailFunction = function(mailList){
   for(var mail in mailList){
@@ -400,7 +401,7 @@ var mailFunction = function(mailList){
       mailList[mail].date = new Date();
       findRoute(mailList[mail]);
   }
-}
+};
 
 /**
 * @param {int} id Unique identifier

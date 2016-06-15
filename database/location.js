@@ -66,7 +66,7 @@ exports.insertLocation = function(location, callback){
     stmt.run([location.name.toLowerCase(), location.isInternational], function(err){
         if(err){callback(0)}
         else if (callback){
-            callback(this.changes);
+            callback(this);
         }
     });
 };
