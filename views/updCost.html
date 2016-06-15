@@ -90,7 +90,7 @@
                                             <select name="company" id="company" placeholder="Enter a Location..." required>
                                                 <option value="">Enter a Company...</option>
                                                 {% for company in companies %}
-                                                    <option value={{company.companyid}}>{{company.name}}</option>
+                                                    <option value={{company.companyid}}>{{company.name | capitalize}} - {{company.type | capitalize}}</option>
                                                 {% endfor %}
                                             </select>
                                         </div>

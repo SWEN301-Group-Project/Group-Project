@@ -1,120 +1,151 @@
-var expect = require("chai").expect,
-    request = require('supertest'),
-    Database = require('../database/database').Database,
-    Mail = require('../database/mail').Mail;
+var chai = require("chai"),
+    expect = require("chai").expect,
+    server = require('../app'),
+    chaiHttp = require('chai-http'),
+    Mail = require('../database/mail').Mail,
+    Location = require('../database/location');
 
-var express = require('express');
+chai.use(chaiHttp);
 
-var app = express();
-
-app.get('/user', function(req, res) {
-    res.status(200).json({ name: 'tobi' });
-});
-
-/**
- * Mail.html form tests
- */
-describe("Post mail", function(){
-    before(function(done){
-        //this needs to be in before
+describe("Location Tests", function(){
+    var testLocation;
+    before(function (done) {
+        this.timeout(5000);
         /**
          * Initialise the database.
          */
-        var database = new Database().init("./database/test2.db");
-        Mail = new Mail("./database/test2.db");
-        done();
+        testLocation = {name: 'test', isInternational: '1'};
+        console.log("Testing Insertion of Location");
+        Location.insertLocation(testLocation, function (result) {
+            testLocation.id = result.lastID;
+            console.log("added testlocation: ");
+            console.log(testLocation);
+            console.log("id: " + testLocation.id);
+            done();
+        });
 
     });
-    it('check adding valid mail', function () {
-        request(app)
-            .post('/addMail')
-            .send({"origin": 1, "destination": 2, "weight": 88, "volume": 9, "priority": "INTERNATIONAL STANDARD"})
+    after(function(done){
+
+        console.log(testLocation.id);
+        Location.deleteLocation(testLocation.id, function(result){
+            console.log("Finished delete location");
+            console.log(result);
+            done();
+        });
+    });
+
+    it('should list ALL locations', function (done) {
+        chai.request(server)
+            .get('/locations')
             .end(function (err, res) {
-                if (err) return done(err);
-                done();
-            });
-    });
-    it('check invalid weight', function(){
-        request(app)
-            .post('/addMail')
-            .send({"origin": 1,"destination": 2, "weight": "invalid", "volume": 9, "priority":"INTERNATIONAL STANDARD"})
-            .expect(404)
-            .end(function(err, res) {
-                if (err) return done(err);
-                done();
-            });
-    });
-    it('check invalid volume', function(){
-        request(app)
-            .post('/addMail')
-            .send({"origin": 1,"destination": 2, "weight": 88, "volume": "invalid", "priority":"INTERNATIONAL STANDARD"})
-            .expect(404)
-            .end(function(err, res) {
-                if (err) return done(err);
-                done();
-            });
-    });
-
-    it('check duplicate origin and destination', function(){
-        request(app)
-            .post('/addMail')
-            .send({"origin": 1,"destination": 1, "weight": "invalid", "volume": 9, "priority":"INTERNATIONAL STANDARD"})
-            .expect(404)
-            .end(function(err, res) {
-                if (err) return done(err);
+                expect(res).to.have.status(200);
+                expect(res.text).to.contain("Add new Location");
+                expect(res.text).to.contain("Locations");
                 done();
             });
     });
 });
-
 // /**
-//  * Mail.js database tests.
+//  * Mail.html form tests
 //  */
-// describe("Mail database tests", function () {
-//     //use existing database via database.init("") to use existing locations'
-//     //Mail = new Mail("./database/test2.db");
-//
-//     var Mail;
-//     var testMail = {};
-//
+// describe("Post mail", function(){
 //     before(function(done){
 //         //this needs to be in before
 //         /**
 //          * Initialise the database.
 //          */
 //         var database = new Database().init("./database/test2.db");
-//         Mail = new Mail("./database/test2.db");
-//         testMail = {
-//             origin: '1',
-//             destination: '2',
-//             weight: '3',
-//             volume: '3',
-//             priority: 'DOMESTIC STANDARD'
-//         };
+//         // Mail = new Mail("./database/test2.db");
 //         done();
 //
 //     });
-//
-//     it("Test insert mail", function () {
-//         Mail.insertMail(testMail, function (result) {
-//             console.log(result);
-//             expect(result).to.be.true;
-//             testMail.id = result.lastID;
-//         });
+//     it('check confirmation page', function (done) {
+//         var mail = {
+//             "origin": 2,
+//             "destination": 1,
+//             "weight": 88,
+//             "volume": 9,
+//             "priority": "INTERNATIONAL STANDARD"
+//         };
+//         request("http://localhost:3000")
+//             .post('/addMail')
+//             .send(mail)
+//             .set('Content-Type', 'application/json')
+//             .end(function (err, res) {
+//                 // Should.js fluent syntax applied
+//                 // res.body.should.have.property("origin", 1);
+//                 // res.body.destination.should.equal(2);
+//                 // res.body.weight.should.equal(88);
+//                 // res.body.destination.should.equal(9);
+//                 // res.body.priority.should.equal("INTERNATIONAL STANDARD");
+//                 // console.log(res);
+//                 if (err) return done(err);
+//                 done();
+//             });
+//     });
+//     it('check invalid weight', function(done){
+//         request(app)
+//             .post('/addMail')
+//             .send({"origin": 1,"destination": 2, "weight": "invalid", "volume": 9, "priority":"INTERNATIONAL STANDARD"})
+//             .expect(404)
+//             .end(function(err, res) {
+//                 if (err) return done(err);
+//                 done();
+//             });
+//     });
+//     it('check invalid volume', function(done){
+//         request(app)
+//             .post('/addMail')
+//             .send({"origin": 1,"destination": 2, "weight": 88, "volume": "invalid", "priority":"INTERNATIONAL STANDARD"})
+//             .expect(404)
+//             .end(function(err, res) {
+//                 if (err) return done(err);
+//                 done();
+//             });
 //     });
 //
-//     it("Test get all mail", function () {
-//         Mail.getAllMail(function(result){
-//             expect(result instanceof Array).to.be.true;
-//         })
+//     it('check duplicate origin and destination', function(done){
+//         request(app)
+//             .post('/addMail')
+//             .send({"origin": 1,"destination": 1, "weight": "invalid", "volume": 9, "priority":"INTERNATIONAL STANDARD"})
+//             .expect(404)
+//             .end(function(err, res) {
+//                 if (err) return done(err);
+//                 done();
+//             });
+//     });
+// });
+//
+// /**
+//  * Location.html form tests
+//  */
+// describe("Location test", function(){
+//     before(function(done){
+//         var database = new Database().init("./database/test2.db");
+//         done();
 //     });
 //
-//     it("Test get mail by id", function(){
-//         Mail.getMailById(1, function(result){
-//             console.log(result);
-//             expect(result).to.be.true;
-//         });
+//     it('add new location', function (done) {
+//         var location = {
+//             name: "Test",
+//             isInternational : 1
+//         };
+//         request("http://localhost:3000")
+//             .post('/locations')
+//             .send(location)
+//             .set('Accept', /json/)
+//             .type('form')
+//             .end(function (err, res) {
+//                 // Should.js fluent syntax applied
+//                 console.log(res);
+//                 // res.body.destination.should.equal(2);
+//                 // res.body.weight.should.equal(88);
+//                 // res.body.destination.should.equal(9);
+//                 // res.body.priority.should.equal("INTERNATIONAL STANDARD");
+//
+//                 if (err) return done(err);
+//                 done();
+//             });
 //     });
-//
-//
 // });
