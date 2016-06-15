@@ -14,7 +14,7 @@ exports.insertManager = function(manager, callback){
     });
 };
 
-//removes a manager from table by its id
+//removes a manager from table by their id
 //The number of rows removed is returned
 //PostCondition: if return > 0 ==> {return} rows deleted successfully
 exports.deleteManager = function(managerid, callback){
@@ -49,6 +49,41 @@ exports.updateManager = function(managerid, newManager, callback){
             if(callback){
                 callback(this.changes);
             }
+        }
+    });
+};
+
+//finds a manager from table by their username and password
+//The number of rows removed is returned
+//PostCondition: if return > 0 ==> {return} rows deleted successfully
+exports.loginManager = function(username, password, callback){
+    db.run("SELECT * FROM managers WHERE username = $username AND password = $password", {$username: username, $password: password}, function(err){
+        if(err){
+            console.log("Error finding manager with username: " + username);
+            callback(0);
+        }else{
+            console.log(this);
+            if(callback){
+                callback(this.changes);
+            }
+        }
+    });
+};
+
+exports.getAllManagers = function(callback){
+    db.all("SELECT * FROM managers", function(err, rows){
+        if (err){console.log("Error loading managers: " + err); callback([]);}
+        else if (callback){
+            callback(rows);
+        }
+    });
+};
+
+exports.getOneManagers = function(callback){
+    db.all("SELECT * FROM managers WHERE username = admin", function(err, rows){
+        if (err){console.log("Error loading managers: " + err); callback([]);}
+        else if (callback){
+            callback(rows);
         }
     });
 };
