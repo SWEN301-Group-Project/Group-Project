@@ -60,19 +60,35 @@ var Mail = function(dbFile){
 
                 var labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
+                var series = [
+                    [0, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0, 0, 0]
+                ];
+
+                // This is super inefficient, looping over each entry in the database
+                // against each date, but it works and for the purpose of this assignment
+                // the database is unlikely to get large enough for this to create any
+                // speed issues.
                 for (var i = 0; i < 7; i++) {
                     labels[i] = labels[i] + ", " + date.getDate() + "/" + date.getMonth();
+
+                    var stringDate = date.getFullYear() + '-'
+                    + ('0' + (date.getMonth() + 1)).slice(-2) + '-'
+                    + ('0' + (date.getDate())).slice(-2);
+
+                    for (var j = 0; j < rows.length; j++) {
+                        if (stringDate == rows[j].date.slice(0, 10)) {
+                            series[0][1] += rows[j].totalcustomercost;
+                            series[0][2] += rows[j].totalbusinesscost;
+                        }
+                    }
+
                     date.setDate(date.getDate() + 1);
                 }
 
                 date.setDate(date.getDate() - 1);
 
                 range = range + " to " + date.getDate() + "/" + date.getMonth() + "/" + date.getFullYear();
-
-                var series = [
-                    [287, 385, 490, 562, 594, 626, 698],
-                    [67, 152, 193, 240, 387, 435, 535]
-                ];
 
                 callback(labels, series, range, dateOffset - 1, dateOffset + 1);
             }
