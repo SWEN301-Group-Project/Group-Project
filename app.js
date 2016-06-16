@@ -37,7 +37,8 @@ var express = require('express'),
     Route = require('./database/routes'),
     Price = require('./database/customerprice'),
     Managers = require('./database/managers'),
-    Graph = require('./database/graph');
+    Graph = require('./database/graph'),
+    logFile = require('./database/logFile.js');
 
 
 // Set up express
@@ -85,7 +86,7 @@ var router = express.Router();
  */
 var database = new Database().init();
 Mail = new Mail();
-
+var logfile = logFile.logFile();
 
 
 // Homepage
