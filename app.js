@@ -91,75 +91,62 @@ Mail = new Mail();
 // Homepage
 router.get("/", function(req, res) {
 	"use strict";
-	res.render('index',{title: "Dashboard", homeActive: true});
+	res.render('index',{title: "Dashboard", loggedin: req.session.manager ? true : false, homeActive: true});
 });
 
 // Login page
-router.get("/login", function(req, res) {
+router.get("/login", function (req, res) {
     "use strict";
-    res.render('login',{});
-});
-
-router.post("/login", function(req, res){
-    console.log(req.body);
-    var newManager = req.body;
-    Managers.insertManager(newManager, function(result){
-        console.log(result);
-        Managers.getAllManagers(function(allManagers){
-            console.log(allManagers);
-            if (result) {
-                res.render('login', {
-                    title: "Login",
-                    managers: allManagers,
-                    notify: "Successfully added: " + newManager.username
-                });
-            } else {
-                res.render('location', {
-                    title: "Location",
-                    managers: allManagers,
-                    notify: "Error occurred",
-                    notifyType: "danger"
-                });
-            }
-        });
+    Managers.getAllManagers(function(result){
+       console.log(result);
     });
+    res.render('login', {});
 });
 
-var loggedin = false;
 router.post("/login", function(req, res) {
+    console.log(req.body);
+    var manager = req.body;
     var username = req.body.username;
     var password = req.body.password;
-    Managers.loginManager(username, password, function(location){
-        res.render("login", {loggedin: loggedin, error: "Invalid code."});
+    Managers.loginManager(username, password, function(result){
+        console.log("inside loginmanager function");
+        console.log(result);
+        if (result){
+            req.session.manager = manager; //save user in session
+        }
+        res.render("login", {loggedin: req.session.manager ? true : false, error: "Invalid code."});
     });
 });
 
 router.get("/logFile", function(req, res) {
     "use strict";
-    if(!req.session.username) {
-        res.render('login', {loggedin: loggedin});
+    if(req.session.manager) {
+        res.render('logFile', {loggedin: req.session.manager ? true : false});
     }
     else{
-        res.render('logFile', {loggedin: loggedin});
+        res.render('login', {loggedin: req.session.manager ? true : false});
     }
 });
 
-router.get("/logout",function(request,response) {
-    loggedin = false;
-    res.render('login', {loggedin: loggedin});
+router.get("/logout",function(req,res) {
+    "use strict"
+    console.log("POST: /logout");
+    req.session.manager = null;
+    console.log(req.session.manager ? true : false);
+    res.render('login', {loggedin: req.session.manager ? true : false});
 });
 
 router.get("/graph", function (req, res) {
     "use strict";
     Graph.loadGraph();
-    res.render('index', {title: "Dashboard", homeActive: true});
+    res.render('index', {title: "Dashboard", loggedin: req.session.manager ? true : false, homeActive: true});
 });
 
 // Location routes
 router.get("/locations", function(req, res) {
 	"use strict";
     Location.getAllLocations(function(allLocations){
-        res.render('location', {locationActive: true, title: "Location", locations: allLocations});
+        res.render('location', {locationActive: true, title: "Location", loggedin: req.session.manager ? true : false, locations: allLocations});
     });
 });
 
@@ -170,6 +157,7 @@ router.get("/locations/:locationid", function(req, res){
         res.render('updateLocation', {
             locationActive: true,
             title: "Update Location",
+            loggedin: req.session.manager ? true : false,
             locationid: locationid,
             location: location
         });
@@ -184,7 +172,7 @@ router.post("/locations/delete/:locationid", function(req,res){
         if(result){
             //success
             Location.getAllLocations(function(allLocations){
-                res.render('location', {locationActive: true, title: "Location", locations: allLocations, notify: "Location successfully deleted", notifyType:"warning"});
+                res.render('location', {locationActive: true, title: "Location", loggedin: req.session.manager ? true : false, locations: allLocations, notify: "Location successfully deleted", notifyType:"warning"});
             });
         } else {
             Location.getLocationById(locationid, function(location){
@@ -192,6 +180,7 @@ router.post("/locations/delete/:locationid", function(req,res){
                 res.render('updateLocation', {
                     locationActive: true,
                     title: "Update Location",
+                    loggedin: req.session.manager ? true : false,
                     locationid: locationid,
                     location: location,
                     notify: "Error deleting location: " + location.name,
@@ -218,6 +207,7 @@ router.post("/locations/update/:locationid", function(req,res){
                 res.render('updateLocation', {
                     locationActive: true,
                     title: "Update Location",
+                    loggedin: req.session.manager ? true : false,
                     locationid: locationid,
                     location: location,
                     notify: "Error updating location: " + location.name,
@@ -238,6 +228,7 @@ router.post("/locations", function(req, res){
                 res.render('location', {
                     locationActive: true,
                     title: "Location",
+                    loggedin: req.session.manager ? true : false,
                     locations: allLocations,
                     notify: "Successfully added: " + newLocation.name
                 });
@@ -245,6 +236,7 @@ router.post("/locations", function(req, res){
                 res.render('location', {
                     locationActive: true,
                     title: "Location",
+                    loggedin: req.session.manager ? true : false,
                     locations: allLocations,
                     notify: "Error occurred",
                     notifyType: "danger"
@@ -258,7 +250,7 @@ router.post("/locations", function(req, res){
 router.get("/companies", function(req, res) {
     "use strict";
     Company.getAllCompanies(function(allCompanies){
-        res.render('company', {companyActive: true, title: "Company", companies: allCompanies});
+        res.render('company', {companyActive: true, title: "Company", loggedin: req.session.manager ? true : false, companies: allCompanies});
     });
 });
 
@@ -269,6 +261,7 @@ router.get("/companies/:companyid", function(req, res){
         res.render('updateCompany', {
             companyActive: true,
             title: "Update Company",
+            loggedin: req.session.manager ? true : false,
             companyid: companyid,
             company: company
         });
@@ -283,13 +276,14 @@ router.post("/companies/delete/:companyid", function(req,res){
         if(result){
             //success
             Company.getAllCompanies(function(allCompanies){
-                res.render('company', {companyActive: true, title: "Company", companies: allCompanies, notify: "company successfully deleted", notifyType:"warning"});
+                res.render('company', {companyActive: true, title: "Company", loggedin: req.session.manager ? true : false, companies: allCompanies, notify: "company successfully deleted", notifyType:"warning"});
             });
         } else {
             Company.getCompanyById(companyid, function(company){
                 res.render('updateCompany', {
                     companyActive: true,
                     title: "Update Company",
+                    loggedin: req.session.manager ? true : false,
                     companyid: companyid,
                     company: company,
                     notify: "Error deleting company: " + company.name,
@@ -307,7 +301,7 @@ router.post("/companies/update/:companyid", function(req,res){
         console.log(result);
         if (result){
             Company.getAllCompanies(function(allCompanies){
-                res.render('company', {companyActive: true, title: "Company", companies: allCompanies, notify: company.name + " successfully updated", notifyType: "warning"});
+                res.render('company', {companyActive: true, title: "Company", loggedin: req.session.manager ? true : false, companies: allCompanies, notify: company.name + " successfully updated", notifyType: "warning"});
             });
         } else {
             //could not update the location
@@ -315,6 +309,7 @@ router.post("/companies/update/:companyid", function(req,res){
                 res.render('updateCompany', {
                     companyActive: true,
                     title: "Update Company",
+                    loggedin: req.session.manager ? true : false,
                     companyid: companyid,
                     company: company,
                     notify: "Error deleting company: " + company.name,
@@ -335,12 +330,15 @@ router.post("/companies", function (req, res) {
                 res.render('company', {
                     companyActive: true,
                     title: "Company",
+                    loggedin: req.session.manager ? true : false,
                     companies: allCompanies,
                     notify: "Successfully added: " + newCompany.name
                 });
             } else {
                 res.render('company', {
-                    companyActive: true, title: "Company", companies: allCompanies,
+                    companyActive: true, title: "Company",
+                    loggedin: req.session.manager ? true : false,
+                    companies: allCompanies,
                     notify: "Error occurred",
                     notifyType: "danger"
                 });
@@ -367,7 +365,7 @@ router.get("/routes", function(req, res) {
     };
     Location.getAllLocations(function (result) {
         console.log(result)
-        res.render(index, {title: "Dashboard", homeActive: true});
+        res.render(index, {title: "Dashboard", loggedin: req.session.manager ? true : false, homeActive: true});
     });
 });
 
@@ -390,6 +388,7 @@ router.post("/addMail", function(req,res, next){
                 res.render('mails', {
                     mailActive: true,
                     title: "Mails",
+                    loggedin: req.session.manager ? true : false,
                     error: error,
                     mail: mail,
                     mails: mails,
@@ -411,6 +410,7 @@ router.post("/addMail", function(req,res, next){
                 res.render('confirmMail', {
                     mail: mail,
                     title: "Mails",
+                    loggedin: req.session.manager ? true : false,
                     origin: originLocation,
                     destination: destinationLocation,
                     mailActive: true
@@ -435,6 +435,7 @@ router.get('/confirmMail', function(req,res){
                 res.render('mails', {
                     mailActive: true,
                     title: "Mails",
+                    loggedin: req.session.manager ? true : false,
                     mailAdded: true,
                     locations: locations,
                     mails: mails
@@ -453,6 +454,7 @@ router.get("/mails", function(req, res) {
             res.render('mails', {
                 mailActive: true,
                 title: "Mails",
+                loggedin: req.session.manager ? true : false,
                 mail: req.session.mail,
                 mails: mails,
                 locations: locations
@@ -465,7 +467,7 @@ router.get("/price", function(req, res){
   console.log('PRICE: GET');
   Location.getAllLocations(function(cb){
       console.log(cb);
-      res.render('updPrice', {priceActive: true, title: "Customer Prices", locations: cb});
+      res.render('updPrice', {priceActive: true, title: "Customer Prices", loggedin: req.session.manager ? true : false, locations: cb});
   });
 });
 
@@ -500,7 +502,7 @@ router.post("/price", function(req, res){
   if (err.length) {
     Location.getAllLocations(function(cb){
       console.log(cb);
-      res.render('updPrice', {priceActive: true, title: "Customer Prices", error: err, locations: cb});
+      res.render('updPrice', {priceActive: true, title: "Customer Prices", loggedin: req.session.manager ? true : false, error: err, locations: cb});
     });
   } else {
     // this means that there is nothing wrong, so we can be do the actual work
@@ -558,7 +560,7 @@ router.post("/price", function(req, res){
     // we want to do something if ori and dest have no value
   	Location.getAllLocations(function(cb){
         console.log(cb);
-        res.render('updPrice', {priceActive: true, title: "Customer Prices", locations: cb});
+        res.render('updPrice', {priceActive: true, title: "Customer Prices", loggedin: req.session.manager ? true : false, locations: cb});
     });
   }
 });
@@ -569,7 +571,7 @@ router.get("/cost", function(req, res){
     Company.getAllCompanies(function(cbComp){
       console.log(cbLoc);
       console.log(cbComp);
-      res.render('updCost', {costActive: true, title: "Route Costs", locations: cbLoc, companies: cbComp});
+      res.render('updCost', {costActive: true, title: "Route Costs", loggedin: req.session.manager ? true : false, locations: cbLoc, companies: cbComp});
     })
   });
 });
@@ -614,6 +616,7 @@ router.post("/cost", function(req, res){
           res.render('updCost', {
               costActive: true,
               title: "Route Costs",
+              loggedin: req.session.manager ? true : false,
               error: err,
               locations: cbLoc,
               companies: cbComp
@@ -734,7 +737,7 @@ router.post("/cost", function(req, res){
       Company.getAllCompanies(function(cbComp){
         // console.log(cbLoc);
         // console.log(cbComp);
-        res.render('updCost', {costActive: true, title: "Route Costs", locations: cbLoc, companies: cbComp});
+        res.render('updCost', {costActive: true, title: "Route Costs", loggedin: req.session.manager ? true : false, locations: cbLoc, companies: cbComp});
       })
     });
   }
