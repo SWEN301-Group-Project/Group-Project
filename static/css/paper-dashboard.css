@@ -1259,6 +1259,12 @@ textarea.form-control {
   padding: 15px 8px;
 }
 
+.caption-table {
+  text-align: center;
+  font-size: 1.5em;
+  font-weight: 600;
+}
+
 /*      Checkbox and radio         */
 .checkbox,
 .radio {

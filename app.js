@@ -102,7 +102,7 @@ router.get("/stats", function(req, res) {
 router.get("/stats/:dateOffset", function(req, res) {
 	"use strict";
 
-    Mail.getMailStats(req.params.dateOffset, function(labels, series, range, prev, next){
+    Mail.getMailStats(req.params.dateOffset, function(labels, series, range, prev, next, mailAmount){
         res.render('index', {
             title: 'Business Figures',
             homeActive: true,
@@ -110,7 +110,8 @@ router.get("/stats/:dateOffset", function(req, res) {
             series: series,
             dateRange: range,
             prevDate: prev,
-            nextDate: next
+            nextDate: next,
+            mailAmount: mailAmount
         });
     });
 

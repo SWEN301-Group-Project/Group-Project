@@ -68,6 +68,8 @@ var Mail = function(dbFile){
                     [0, 0, 0, 0, 0, 0, 0]
                 ];
 
+                var weekRows = [];
+
                 // This is super inefficient, looping over each entry in the database
                 // against each date, but it works and for the purpose of this assignment
                 // the database is unlikely to get large enough for this to create any
@@ -83,6 +85,7 @@ var Mail = function(dbFile){
                         if (stringDate == rows[j].date.slice(0, 10)) {
                             series[0][1] += rows[j].totalcustomercost;
                             series[0][2] += rows[j].totalbusinesscost;
+                            weekRows.push(rows[j]);
                         }
                     }
 
@@ -93,7 +96,68 @@ var Mail = function(dbFile){
                 date.setDate(date.getDate() - 1);
                 range = range + " to " + date.getDate() + "/" + date.getMonth() + "/" + date.getFullYear();
 
-                callback(labels, series, range, dateOffset - 1, dateOffset + 1);
+                //now to count all of the mail from each origin to each destination!
+                //this logic will end up a bit ugly :(
+                //may the gods of computer science have mercy on me for this hackery.
+
+                var mailAmount = [];
+
+                for (var i = 0; i < weekRows.length; i++) {
+                    var originMatch = false;
+
+                    for (var j = 0; j < mailAmount.length; j++) {
+                        if (mailAmount[j].origin == weekRows[i].origin) {
+                            originMatch = true;
+
+                            var destinationMatch = false;
+                            for (var k = 0; k < mailAmount[j].destinations.length; k++) {
+                                if (mailAmount[j].destinations[k].destination == weekRows[i].destination) {
+                                    destinationMatch = true;
+                                    mailAmount[j].destinations[k].totalNumber += 1;
+                                    mailAmount[j].destinations[k].totalVolume
+                                    = mailAmount[j].destinations[k].totalVolume + weekRows[i].volume;
+                                    mailAmount[j].destinations[k].totalWeight
+                                    = mailAmount[j].destinations[k].totalWeight + weekRows[i].weight;
+                                }
+                            }
+
+                            if (!destinationMatch) {
+                                mailAmount[j].destinations.push({
+                                    destination: weekRows[i].destination,
+                                    totalNumber: 1,
+                                    totalVolume: weekRows[i].volume,
+                                    totalWeight: weekRows[i].weight
+                                })
+                            }
+                        }
+                    }
+
+                    if (!originMatch) {
+                        mailAmount.push({
+                            origin: weekRows[i].origin,
+                            destinations: [{
+                                destination: weekRows[i].destination,
+                                totalNumber: 1,
+                                totalVolume: weekRows[i].volume,
+                                totalWeight: weekRows[i].weight
+                            }]
+                        });
+                    }
+                }
+
+                // looks nicer in capitals
+
+                for (var i = 0; i < mailAmount.length; i++) {
+                    mailAmount[i].origin = capitalizeFirstLetter(mailAmount[i].origin);
+
+                    for (var j = 0; j < mailAmount[i].destinations.length; j++) {
+                        mailAmount[i].destinations[j].destination = capitalizeFirstLetter(mailAmount[i].destinations[j].destination);
+                    }
+                }
+
+                //
+
+                callback(labels, series, range, dateOffset - 1, dateOffset + 1, mailAmount);
             }
         });
     },
@@ -234,3 +298,7 @@ var Mail = function(dbFile){
 };
 
 module.exports.Mail = Mail;
+
+function capitalizeFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}

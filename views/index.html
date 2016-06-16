@@ -63,7 +63,32 @@
                                 </div>
                             </div>
                         </div>
+                    <div class="card">
+                        {% for origin in mailAmount %}
+                        <table class="table table-striped table-responsive">
+                            <caption class="caption-table">Origin: {{origin.origin}}</caption>
+                            <thead>
+                            <tr>
+                                <th>Destination</th>
+                                <th>Number</th>
+                                <th>Volume</th>
+                                <th>Weight</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for destination in origin.destinations %}
+                            <tr>
+                                <td>{{destination.destination}}</td>
+                                <td>{{destination.totalNumber}}</td>
+                                <td>{{destination.totalVolume}}</td>
+                                <td>{{destination.totalWeight}}</td>
+                            </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                        {% endfor %}
                     </div>
+                        </div>
                 </div>
             </div>
         </div>
