@@ -50,12 +50,15 @@ var Mail = function(dbFile){
 
                 var date = new Date();
 
+                // go to previous day of week until we get to Monday
                 while (date.getDay() != 1) {
                     date.setDate(date.getDate() - 1);
                 }
 
+                // calculate the week offset
                 date.setDate(date.getDate() + (dateOffset * 7));
 
+                // String representing the date range
                 var range = date.getDate() + "/" + date.getMonth() + "/" + date.getFullYear();
 
                 var labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
@@ -86,8 +89,8 @@ var Mail = function(dbFile){
                     date.setDate(date.getDate() + 1);
                 }
 
+                // End of the date range
                 date.setDate(date.getDate() - 1);
-
                 range = range + " to " + date.getDate() + "/" + date.getMonth() + "/" + date.getFullYear();
 
                 callback(labels, series, range, dateOffset - 1, dateOffset + 1);

@@ -88,15 +88,17 @@ Mail = new Mail();
 
 Graph.loadGraph();
 
+// redirects to the stats page by default, this could be another page.
 router.get("/", function(req, res) {
    res.redirect('/stats/0')
 });
 
+// sets date range as default it you go to stats page without a range entered
 router.get("/stats", function(req, res) {
     res.redirect('/stats/0');
 });
 
-// Homepage
+// Stats page
 router.get("/stats/:dateOffset", function(req, res) {
 	"use strict";
 
