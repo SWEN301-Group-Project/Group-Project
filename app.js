@@ -270,7 +270,7 @@ router.post("/companies/delete/:companyid", function(req,res){
                     notifyType: "danger"
                 });
             });
-        };
+        }
     });
 });
 
@@ -323,28 +323,6 @@ router.post("/companies", function (req, res) {
     });
 });
 
-router.get("/routes", function(req, res) {
-	"use strict";
-
-    var route = {
-        company: 2,
-        origin: 1,
-        destination: 2,
-        type: 'Air / Land / Sea',
-        weightcost: 5,
-        volumecost: 6,
-        maxweight: 350,
-        maxvolume: 50,
-        duration: 16,
-        frequency: 36,
-        day: 0
-    };
-    Location.getAllLocations(function (result) {
-        console.log(result)
-        res.render(index, {title: "Dashboard", homeActive: true});
-    });
-});
-
 router.post("/addMail", function(req,res, next){
    "use strict";
     console.log("/addMail");
@@ -377,13 +355,22 @@ router.post("/addMail", function(req,res, next){
          If route can be calculated then update the business and customer cost
          Then add mail to event and insert into database
          */
-        var mailFindRoute = findRoute(mail);
-        console.log(mailFindRoute);
         /**
          * 1. render the confirmation page while sending the mail object
          */
         Location.getLocationById(mail.origin, function(originLocation){
             Location.getLocationById(mail.destination, function(destinationLocation){
+                var testMail = {
+                    origin: originLocation.name,
+                    destination: destinationLocation.name,
+                    weight: mail.weight,
+                    volume: mail.volume,
+                    priority: mail.priority
+                };
+                console.log(testMail);
+                var mailFindRoute = findRoute(testMail);
+
+                console.log(mailFindRoute);
                 res.render('confirmMail', {
                     mail: mail,
                     title: "Mails",
@@ -464,8 +451,11 @@ router.post("/price", function(req, res){
             });
         });
     } else {
-        console.log('insert');
         var price = req.body;
+        console.log('insert');
+        console.log('origin: ' + price.sourceLocation);
+        console.log('destination: ' + price.destLocation);
+
         Price.insertCustomerPrice({
             origin: price.sourceLocation,
             destination: price.destLocation,

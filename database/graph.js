@@ -20,139 +20,156 @@ var findRoute = function(mail){
     return this.data;
   }
   //check if we have a price for this routes
-  for(var price in prices){
-    if(price.destination === mail.destination && price.origin === mail.origin){
-      this.wCost = price.weightcost * mail.weight;
-      this.vCost = price.volumecost * mail.volume;
-      this.data.costToCustomer = this.wCost + this.vCost;
-      break;
+    for (var i = 0; i < prices.length; i++) {
+        var price = prices[i];
+        console.log("Price: ");
+        console.log(price);
+        console.log(price.destination);
+        console.log(mail.destination);
+        if (price.destination === mail.destination && price.origin === mail.origin) {
+            this.wCost = price.weightcost * mail.weight;
+            this.vCost = price.volumecost * mail.volume;
+            this.data.costToCustomer = this.wCost + this.vCost;
+            console.log("Found destination and origin in database");
+            break;
+        }
+        if (i == (prices.length - 1)) {
+            this.data.errorMessage = "We don't ship from" + mail.origin + " to " + mail.destination;
+            return this.data;
+        }
     }
-    this.data.errorMessage = "We don't ship from" + mail.origin + " to " + mail.destination;
-    return this.data;
-  }
 
-  if(mail.priority.toUpperCase() === "DOMESTIC PRIORITY" || mail.priority.toUpperCase() === "DOMESTIC STANDARD"){
-    if(mail.destination.international > 0){
-      this.data.errorMessage = "This mail must be sent via International Priority";
-      return this.data;
-    }
+  if(mail.priority.toUpperCase() === "DOMESTIC AIR" || mail.priority.toUpperCase() === "DOMESTIC STANDARD"){
+      console.log('nodes[mail.destination].international');
+      console.log(nodes[mail.destination].international);
+      if (nodes[mail.destination].international > 0) {
+          this.data.errorMessage = "This mail must be sent via International Priority";
+          return this.data;
+      }
     return findDomesticRoute(mail, this.data);
   }
-  if(mail.priority.toUpperCase() === "INTERNATIONAL PRIORITY"){
-    if(mail.destination.international == 0){
+  if(mail.priority.toUpperCase() === "INTERNATIONAL AIR"){
+    if(nodes[mail.destination].international == 0){
       this.data.errorMessage = "This mail must be sent via Domestic Priority";
       return this.data;
     }
     return findInternationalAirRoute(mail, this.data);
   }
   if(mail.priority.toUpperCase() === "INTERNATIONAL STANDARD"){
-    if(mail.destination.international == 0){
+    if(nodes[mail.destination].international == 0){
       this.data.errorMessage = "This mail must be sent via Domestic Priority";
       return this.data;
     }
     return findInternationalStandardRoute(mail, this.data);
   }
-}
+};
 
 var findDomesticRoute = function(mail, data){
-  //Create a set of all the unvisited nodes called the unvisited set and init node values
-  var unvisited = [];
-  for(var node in nodes){
-    unvisited.push(nodes[node]);
-    nodes[node].distance =  Number.POSITIVE_INFINITY;
-    nodes[node].visited = false;
-    nodes[node].fromSegment = null;
-  }
-  this.data = data;
-  this.currentNode = nodes[mail.origin];
-  this.currentNode.distance = 0;
-  var sentDate = new Date().getTime();
-
-  while(true){
-    this.currentNode.visited = true;
-    //If the destination node has been visited then stop. The algorithm has finished.
-    if(nodes[mail.destination].visited){
-      console.log("Reached Destination. Route:");
-      this.cost = 0;
-      this.currentNode = nodes[mail.destination];
-      while(this.currentNode != nodes[mail.origin]){
-        this.data.routeTaken.push(this.currentNode.fromSegment.id);
-        console.log(this.currentNode.name + " from " + this.currentNode.fromSegment.startNode.name);
-        this.cost += (this.currentNode.fromSegment.weightCost * mail.weight) + (this.currentNode.fromSegment.volumeCost * mail.volume);
-        this.currentNode = this.currentNode.fromSegment.startNode;
-      }
-      this.data.routeTaken.reverse();
-      this.data.costToCompany = this.cost;
-      this.data.errorMessage = false;
-      console.log("");
-      return this.data;
+    //Create a set of all the unvisited nodes called the unvisited set and init node values
+    var unvisited = [];
+    for (var node in nodes) {
+        unvisited.push(nodes[node]);
+        nodes[node].distance = Number.POSITIVE_INFINITY;
+        nodes[node].visited = false;
+        nodes[node].fromSegment = null;
     }
-    //date and time mail arrived at current node
-    this.arrivalTime = sentDate + this.currentNode.distance;
+    console.log("Univisited Nodes: ");
+    console.log(unvisited);
+    this.data = data;
+    console.log("Data");
+    console.log(this.data);
+    this.currentNode = nodes[mail.origin];
+    this.currentNode.distance = 0;
+    var sentDate = new Date().getTime();
+    console.log("currentNode");
+    console.log(this.currentNode);
 
-    //For the current node consider all of its unvisited neighbors
-      for(var segmentId in this.currentNode.segments){
-        var segment = this.currentNode.segments[segmentId];
-        if(!segment.endNode.visited && segment.maxWeight >= mail.weight && segment.maxVolume >= mail.volume){
-
-          //calculate time for next departure
-          this.currentDay = new Date(this.arrivalTime).getDay();
-          this.routeStart = days[segment.day];
-          this.hours = ((this.arrivalTime) / 3600000) % 24;
-          this.days = 0;
-          if(this.currentDay === this.routeStart){
-            this.days = 0;
-          }
-          if(this.currentDay < this.routeStart){
-            this.days = 7 - this.routeStart + this.currentDay;
-          }
-          else{
-            this.days = this.currentDay - this.routeStart;
-          }
-
-          this.waitTime = (segment.frequency - ((24 * this.days + this.hours) % segment.frequency));
-          }
-
-          //calculate tentative distance. Compare tentative distance to the current assigned value
-          //assign the smaller one.
-
-          if((this.currentNode.distance + segment.duration + this.waitTime) < segment.endNode.distance){
-            segment.endNode.distance = this.currentNode.distance + segment.duration + this.waitTime;
-            segment.endNode.fromSegment = segment;
-          }
+    while (true) {
+        this.currentNode.visited = true;
+        //If the destination node has been visited then stop. The algorithm has finished.
+        if (nodes[mail.destination].visited) {
+            console.log("Reached Destination. Route:");
+            this.cost = 0;
+            this.currentNode = nodes[mail.destination];
+            while (this.currentNode != nodes[mail.origin]) {
+                this.data.routeTaken.push(this.currentNode.fromSegment.id);
+                console.log(this.currentNode.name + " from " + this.currentNode.fromSegment.startNode.name);
+                this.cost += (this.currentNode.fromSegment.weightCost * mail.weight) + (this.currentNode.fromSegment.volumeCost * mail.volume);
+                this.currentNode = this.currentNode.fromSegment.startNode;
+            }
+            this.data.routeTaken.reverse();
+            this.data.costToCompany = this.cost;
+            this.data.errorMessage = false;
+            console.log("Completed");
+            return this.data;
         }
-      //When we are done considering all of the neighbors of the current node,
-      //remove node from unvisited
-      //A visited node will never be checked again.
-      this.index = unvisited.indexOf(this.currentNode);
-      if(index >= 0){
-        unvisited.splice(index, 1);
-      }
+        //date and time mail arrived at current node
+        this.arrivalTime = sentDate + this.currentNode.distance;
 
-      //get the node with the smallest distance from unvisited
-      this.smallestNode;
-      for(var nodeId in unvisited){
-        var node = unvisited[nodeId];
-        if(nodeId == 0){
-          this.smallestNode = node;
+        //For the current node consider all of its unvisited neighbors
+        for (var i = 0; i < this.currentNode.segments.length; i++){
+        // for (var segmentId in this.currentNode.segments) {
+            var segment = this.currentNode.segments[i];
+            if (!segment.endNode.visited && segment.maxWeight >= mail.weight && segment.maxVolume >= mail.volume) {
+
+                //calculate time for next departure
+                this.currentDay = new Date(this.arrivalTime).getDay();
+                this.routeStart = days[segment.day];
+                this.hours = ((this.arrivalTime) / 3600000) % 24;
+                this.days = 0;
+                if (this.currentDay === this.routeStart) {
+                    this.days = 0;
+                }
+                if (this.currentDay < this.routeStart) {
+                    this.days = 7 - this.routeStart + this.currentDay;
+                }
+                else {
+                    this.days = this.currentDay - this.routeStart;
+                }
+
+                this.waitTime = (segment.frequency - ((24 * this.days + this.hours) % segment.frequency));
+            }
+
+            //calculate tentative distance. Compare tentative distance to the current assigned value
+            //assign the smaller one.
+
+            if ((this.currentNode.distance + segment.duration + this.waitTime) < segment.endNode.distance) {
+                segment.endNode.distance = this.currentNode.distance + segment.duration + this.waitTime;
+                segment.endNode.fromSegment = segment;
+            }
         }
-        else if(this.smallestNode.distance > node.distance){
-          this.smallestNode = node;
+        //When we are done considering all of the neighbors of the current node,
+        //remove node from unvisited
+        //A visited node will never be checked again.
+        this.index = unvisited.indexOf(this.currentNode);
+        if (index >= 0) {
+            unvisited.splice(index, 1);
         }
-      }
 
-      //if the smallest distance in the unvisited set is infinity, the graph is not connected
-      if(this.smallestNode.distance == Number.POSITIVE_INFINITY){
-        console.log("No route");
-        this.data.errorMessage = "No route";
-        return this.data;
-      }
+        //get the node with the smallest distance from unvisited
+        this.smallestNode;
+        for(var i = 0; i < unvisited.length; i++){
+        // for (var nodeId in unvisited) {
+            var node = unvisited[i];
+            if (i == 0) {
+                this.smallestNode = node;
+            }
+            else if (this.smallestNode.distance > node.distance) {
+                this.smallestNode = node;
+            }
+        }
 
-      // Otherwise, select the unvisited node that is marked with the smallest tentative distance, set it as the new "current node", and go back to step 3.
-      this.currentNode = this.smallestNode;
-  }
+        //if the smallest distance in the unvisited set is infinity, the graph is not connected
+        if (this.smallestNode.distance == Number.POSITIVE_INFINITY) {
+            console.log("No route");
+            this.data.errorMessage = "No route";
+            return this.data;
+        }
 
-}
+        // Otherwise, select the unvisited node that is marked with the smallest tentative distance, set it as the new "current node", and go back to step 3.
+        this.currentNode = this.smallestNode;
+    }
+};
 
 var findInternationalAirRoute = function(mail, data){
   //Create a set of all the unvisited nodes called the unvisited set and init node values
@@ -345,8 +362,11 @@ var findInternationalStandardRoute = function(mail, data){
 
 
 var createPrices = function(customerprices){
-  prices = customerprices;
-  isGraphLoaded = true;
+    console.log("CustomerPrices: ");
+    prices = customerprices;
+    console.log(prices);
+    console.log("prices.length= " + prices.length);
+    isGraphLoaded = true;
 };
 
 var createNodes = function(locs){
@@ -359,24 +379,30 @@ var createNodes = function(locs){
   else{
     console.log("Locs undefined");
   }
-}
+};
 
 var createSegments = function(costs){
   if(typeof costs != 'undefined'){
     for(var i = 0; i < costs.length; i++){
-      this.segment = new segment(costs[i].routeid, nodes[costs[i].origin], nodes[costs[i].destination], costs[i].type, costs[i].weightcost, costs[i].volumecost, costs[i].maxweight, costs[i].maxvolume, costs[i].duration, costs[i].frequency, costs[i].day);
-      segments.push(this.segment);
-      nodes[costs[i].origin].segments.push(this.segment);
+      console.log(costs[i]);
+      var newSegment = new segment(costs[i].routeid, nodes[costs[i].origin], nodes[costs[i].destination], costs[i]['type'], costs[i].weightcost, costs[i].volumecost, costs[i].maxweight, costs[i].maxvolume, costs[i].duration, costs[i].frequency, costs[i].day);
+      segments.push(newSegment);
+      nodes[costs[i].origin].segments.push(newSegment);
     }
+    console.log('nodes');
+    console.log(nodes);
+    console.log('segments');
+    console.log(segments);
     customerprice.getAllPrices(createPrices);
   }
   else{
     console.log("Costs undefined: ");
   }
-}
+};
 
 exports.loadGraph = function(){
     location.getAllLocations(createNodes);
+
 };
 module.exports.findRoute = findRoute;
 
@@ -389,7 +415,7 @@ var printAll = function(){
   for(var seg in segments){
     console.log(seg);
   }
-}
+};
 
 var testMail = function(){
   mail.getAllMail(mailFunction);
@@ -428,8 +454,7 @@ var segment = function(id, sNode, eNode, type, wc, vc, mw, mv, dur, freq, day){
   this.duration = dur;
   this.frequency = freq;
   this.day = day;
-
-}
+};
 
 /**
 * @param {int} id Unique identifier
