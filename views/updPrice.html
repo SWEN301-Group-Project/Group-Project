@@ -128,35 +128,29 @@
                     <div class="col-md-12">
                         <div class="card">
                             <div class="header">
-                                <h4 class="title">Mail History</h4>
+                                <h4 class="title">Customer Prices</h4>
                             </div>
                             <div class="content">
                                 <table id="example-table" class="table table-striped table-responsive">
                                     <thead>
                                     <tr>
-                                        <th>Mail Number</th>
-                                        <th>Date Modified</th>
+                                        <th>Price id</th>
                                         <th>Origin</th>
                                         <th>Destination</th>
-                                        <th>Weight</th>
-                                        <th>Volume</th>
+                                        <th>Weight-Cost</th>
+                                        <th>Volume-Cost</th>
                                         <th>Priority</th>
-                                        <th>Revenue</th>
-                                        <th>Expense</th>
                                     </tr>
                                     </thead>
                                     <tbody>
-                                    {% for mail in mails %}
+                                    {% for price in customerprices %}
                                     <tr>
-                                        <td>{{mail.mailid}}</td>
-                                        <td>{{mail.date}}</td>
-                                        <td>{{mail.origin}}</td>
-                                        <td>{{mail.destination}}</td>
-                                        <td>{{mail.weight}}</td>
-                                        <td>{{mail.volume}}</td>
-                                        <td>{{mail.priority}}</td>
-                                        <td>{{mail.totalcustomercost}}</td>
-                                        <td>{{mail.totalbusinesscost}}</td>
+                                        <td><a href="/price/{{price.priceid}}">{{price.priceid}}</a></td>
+                                        <td>{{price.origin}}</td>
+                                        <td>{{price.destination}}</td>
+                                        <td>{{price.weightcost}}</td>
+                                        <td>{{price.volumecost}}</td>
+                                        <td>{{price.priority}}</td>
                                     </tr>
                                     {% endfor %}
                                     </tbody>
@@ -219,38 +213,18 @@
         $('#sourceLocation').selectize();
 
         $('#destLocation').selectize();
-    });
 
-    var origin;
-    var destination;
-    $("#destLocation").on('change', function(event){
-      console.log(event.target.value);
-      destination = event.target.value;
-      request();
-    });
-    $("#sourceLocation").on('change', function(event){
-      console.log(event.target.value);
-      origin = event.target.value;
-      request();
-    });
-    function request(){
-      if (origin && destination){
-        console.log('both')
-        $.ajax({
-          type: "POST",
-          url: '/price/getprice/' + origin + '/' + destination,
-          contentType: "application/json; charset=utf-8",
-          success: function(data){
-            // console.log(data);
-            $("#VolPrice").val(data.volumecost);
-            $("#WeightPrice").val(data.weightcost);
-          },
-          error: function(){
-            console.log('problems getting price')
-          }
+        {% if notify %}
+        $.notify({
+            icon: 'ti-view-list-alt',
+            message: "{{notify}}"
+
+        },{
+            type: '{% if notifyType %}{{notifyType}}{% else %}success{% endif %}',
+            timer: 300
         });
-      }
-    }
+        {% endif %}
+    });
 </script>
 <script type="text/javascript" src="/static/js/validation/customerprice.js"></script>
 </html>

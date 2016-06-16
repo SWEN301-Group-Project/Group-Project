@@ -440,103 +440,119 @@ router.get("/mails", function(req, res) {
 router.get("/price", function(req, res){
   console.log('PRICE: GET');
   Location.getAllLocations(function(cb){
-      console.log(cb);
-      res.render('updPrice', {priceActive: true, title: "Customer Prices", locations: cb});
-  });
-});
-
-router.post("/price/getprice/:origin/:destination", function(req, res){
-  console.log('Origin' + req.params.origin);
-  console.log('Destin' + req.params.destination);
-
-  Location.getLocationByName(req.params.origin, function(cbOri){
-    Location.getLocationByName(req.params.destination, function(cbDest){
-      if (cbOri && cbDest){
-        Price.getPriceByOriginAndDestination(cbOri.locationid, cbDest.locationid, function(cbPri){
-          console.log(cbPri[0]);
-          res.send(cbPri[0]);
-        });
-
-      } else {
-        res.status('204').send('No Match');
-      }
-    });
+      Price.getAllPrices(function(prices){
+          console.log(prices);
+          res.render('updPrice', {priceActive: true, title: "Customer Prices", locations: cb, customerprices: prices});
+      });
   });
 });
 
 router.post("/price", function(req, res){
     console.log("PRICE: POST");
     console.log(req.body);
-  var err = []
-  if (!req.body.sourceLocation) {err.push('Origin cannot be Blank.');}
-  if (!req.body.destLocation) {err.push('Destination cannot be Blank.');}
-  if (!req.body.wgt) {err.push('Weight Price cannot be Blank.');}
-  if (!req.body.vol) {err.push('Volume Price cannot be Blank.');}
-  console.log(err);
-  if (err.length) {
-    Location.getAllLocations(function(cb){
-      console.log(cb);
-      res.render('updPrice', {priceActive: true, title: "Customer Prices", error: err, locations: cb});
-    });
-  } else {
-    // this means that there is nothing wrong, so we can be do the actual work
-    var ori, dest;
-    console.log('getting origin');
-    Location.getLocationById(req.body.sourceLocation, function(cbOrigin){
-      var ori = cbOrigin;
-      console.log(ori);
-      console.log('getting destination');
-      Location.getLocationById(req.body.destLocation, function(cbDest){
-        var dest = cbDest;
-        console.log(dest);
-        if (!ori){
-          console.log('Origin: {' + req.body.sourceLocation +'} not in database, aborting');
-        } else if (!dest){
-          console.log('Destination: {' + req.body.destLocation +'} not in database, aborting');
-        } else {
-          console.log("We have enough information to add/update a customer price");
-          var price; // do these return an object?
-          Price.getPriceByOriginAndDestination(ori.locationid, dest.locationid, function(priceCB){
-            var price = priceCB;
-            console.log('Price: ');
-            console.log(priceCB);
-            console.log(priceCB==false);
-            if (priceCB==false){
-              console.log('insert');
-              Price.insertCustomerPrice({origin: ori.locationid,
-                                  destination: dest.locationid,
-                                  weightcost: req.body.wgt,
-                                  volumecost: req.body.vol,
-                                  priority: req.pri},
-                                  function(callback){ });
-            } else {
-              console.log('update');
-              Price.updateCustomerPrice(priceCB.priceid,
-                                 {origin: ori.locationid,
-                                  destination: dest.locationid,
-                                  weightcost: req.body.wgt,
-                                  volumecost: req.body.vol,
-                                  priority: req.pri},
-                                  function(callback){ });
-            }
-            // do stuff for log file?
-
-/*             Location.getAllLocations(function(cb){
-                console.log(cb);
-                res.render('updPrice', {priceActive: true, locations: cb});
+    var err = [];
+    if (!req.body.sourceLocation) {err.push('Origin cannot be Blank.');}
+    if (!req.body.destLocation) {err.push('Destination cannot be Blank.');}
+    if (!req.body.wgt) {err.push('Weight Price cannot be Blank.');}
+    if (!req.body.vol) {err.push('Volume Price cannot be Blank.');}
+    console.log(err);
+    if (err.length) {
+        Location.getAllLocations(function(cb){
+            Price.getAllPrices(function(prices){
+                console.log(prices);
+                res.render('updPrice', {priceActive: true, title: "Customer Prices", locations: cb, customerprices: prices, error: err});
             });
-            return; */
-          });
-          // turn priority into something usefull
-        }
-      });
+        });
+    } else {
+        console.log('insert');
+        var price = req.body;
+        Price.insertCustomerPrice({
+            origin: price.sourceLocation,
+            destination: price.destLocation,
+            weightcost: price.wgt,
+            volumecost: price.vol,
+            priority: price.priority
+        }, function (result){
+            console.log(result);
+            Location.getAllLocations(function(allLocations){
+               Price.getAllPrices(function(allPrices){
+                   res.render('updPrice', {priceActive: true, title: "Customer Prices", locations: allLocations, customerprices: allPrices});
+               });
+            });
+        });
+    }
+});
+
+router.get("/price/:customerpriceid", function(req, res){
+    var customerpriceid = req.params.customerpriceid;
+    Price.getPriceById(customerpriceid, function(customerprice){
+        console.log(customerprice);
+        Location.getAllLocations(function(allLocations){
+            console.log(allLocations);
+            res.render('updatePrice', {
+                priceActive: true,
+                title: "Customer Prices",
+                locations: allLocations,
+                customerprice: customerprice,
+                customerpriceid: customerpriceid
+            });
+        });
     });
-    // we want to do something if ori and dest have no value
-  	Location.getAllLocations(function(cb){
-        console.log(cb);
-        res.render('updPrice', {priceActive: true, title: "Customer Prices", locations: cb});
+});
+
+router.post("/price/delete/:priceid", function(req,res){
+    var priceid = req.params.priceid;
+    Price.deleteCustomerPrice(priceid, function(result){
+       console.log(result);
+        Location.getAllLocations(function(allLocations){
+           if(result){
+               Price.getAllPrices(function(allPrices){
+                   res.render('updPrice', {priceActive: true, title: "Customer Prices", locations: allLocations, customerprices: allPrices, notify: "Price successfully deleted", notifyType:"warning"});
+               });
+           } else {
+               Price.getPriceById(priceid, function(customerprice){
+                   console.log(customerprice);
+                   res.render('updatePrice', {
+                       priceActive: true,
+                       title: "Customer Prices",
+                       locations: allLocations,
+                       customerprice: customerprice,
+                       priceid: priceid,
+                       notify: "Error deleting price",
+                       notifyType: "danger"
+                   });
+               });
+           }
+        });
     });
-  }
+});
+
+router.post("/price/update/:priceid", function(req,res){
+    var customerprice = req.body;
+    var priceid = req.params.priceid;
+    Price.updateCustomerPrice(priceid, customerprice, function(result){
+       console.log(result);
+        Location.getAllLocations(function(allLocations){
+           if(result){
+               Price.getAllPrices(function(allPrices){
+                   res.render('updPrice', {priceActive: true, title: "Customer Prices", locations: allLocations, customerprices: allPrices, notify: "Price successfully updated", notifyType:"warning"});
+               });
+           } else {
+               Price.getPriceById(priceid, function(customerprice){
+                   console.log(customerprice);
+                   res.render('updatePrice', {
+                       priceActive: true,
+                       title: "Customer Prices",
+                       locations: allLocations,
+                       customerprice: customerprice,
+                       priceid: priceid,
+                       notify: "Error updating price",
+                       notifyType: "danger"
+                   });
+               });
+           }
+        });
+    });
 });
 
 router.get("/cost", function(req, res){
@@ -685,7 +701,7 @@ router.post("/cost/update/:routeid", function(req,res){
                            route: route,
                            locations: allLocations,
                            companies: allCompanies,
-                           notify: "Error deleting route",
+                           notify: "Error updating route",
                            notifyType: "danger"
                        });
                    });
@@ -729,4 +745,4 @@ app.use(function(err, req, res, next) {
   //TODO: add error.html page --> res.render('error', {err : {message : err.message, error : {}}});
 });
 
-module.exports = server
+module.exports = server;
