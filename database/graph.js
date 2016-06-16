@@ -35,7 +35,7 @@ var findRoute = function(mail){
             break;
         }
         if (i == (prices.length - 1)) {
-            this.data.errorMessage = "We don't ship from" + mail.origin + " to " + mail.destination;
+            this.data.errorMessage = "We don't ship from " + mail.origin + " to " + mail.destination;
             isGraphLoaded = false;
             return this.data;
         }
