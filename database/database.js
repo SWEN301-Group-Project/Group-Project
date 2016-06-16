@@ -90,6 +90,12 @@ function Database(){
                     + 'FOREIGN KEY(origin) REFERENCES locations(locationid), '
                     + 'FOREIGN KEY(destination) REFERENCES locations(locationid) '
                     + ')');
+
+                db.run('CREATE TABLE IF NOT EXISTS managers ('
+                    + 'managerid INTEGER PRIMARY KEY, '
+                    + 'username TEXT, '
+                    + 'password TEXT'
+                    + ')');
             })
         });
     }

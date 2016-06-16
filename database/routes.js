@@ -54,10 +54,11 @@ The following are the database function implemented by route.js file:
 
 //returns list of all route objects
 exports.getAllRoutes = function(callback){
-    var stmt = "SELECT routeid, company, type, ORIGIN.name AS origin, DEST.name AS destination, weightcost, volumecost, maxweight, maxvolume, frequency, duration, day "
-    			 + "FROM routes "
-    			 + "LEFT JOIN locations AS ORIGIN ON routes.origin = ORIGIN.locationid "
-    			 + "LEFT JOIN locations AS DEST ON routes.destination = DEST.locationid";
+    var stmt = "SELECT routeid, COMPANY.name AS company, COMPANY.type AS type, ORIGIN.name AS origin, DEST.name AS destination, weightcost, volumecost, maxweight, maxvolume, frequency, duration, day "
+                + "FROM routes "
+                + "LEFT JOIN companies AS COMPANY ON routes.company = COMPANY.companyid "
+                + "LEFT JOIN locations AS ORIGIN ON routes.origin = ORIGIN.locationid "
+                + "LEFT JOIN locations AS DEST ON routes.destination = DEST.locationid";
     
     db.all(stmt, function(err, rows){
         if (err){
@@ -67,13 +68,14 @@ exports.getAllRoutes = function(callback){
             callback(rows);
         }
     });
-}
+};
 
 //returns route objects where origin == origin parameter.
 //The paramter: origin must be location id.
 exports.getRouteByOrigin = function(originid, callback){
-    var stmt = "SELECT routeid, company, type, ORIGIN.name AS origin, DEST.name AS destination, weightcost, volumecost, maxweight, maxvolume, frequency, duration, day "
+    var stmt = "SELECT routeid, COMPANY.name AS company, COMPANY.type AS type, ORIGIN.name AS origin, DEST.name AS destination, weightcost, volumecost, maxweight, maxvolume, frequency, duration, day "
     			 + "FROM routes "
+                 + "LEFT JOIN companies AS COMPANY ON routes.company = COMPANY.companyid "
     			 + "LEFT JOIN locations AS ORIGIN ON routes.origin = ORIGIN.locationid "
     			 + "LEFT JOIN locations AS DEST ON routes.destination = DEST.locationid "
     			 + "WHERE routes.origin = $originid";
@@ -86,16 +88,16 @@ exports.getRouteByOrigin = function(originid, callback){
             callback(rows);
         }
     });
-}
+};
 
 //returns route objects where origin == origin parameter AND destination == destination parameter.
 //The paramters: origin and destination must be location id.
 exports.getRouteByOriginAndDestination = function(originid, destinationid, callback){
-    var stmt = "SELECT routeid, company, routes.type, ORIGIN.name AS origin, DEST.name AS destination, weightcost, volumecost, maxweight, maxvolume, frequency, duration, day, COMP.name "
+    var stmt = "SELECT routeid, COMPANY.name AS company, COMPANY.type AS type, ORIGIN.name AS origin, DEST.name AS destination, weightcost, volumecost, maxweight, maxvolume, frequency, duration, day "
     			 + "FROM routes "
+                 + "LEFT JOIN companies AS COMPANY ON routes.company = COMPANY.companyid "
     			 + "LEFT JOIN locations AS ORIGIN ON routes.origin = ORIGIN.locationid "
     			 + "LEFT JOIN locations AS DEST ON routes.destination = DEST.locationid "
-                 + "LEFT JOIN companies AS COMP ON routes.company = COMP.companyid "
     			 + "WHERE routes.origin = $originid AND routes.destination = $destinationid";
     			 
     db.all(stmt, {$originid: originid, $destinationid: destinationid}, function(err, rows){
@@ -106,14 +108,15 @@ exports.getRouteByOriginAndDestination = function(originid, destinationid, callb
             callback(rows);
         }
     });
-}
+};
 
 //returns route object by id
 exports.getPriceById = function(routeid, callback){
-	var stmt = "SELECT routeid, company, type, ORIGIN.name AS origin, DEST.name AS destination, weightcost, volumecost, maxweight, maxvolume, frequency, duration, day "
+	var stmt = "SELECT routeid, COMPANY.name AS company, COMPANY.type AS type, ORIGIN.name AS origin, DEST.name AS destination, weightcost, volumecost, maxweight, maxvolume, frequency, duration, day "
     			 + "FROM routes "
+                 + "LEFT JOIN companies AS COMPANY ON routes.company = COMPANY.companyid "
     			 + "LEFT JOIN locations AS ORIGIN ON routes.origin = ORIGIN.locationid "
-    			 + "LEFT JOIN locations AS DEST ON routes.origin = DEST.locationid "
+    			 + "LEFT JOIN locations AS DEST ON routes.destination = DEST.locationid "
     			 + "WHERE routeid = $routeid";
     db.get(stmt, {$routeid: routeid}, function(err, route){
         if(err){
@@ -123,7 +126,7 @@ exports.getPriceById = function(routeid, callback){
             callback(route);
         }
     });
-}
+};
 
 //Adds a new route row to the routes table
 //The route object must be similar to:
@@ -144,13 +147,12 @@ exports.getPriceById = function(routeid, callback){
 //company is foreign key so must be integer corresponding to key 
 //PostCondition: if return value > 0 ==> route inserted sucessfully
 exports.insertRoute = function(route, callback){
-	var stmt = db.prepare("INSERT INTO routes (company, origin, destination, type, weightcost, volumecost, maxweight, maxvolume, duration, frequency, day) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ");
+	var stmt = db.prepare("INSERT INTO routes (company, origin, destination, weightcost, volumecost, maxweight, maxvolume, duration, frequency, day) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ");
 
 	stmt.run([
-		  route.company,
+        route.company,
         route.origin,
         route.destination,
-        route['type'],
         route.weightcost,
         route.volumecost,
         route.maxweight,
@@ -160,13 +162,13 @@ exports.insertRoute = function(route, callback){
         route.day
     ], function(err){
         if(err){
-            callback(0)}
-        else{
+            callback(0)
+        }else{
             console.log(this);
             callback(this.changes);
         }
     });
-}
+};
 
 //removes a route from table by its id
 //The number of rows removed is returned
@@ -184,31 +186,30 @@ exports.deleteRoute = function(routeid, callback){
         }
     });
 
-}
+};
 
 //updates a routeid row specified by the id
 //the newRoute object must be similar to route object of insertRoute paramter
 //Returns the number of rows changed
 exports.updateRoute = function(routeid, newRoute, callback){
-    db.run("UPDATE routes SET company=$company, origin=$origin, destination=$destination, type=$type, weightcost=$weightcost, volumecost=$volumecost, maxweight=$maxweight, maxvolume=$maxvolume, duration=$duration, frequency=$frequency, day=$day WHERE routeid = $id", {
+    db.run("UPDATE routes SET company=$company, origin=$origin, destination=$destination, weightcost=$weightcost, volumecost=$volumecost, maxweight=$maxweight, maxvolume=$maxvolume, duration=$duration, frequency=$frequency, day=$day WHERE routeid = $id", {
 		$id: routeid,
 		$company: newRoute.company,
 		$origin: newRoute.origin,
-      $destination: newRoute.destination,
-      $type: newRoute['type'],
-      $weightcost: newRoute.weightcost,
-      $volumecost: newRoute.volumecost,
-      $maxweight: newRoute.maxweight,
-      $maxvolume: newRoute.maxvolume,
-      $duration: newRoute.duration,
-      $frequency: newRoute.frequency,
-      $day: newRoute.day
+        $destination: newRoute.destination,
+        $weightcost: newRoute.weightcost,
+        $volumecost: newRoute.volumecost,
+        $maxweight: newRoute.maxweight,
+        $maxvolume: newRoute.maxvolume,
+        $duration: newRoute.duration,
+        $frequency: newRoute.frequency,
+        $day: newRoute.day
     	}, function(err){
-        if(err){
-            console.log("Error updating route with id: " + routeid);
-        }else{
-            console.log(this);
-            callback(this.changes);
-        }
-    });
-}
+            if(err){
+                console.log("Error updating route with id: " + routeid);
+            }else{
+                console.log(this);
+                callback(this.changes);
+            }
+        });
+};
