@@ -5,6 +5,8 @@
 var express = require('express');
 var router = express.Router();
 
+var Location = require('../database/location');
+
 
 router.get("/", function(req, res) {
     "use strict";
@@ -22,48 +24,86 @@ router.get("/:locationid", function(req, res){
             title: "Update Location",
             locationid: locationid,
             location: location
-        })
+        });
     });
 });
 
-router.post("/locations/delete/:locationid", function(req,res){
+router.post("/delete/:locationid", function(req,res){
     var locationid = req.params.locationid;
 
     Location.deleteLocation(locationid, function(result){
         console.log(result);
-        //TODO: Harman
-        //use result to send notification
-        //if result is success then render location page
-        //if result is failure then render locations/:locationid page
-        Location.getAllLocations(function(allLocations){
-            res.render('location', {locationActive: true, title: "Location", locations: allLocations});
-        });
+        if(result){
+            //success
+            Location.getAllLocations(function(allLocations){
+                res.render('location', {locationActive: true, title: "Location", locations: allLocations, notify: "Location successfully deleted", notifyType:"warning"});
+            });
+        } else {
+            Location.getLocationById(locationid, function(location){
+                console.log(location);
+                res.render('updateLocation', {
+                    locationActive: true,
+                    title: "Update Location",
+                    locationid: locationid,
+                    location: location,
+                    notify: "Error deleting location: " + location.name,
+                    notifyType: "danger"
+                });
+            });
+        }
     });
 });
 
-router.post("/locations/update/:locationid", function(req,res){
+router.post("/update/:locationid", function(req,res){
     var location = req.body;
     var locationid = req.params.locationid;
     Location.updateLocation(locationid, location, function(result){
         console.log(result);
-        //TODO: Harman
-        //use result to send notification if successful
-        //if result is success then render location page
-        //if result is failure then render locations/:locationid page
-        Location.getAllLocations(function(allLocations){
-            res.render('location', {locationActive: true, title: "Location", locations: allLocations});
-        });
+        if (result){
+            Location.getAllLocations(function(allLocations){
+                res.render('location', {locationActive: true, title: "Location", locations: allLocations, notify: location.name + " successfully updated", notifyType: "warning"});
+            });
+        } else {
+            //could not update the location
+            Location.getLocationById(locationid, function(location){
+                console.log(location);
+                res.render('updateLocation', {
+                    locationActive: true,
+                    title: "Update Location",
+                    locationid: locationid,
+                    location: location,
+                    notify: "Error updating location: " + location.name,
+                    notifyType: "danger"
+                });
+            });
+        }
     });
 });
 
-router.post("/locations", function(req, res){
+router.post("/", function(req, res){
     console.log(req.body);
     var newLocation = req.body;
     Location.insertLocation(newLocation, function(result){
         console.log(result);
         Location.getAllLocations(function(allLocations){
-            //TODO: Harman ==> Add notification of successful insertion of new location
-            res.render('location', {locationActive: true, title: "Location", locations: allLocations});
+            if (result) {
+                res.render('location', {
+                    locationActive: true,
+                    title: "Location",
+                    locations: allLocations,
+                    notify: "Successfully added: " + newLocation.name
+                });
+            } else {
+                res.render('location', {
+                    locationActive: true,
+                    title: "Location",
+                    locations: allLocations,
+                    notify: "Error occurred",
+                    notifyType: "danger"
+                });
+            }
         });
     });
 });
+
+module.exports = router;
