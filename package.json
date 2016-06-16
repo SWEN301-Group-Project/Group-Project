@@ -16,7 +16,6 @@
     "mocha": "^2.5.3",
     "coveralls": "^2.11.9",
     "istanbul": "^0.4.3",
-    "mocha": "^2.5.3",
     "sinon": "^1.17.4",
     "supertest": "^1.2.0"
   },
@@ -26,6 +25,7 @@
     "chai": "^3.5.0",
     "coffee-script": "^1.10.0",
     "cookie-parser": "~1.4.1",
+    "deasync": "^0.1.7",
     "express": "^4.13.4",
     "express-session": "~1.13.0",
     "fs": "0.0.2",

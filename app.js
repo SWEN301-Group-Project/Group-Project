@@ -85,7 +85,7 @@ var router = express.Router();
  */
 var database = new Database().init();
 Mail = new Mail();
-Graph.loadGraph();
+// Graph.loadGraph();
 
 
 // Homepage
@@ -358,25 +358,48 @@ router.post("/addMail", function(req,res, next){
         /**
          * 1. render the confirmation page while sending the mail object
          */
-        Location.getLocationById(mail.origin, function(originLocation){
-            Location.getLocationById(mail.destination, function(destinationLocation){
-                var testMail = {
-                    origin: originLocation.name,
-                    destination: destinationLocation.name,
-                    weight: mail.weight,
-                    volume: mail.volume,
-                    priority: mail.priority
-                };
-                console.log(testMail);
-                var mailFindRoute = findRoute(testMail);
+        Graph.loadGraph(function() {
+            Location.getLocationById(mail.origin, function (originLocation) {
+                Location.getLocationById(mail.destination, function (destinationLocation) {
+                    var testMail = {
+                        origin: originLocation.name,
+                        destination: destinationLocation.name,
+                        weight: mail.weight,
+                        volume: mail.volume,
+                        priority: mail.priority
+                    };
+                    console.log(testMail);
+                    var mailFindRoute = findRoute(testMail);
+                    console.log("mailFindRoute:");
+                    console.log(mailFindRoute);
+                    if(mailFindRoute.routeTaken.length > 0 && !mailFindRoute.errorMessage) {
+                        mail.totalcustomercost = mailFindRoute.costToCustomer;
 
-                console.log(mailFindRoute);
-                res.render('confirmMail', {
-                    mail: mail,
-                    title: "Mails",
-                    origin: originLocation,
-                    destination: destinationLocation,
-                    mailActive: true
+                        mail.totalbusinesscost = mailFindRoute.costToCompany;
+                        res.render('confirmMail', {
+                            mail: mail,
+                            title: "Mails",
+                            origin: originLocation,
+                            destination: destinationLocation,
+                            mailActive: true
+                        });
+                    } else {
+                        Location.getAllLocations(function(locations){
+                            console.log(locations);
+                            Mail.getAllMail(function(mails){
+                                res.render('mails', {
+                                    mailActive: true,
+                                    title: "Mails",
+                                    mail: req.session.mail,
+                                    mails: mails,
+                                    locations: locations,
+                                    error: mailFindRoute.errorMessage,
+                                    notify: "Could not add Mail",
+                                    notifyType: "danger"
+                                });
+                            });
+                        });
+                    }
                 });
             });
         });
@@ -394,15 +417,30 @@ router.get('/confirmMail', function(req,res){
         console.log(result);
         Location.getAllLocations(function(locations){
             Mail.getAllMail(function(mails){
-                //add notification of mail added successfully
-                res.render('mails', {
-                    mailActive: true,
-                    title: "Mails",
-                    mailAdded: true,
-                    locations: locations,
-                    mails: mails
-                });
-                req.session.mail = null;
+                if (result) {
+                    //add notification of mail added successfully
+                    res.render('mails', {
+                        mailActive: true,
+                        title: "Mails",
+                        mailAdded: true,
+                        locations: locations,
+                        mails: mails,
+                        notify: "Successfully inserted Mail"
+                    });
+                    req.session.mail = null;
+
+                } else {
+                    //could not insert mail
+                    res.render('mails', {
+                        mailActive: true,
+                        title: "Mails",
+                        mailAdded: true,
+                        locations: locations,
+                        mails: mails,
+                        notify: "Error occurred",
+                        notifyType: "danger"
+                    });
+                }
             });
         });
     });
@@ -466,7 +504,7 @@ router.post("/price", function(req, res){
             console.log(result);
             Location.getAllLocations(function(allLocations){
                Price.getAllPrices(function(allPrices){
-                   res.render('updPrice', {priceActive: true, title: "Customer Prices", locations: allLocations, customerprices: allPrices});
+                   res.render('updPrice', {priceActive: true, title: "Customer Prices", locations: allLocations, customerprices: allPrices, notify: "Price successfully inserted"});
                });
             });
         });
