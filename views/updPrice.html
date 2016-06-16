@@ -70,11 +70,7 @@
                                                 <select id="sourceLocation" name="sourceLocation" required>
                                                     <option value="">Enter a Location...</option>
                                                     {% for location in locations %}
-                                                        {% if location.isInternational %}
-                                                            <option value={{location.locationid}}>{{location.name | capitalize}} - International</option>
-                                                        {% else %}
-                                                            <option value={{location.locationid}}>{{location.name | capitalize}}</option>
-                                                        {% endif %}
+                                                        <option value={{location.locationid}}>{{location.name | capitalize}}{% if location.isInternational %} - International{% endif %}</option>
                                                     {% endfor %}
                                                 </select>
                                             </div>
@@ -85,11 +81,7 @@
                                                 <select id="destLocation" name="destLocation" required>
                                                     <option value="">Enter a Location...</option>
                                                     {% for location in locations %}
-                                                        {% if location.isInternational %}
-                                                            <option value={{location.locationid}}>{{location.name | capitalize}} - International</option>
-                                                        {% else %}
-                                                            <option value={{location.locationid}}>{{location.name | capitalize}}</option>
-                                                        {% endif %}
+                                                        <option value={{location.locationid}}>{{location.name | capitalize}}{% if location.isInternational %} - International{% endif %}</option>
                                                     {% endfor %}
                                                 </select>
                                             </div>
@@ -97,30 +89,34 @@
                                     </div>
 
                                     <div class="form-group">
-                                        <div class="radio radio_int">
+                                        <span id="radio_int">
+                                        <div class="radio">
                                             <label>
                                                 <input type="radio" name="priority" id="intAir" value="INTERNATIONAL AIR" checked>
                                                 International Air
                                             </label>
                                         </div>
-                                        <div class="radio radio_int">
+                                        <div class="radio">
                                             <label>
                                                 <input type="radio" name="priority" id="intStd" value="INTERNATIONAL STANDARD" checked>
                                                 International Standard
                                             </label>
                                         </div>
-                                        <div class="radio radio_dom">
+                                        </span>
+                                        <span id="radio_dom">
+                                        <div class="radio">
                                             <label>
                                                 <input type="radio" name="priority" id="domAir" value="DOMESTIC AIR" checked>
                                                 Domestic Air
                                             </label>
                                         </div>
-                                        <div class="radio radio_dom">
+                                        <div class="radio">
                                             <label>
                                                 <input type="radio" name="priority" id="domStd" value="DOMESTIC STANDARD" checked>
                                                 Domestic Standard
                                             </label>
                                         </div>
+                                        </span>
                                     </div>
 
                                     <h5>New Prices:</h5>
@@ -259,19 +255,12 @@
     function setPriorityVisibility(){
         if ($('#sourceLocation option')[0].textContent.includes('International') ||
          $('#destLocation option')[0].textContent.includes('International')){
-            [].slice.call($('.radio_int')).forEach(function(element){
-                element.style.display = "";
-            });
-            [].slice.call($('.radio_dom')).forEach(function(element){
-                element.style.display = "none";
-            });
+            $('#radio_int')[0].style.display = "";
+            $('#radio_dom')[0].style.display = "none";
+
         } else {
-            [].slice.call($('.radio_int')).forEach(function(element){
-                element.style.display = "none";
-            });
-            [].slice.call($('.radio_dom')).forEach(function(element){
-                element.style.display = "";
-            });
+            $('#radio_int')[0].style.display = "none";
+            $('#radio_dom')[0].style.display = "";
         }
     }
 </script>

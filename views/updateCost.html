@@ -62,24 +62,28 @@
                             <div class="content">
                                 <form id="costUpdate" method="post" action="/cost/update/{{routeid}}">
                                     <div class="content">
-                                        <div class="form-group">
-                                            <label for="origin">Origin</label>
-                                            <select name="origin" id="origin" placeholder="Enter a Location..." required>
-                                                <option value="">Enter a Location...</option>
-                                                {% for location in locations %}
-                                                <option value={{location.locationid}} {% if route.origin == location.name %}selected{% endif %}>{{location.name}}</option>
-                                                {% endfor %}
-                                            </select>
-                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label for="origin">Origin</label>
+                                                    <select name="origin" id="origin" placeholder="Enter a Location..." required>
+                                                        {% for location in locations %}
+                                                            <option value={{location.locationid}} {% if route.origin == location.name %}selected{% endif %}>{{location.name | capitalize}}{% if location.isInternational %} - International{% endif %}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                            </div>
 
-                                        <div class="form-group">
-                                            <label for="destination">Destination</label>
-                                            <select name="destination" id="destination" placeholder="Enter a Location..." required>
-                                                <option value="">Enter a Location...</option>
-                                                {% for location in locations %}
-                                                <option value={{location.locationid}} {% if route.destination == location.name %}selected{% endif %}>{{location.name}}</option>
-                                                {% endfor %}
-                                            </select>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label for="destination">Destination</label>
+                                                    <select name="destination" id="destination" placeholder="Enter a Location..." required>
+                                                        {% for location in locations %}
+                                                            <option value={{location.locationid}} {% if route.destination == location.name %}selected{% endif %}>{{location.name | capitalize}}{% if location.isInternational %} - International{% endif %}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                            </div>
                                         </div>
 
                                         <div class="form-group">
@@ -87,30 +91,44 @@
                                             <select name="company" id="company" placeholder="Enter a Location..." required>
                                                 <option value="">Enter a Company...</option>
                                                 {% for company in companies %}
-                                                <option value={{company.companyid}} {% if route.company == company.name %}selected{% endif %}>{{company.name}}</option>
+                                                <option value={{company.companyid}} {% if route.company == company.name %}selected{% endif %}>{{company.name}} - {{company.type | capitalize}}</option>
                                                 {% endfor %}
                                             </select>
                                         </div>
 
                                         <h5>New Costs:</h5>
-                                        <div class="form-group">
-                                            <label for="weightcost">Weight</label>
-                                            <input type="number" id="weightcost" name="weightcost" class="form-control border-input" placeholder="Weight" {% if route %}value = "{{route.weightcost}}" {% endif %} required>
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="volumecost">Volume</label>
-                                            <input type="number" id="volumecost" name="volumecost" class="form-control border-input" placeholder="Volume" {% if route %}value = "{{route.volumecost}}" {% endif %} required>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label for="weightcost">Weight</label>
+                                                    <input type="number" id="weightcost" name="weightcost" class="form-control border-input" placeholder="Weight" {% if route %}value = "{{route.weightcost}}" {% endif %} required>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label for="volumecost">Volume</label>
+                                                    <input type="number" id="volumecost" name="volumecost" class="form-control border-input" placeholder="Volume" {% if route %}value = "{{route.volumecost}}" {% endif %} required>
+                                                </div>
+                                            </div>
                                         </div>
 
                                         <h5>New Limits:</h5>
-                                        <div class="form-group">
-                                            <label for="maxweight">Weight</label>
-                                            <input type="number" id="maxweight" name="maxweight" class="form-control border-input" placeholder="Weight" {% if route %}value = "{{route.maxweight}}" {% endif %} required>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label for="maxweight">Weight</label>
+                                                    <input type="number" id="maxweight" name="maxweight" class="form-control border-input" placeholder="Weight" {% if route %}value = "{{route.maxweight}}" {% endif %} required>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label for="maxvolume">Volume</label>
+                                                    <input type="number" id="maxvolume" name="maxvolume" class="form-control border-input" placeholder="Volume" {% if route %}value = "{{route.maxvolume}}" {% endif %} required>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div class="form-group">
-                                            <label for="maxvolume">Volume</label>
-                                            <input type="number" id="maxvolume" name="maxvolume" class="form-control border-input" placeholder="Volume" {% if route %}value = "{{route.maxvolume}}" {% endif %} required>
-                                        </div>
+
+                                        <h5>Transport Details:</h5>
 
                                         <div class="form-group">
                                             <label for="day">Departure Day</label>
@@ -125,15 +143,21 @@
                                             </select>
                                         </div>
 
-                                        <h5>Transport Details:</h5>
-                                        <div class="form-group">
-                                            <label for="frequency">Departure Frequency</label>
-                                            <input type="number" id="frequency" name="frequency" class="form-control border-input" placeholder="Frequency" {% if route %}value = "{{route.frequency}}" {% endif %} required>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label for="frequency">Departure Frequency (Hours)</label>
+                                                    <input type="number" id="frequency" name="frequency" class="form-control border-input" placeholder="Frequency" {% if route %}value = "{{route.frequency}}" {% endif %} required>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label for="duration">Duration (Hours)</label>
+                                                    <input type="number" id="duration" name="duration" class="form-control border-input" placeholder="Duration" {% if route %}value = "{{route.duration}}" {% endif %} required>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div class="form-group">
-                                            <label for="duration">Duration</label>
-                                            <input type="number" id="duration" name="duration" class="form-control border-input" placeholder="Duration" {% if route %}value = "{{route.duration}}" {% endif %} required>
-                                        </div>
+
                                     </div>
                                     <button type="submit" class="btn btn-warning btn-fill btn-wd">Update</button>
                                     <div class="clearfix"></div>

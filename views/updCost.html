@@ -72,11 +72,7 @@
                                                     <select name="sourceLocation" id="sourceLocation" placeholder="Enter a Location..." required>
                                                         <option value="">Enter a Location...</option>
                                                         {% for location in locations %}
-                                                            {% if location.isInternational %}
-                                                                <option value={{location.locationid}}>{{location.name | capitalize}} - International</option>
-                                                            {% else %}
-                                                                <option value={{location.locationid}}>{{location.name | capitalize}}</option>
-                                                            {% endif %}
+                                                            <option value={{location.locationid}}>{{location.name | capitalize}}{% if location.isInternational %} - International{% endif %}</option>
                                                         {% endfor %}
                                                     </select>
                                                 </div>
@@ -86,13 +82,9 @@
                                                     <label for="destLocation">Destination</label>
                                                     <select name="destLocation" id="destLocation" placeholder="Enter a Location..." required>
                                                         <option value="">Enter a Location...</option>
-                                                            {% for location in locations %}
-                                                                {% if location.isInternational %}
-                                                                    <option value={{location.locationid}}>{{location.name | capitalize}} - International</option>
-                                                                {% else %}
-                                                                    <option value={{location.locationid}}>{{location.name | capitalize}}</option>
-                                                                {% endif %}
-                                                            {% endfor %}
+                                                        {% for location in locations %}
+                                                            <option value={{location.locationid}}>{{location.name | capitalize}}{% if location.isInternational %} - International{% endif %}</option>
+                                                        {% endfor %}
                                                     </select>
                                                 </div>
                                             </div>

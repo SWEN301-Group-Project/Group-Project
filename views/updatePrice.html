@@ -57,24 +57,31 @@
                             <div class="content">
                                 <form id="priceUpdate" method="post" action="/price/update/{{customerpriceid}}">
                                     <div class="content">
-                                        <div class="form-group">
-                                            <label for="origin">Origin</label>
-                                            <select id="origin" name="origin" required>
-                                                {% for location in locations %}
-                                                   <option value={{location.locationid}} {% if customerprice.origin == location.name %}selected{% endif %}>{{location.name}}</option>
-                                                {% endfor %}
-                                            </select>
-                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label for="origin">Origin</label>
+                                                    <select id="origin" name="origin" required>
+                                                        {% for location in locations %}
+                                                            <option value={{location.locationid}} {% if customerprice.origin == location.name %}selected{% endif %}>{{location.name | capitalize}}{% if location.isInternational %} - International{% endif %}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
 
-                                        <div class="form-group">
-                                            <label for="destination">Destination</label>
-                                            <select id="destination" name="destination" required>
-                                                {% for location in locations %}
-                                                    <option value={{location.locationid}} {% if customerprice.destination == location.name %}selected{% endif %}>{{location.name}}</option>
-                                                {% endfor %}
-                                            </select>
+                                                <div class="form-group">
+                                                    <label for="destination">Destination</label>
+                                                    <select id="destination" name="destination" required>
+                                                    {% for location in locations %}
+                                                            <option value={{location.locationid}} {% if customerprice.destination == location.name %}selected{% endif %}>{{location.name | capitalize}}{% if location.isInternational %} - International{% endif %}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                            </div>
                                         </div>
                                         <div class="form-group">
+                                            <span id="radio_int">
                                             <div class="radio">
                                                 <label>
                                                     <input type="radio" name="priority" id="intAir" value="INTERNATIONAL AIR" checked>
@@ -87,6 +94,8 @@
                                                     International Standard
                                                 </label>
                                             </div>
+                                            </span>
+                                            <span id="radio_dom">
                                             <div class="radio">
                                                 <label>
                                                     <input type="radio" name="priority" id="domAir" value="DOMESTIC AIR" {% if customerprice.priority == "DOMESTIC AIR" %}checked{% endif %}>
@@ -99,16 +108,24 @@
                                                     Domestic Standard
                                                 </label>
                                             </div>
+                                            </span>
                                         </div>
 
                                         <h5>New Prices:</h5>
-                                        <div class="form-group">
-                                            <label for="weightcost">Weight</label>
-                                            <input type="number" id="weightcost" name="weightcost" class="form-control border-input" placeholder="Weight" {% if customerprice %}value = "{{customerprice.weightcost}}" {% endif %}required>
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="volumecost">Volume</label>
-                                            <input type="number" id="volumecost" name="volumecost" class="form-control border-input" placeholder="Volume" {% if customerprice %}value = "{{customerprice.volumecost}}" {% endif %} required>
+
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label for="weightcost">Weight</label>
+                                                    <input type="number" id="weightcost" name="weightcost" class="form-control border-input" placeholder="Weight" {% if customerprice %}value = "{{customerprice.weightcost}}" {% endif %} min="0" required>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label for="volumecost">Volume</label>
+                                                    <input type="number" id="volumecost" name="volumecost" class="form-control border-input" placeholder="Volume" {% if customerprice %}value = "{{customerprice.volumecost}}" {% endif %} min="0" required>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                     <button type="submit" class="btn btn-info btn-fill btn-wd">Submit</button>
@@ -173,12 +190,18 @@
     $(function() {
         $('#origin').selectize({
             create:false,
-            allowEmptyOption: false
+            allowEmptyOption: false,
+            onChange: function(value){
+                setPriorityVisibility();
+            }
         });
 
         $('#destination').selectize({
             create:false,
-            allowEmptyOption: false
+            allowEmptyOption: false,
+            onChange: function(value){
+                setPriorityVisibility();
+            }
         });
 
         {% if notify %}
@@ -191,7 +214,21 @@
             timer: 300
         });
         {% endif %}
+
+        setPriorityVisibility();
     });
+
+    function setPriorityVisibility(){
+        if ($('#origin option')[0].textContent.includes('International') ||
+         $('#destination option')[0].textContent.includes('International')){
+            $('#radio_int')[0].style.display = "";
+            $('#radio_dom')[0].style.display = "none";
+
+        } else {
+            $('#radio_int')[0].style.display = "none";
+            $('#radio_dom')[0].style.display = "";
+        }
+    }
 
 
 </script>
