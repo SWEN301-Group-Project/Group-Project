@@ -63,43 +63,59 @@
                             <div class="content">
                                 <form id="priceUpdate" method="post" action="/price">
                                     <div class="content">
-                                    <div class="form-group">
-                                        <label for="sourceLocation">Origin</label>
-                                        <select id="sourceLocation" name="sourceLocation" required>
-                                            {% for location in locations %}
-                                            <option value={{location.locationid}}>{{location.name}}</option>
-                                            {% endfor %}
-                                        </select>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="sourceLocation">Origin</label>
+                                                <select id="sourceLocation" name="sourceLocation" required>
+                                                    <option value="">Enter a Location...</option>
+                                                    {% for location in locations %}
+                                                        {% if location.isInternational %}
+                                                            <option value={{location.locationid}}>{{location.name | capitalize}} - International</option>
+                                                        {% else %}
+                                                            <option value={{location.locationid}}>{{location.name | capitalize}}</option>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="destLocation">Destination</label>
+                                                <select id="destLocation" name="destLocation" required>
+                                                    <option value="">Enter a Location...</option>
+                                                    {% for location in locations %}
+                                                        {% if location.isInternational %}
+                                                            <option value={{location.locationid}}>{{location.name | capitalize}} - International</option>
+                                                        {% else %}
+                                                            <option value={{location.locationid}}>{{location.name | capitalize}}</option>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </div>
                                     </div>
 
                                     <div class="form-group">
-                                        <label for="destLocation">Destination</label>
-                                        <select id="destLocation" name="destLocation" required>
-                                            {% for location in locations %}
-                                            <option value={{location.locationid}}>{{location.name}}</option>
-                                            {% endfor %}
-                                        </select>
-                                    </div>
-                                    <div class="form-group">
-                                        <div class="radio">
+                                        <div class="radio radio_int">
                                             <label>
                                                 <input type="radio" name="priority" id="intAir" value="INTERNATIONAL AIR" checked>
                                                 International Air
                                             </label>
                                         </div>
-                                        <div class="radio">
+                                        <div class="radio radio_int">
                                             <label>
                                                 <input type="radio" name="priority" id="intStd" value="INTERNATIONAL STANDARD" checked>
                                                 International Standard
                                             </label>
                                         </div>
-                                        <div class="radio">
+                                        <div class="radio radio_dom">
                                             <label>
                                                 <input type="radio" name="priority" id="domAir" value="DOMESTIC AIR" checked>
                                                 Domestic Air
                                             </label>
                                         </div>
-                                        <div class="radio">
+                                        <div class="radio radio_dom">
                                             <label>
                                                 <input type="radio" name="priority" id="domStd" value="DOMESTIC STANDARD" checked>
                                                 Domestic Standard
@@ -108,13 +124,19 @@
                                     </div>
 
                                     <h5>New Prices:</h5>
-                                    <div class="form-group">
-                                        <label for="WeightPrice">Weight</label>
-                                        <input type="number" id="WeightPrice" name="wgt" class="form-control border-input" placeholder="Weight" required>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="VolPrice">Volume</label>
-                                        <input type="number" id="VolPrice" name="vol" class="form-control border-input" placeholder="Volume" required>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="WeightPrice">Weight ($/Kg)</label>
+                                                <input type="number" id="WeightPrice" name="wgt" class="form-control border-input" placeholder="Weight" min="0" required>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="VolPrice">Volume ($/L)</label>
+                                                <input type="number" id="VolPrice" name="vol" class="form-control border-input" placeholder="Volume" min="0" required>
+                                            </div>
+                                        </div>
                                     </div>
                                     </div>
                                     <button type="submit" class="btn btn-info btn-fill btn-wd">Submit</button>
@@ -131,10 +153,10 @@
                                 <h4 class="title">Customer Prices</h4>
                             </div>
                             <div class="content">
-                                <table id="example-table" class="table table-striped table-responsive">
+                                <table id="example-table" class="table table-striped table-responsive hover">
                                     <thead>
                                     <tr>
-                                        <th>Price id</th>
+                                        <th>Id</th>
                                         <th>Origin</th>
                                         <th>Destination</th>
                                         <th>Weight-Cost</th>
@@ -144,10 +166,10 @@
                                     </thead>
                                     <tbody>
                                     {% for price in customerprices %}
-                                    <tr>
+                                    <tr onclick="window.location.href = '/price/{{price.priceid}}'">
                                         <td><a href="/price/{{price.priceid}}">{{price.priceid}}</a></td>
-                                        <td>{{price.origin}}</td>
-                                        <td>{{price.destination}}</td>
+                                        <td><a href="/locations/{{price.originid}}">{{price.origin | capitalize}}</a></td>
+                                        <td><a href="/locations/{{price.destinationid}}">{{price.destination | capitalize}}</a></td>
                                         <td>{{price.weightcost}}</td>
                                         <td>{{price.volumecost}}</td>
                                         <td>{{price.priority}}</td>
@@ -202,16 +224,25 @@
 <script>
     $(document).ready(function() {
         $('#example-table').DataTable({
-            "dom": '<"search pull-left"f>rt<"bottom"lip><"clear">'
+            "dom": '<"search pull-left"f>rt<"bottom"lip><"clear">',
+            "order": [[0, "desc"]]
         });
     } );
 </script>
 <script type="text/javascript" src="/static/selectize/js/standalone/selectize.min.js"></script>
 <script>
     $(function() {
-        $('#sourceLocation').selectize();
+        $('#sourceLocation').selectize({
+            onChange: function(value){
+                setPriorityVisibility();
+            }
+        });
 
-        $('#destLocation').selectize();
+        $('#destLocation').selectize({
+            onChange: function(value){
+                setPriorityVisibility();
+            }
+        });
 
         {% if notify %}
         $.notify({
@@ -224,6 +255,25 @@
         });
         {% endif %}
     });
+
+    function setPriorityVisibility(){
+        if ($('#sourceLocation option')[0].textContent.includes('International') ||
+         $('#destLocation option')[0].textContent.includes('International')){
+            [].slice.call($('.radio_int')).forEach(function(element){
+                element.style.display = "";
+            });
+            [].slice.call($('.radio_dom')).forEach(function(element){
+                element.style.display = "none";
+            });
+        } else {
+            [].slice.call($('.radio_int')).forEach(function(element){
+                element.style.display = "none";
+            });
+            [].slice.call($('.radio_dom')).forEach(function(element){
+                element.style.display = "";
+            });
+        }
+    }
 </script>
 <script type="text/javascript" src="/static/js/validation/customerprice.js"></script>
 </html>

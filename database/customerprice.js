@@ -31,7 +31,7 @@ The following are the database function implemented by customerprice.js file:
 
 //returns list of all customerprice objects
 exports.getAllPrices = function(callback){
-    var stmt = "SELECT priceid, ORIGIN.name AS origin, DEST.name AS destination, weightcost, volumecost, priority "
+    var stmt = "SELECT priceid, ORIGIN.name AS origin, customerprice.origin as originid, DEST.name AS destination, customerprice.destination as destinationid, weightcost, volumecost, priority "
     			 + "FROM customerprice "
     			 + "LEFT JOIN locations AS ORIGIN ON customerprice.origin = ORIGIN.locationid "
     			 + "LEFT JOIN locations AS DEST ON customerprice.destination = DEST.locationid";
