@@ -45,7 +45,8 @@ app = express();
 app.set('view engine', 'html');
 app.set('views', __dirname + '/views');
 app.use('/static', express.static(__dirname + '/static'));
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({ extended: false }))
 app.use(cookieParser());
 app.use(session({secret: 'apparentlythishastobeaverylongsessionsecret'}));
 
@@ -58,8 +59,19 @@ var env = nunjucks.configure('views', {
     autoescape: true,
     express: app
 });
-
+/*
+    Custom methods for nunjucks
+ */
 var nunjucksEnv = new nunjucks.Environment();
+
+env.addFilter('isMailOrigin', function(locationid, mail) {
+    return mail ? locationid == mail.origin : false;
+});
+
+env.addFilter('isMailDestination', function(locationid, mail) {
+    return mail ? locationid == mail.destination : false;
+});
+
 
 var nunjucksDate = require('nunjucks-date');
 nunjucksDate.setDefaultFormat('YYYY-MM-Do, hh:mm:ss');
@@ -74,32 +86,259 @@ var router = express.Router();
 var database = new Database().init();
 Mail = new Mail();
 
-
-
-// Homepage
 router.get("/", function(req, res) {
-	"use strict";
-
-    Mail.getMailStats(function(){
-        res.render('index');
-    });
+   res.redirect('/stats/0')
 });
 
+router.get("/stats", function(req, res) {
+    res.redirect('/stats/0');
+});
+
+// Homepage
+router.get("/stats/:dateOffset", function(req, res) {
+	"use strict";
+
+    Mail.getMailStats(req.params.dateOffset, function(labels, series, range, prev, next){
+        res.render('index', {
+            title: 'Business Figures',
+            homeActive: true,
+            labels: labels,
+            series: series,
+            dateRange: range,
+            prevDate: prev,
+            nextDate: next
+        });
+    });
+
+    //res.render('index',{title: "Dashboard", homeActive: true});
+});
+
+router.get("/logFile", function(req, res) {
+    "use strict";
+    res.render('logFile',{loggedin: loggedin});
+});
+
+// Login page
+router.get("/login", function(req, res) {
+    "use strict";
+    res.render('login',{});
+});
+var password = 1234;
+var loggedin = false;
+router.post("/login", function(req, res) {
+    var code = req.body.code;
+    if(code != password){
+        loggedin = false;
+        res.render("login", {loggedin: loggedin, error: "Invalid code."});
+    }
+    else {
+        loggedin = true;
+        res.render('logFile', {loggedin: loggedin});
+    }
+});
+
+router.get("/logout",function(request,response) {
+    loggedin = false;
+    res.render('login', {loggedin: loggedin});
+});
 
 router.get("/graph", function (req, res) {
     "use strict";
     Graph.loadGraph();
-    res.render('index', {});
+    res.render('index', {title: "Dashboard", homeActive: true});
 });
 
-
+// Location routes
 router.get("/locations", function(req, res) {
 	"use strict";
-    Location.getAllLocations(function(result){
+    Location.getAllLocations(function(allLocations){
+        res.render('location', {locationActive: true, title: "Location", locations: allLocations});
+    });
+});
+
+router.get("/locations/:locationid", function(req, res){
+    var locationid = req.params.locationid;
+    Location.getLocationById(locationid, function(location){
+        console.log(location);
+        res.render('updateLocation', {
+            locationActive: true,
+            title: "Update Location",
+            locationid: locationid,
+            location: location
+        });
+    });
+});
+
+router.post("/locations/delete/:locationid", function(req,res){
+    var locationid = req.params.locationid;
+
+    Location.deleteLocation(locationid, function(result){
         console.log(result);
-        for (var i = 0; i < result.length; i++) {
-            console.log(result[i].name);
+        if(result){
+            //success
+            Location.getAllLocations(function(allLocations){
+                res.render('location', {locationActive: true, title: "Location", locations: allLocations, notify: "Location successfully deleted", notifyType:"warning"});
+            });
+        } else {
+            Location.getLocationById(locationid, function(location){
+                console.log(location);
+                res.render('updateLocation', {
+                    locationActive: true,
+                    title: "Update Location",
+                    locationid: locationid,
+                    location: location,
+                    notify: "Error deleting location: " + location.name,
+                    notifyType: "danger"
+                });
+            });
         }
+    });
+});
+
+router.post("/locations/update/:locationid", function(req,res){
+    var location = req.body;
+    var locationid = req.params.locationid;
+    Location.updateLocation(locationid, location, function(result){
+        console.log(result);
+        if (result){
+            Location.getAllLocations(function(allLocations){
+                res.render('location', {locationActive: true, title: "Location", locations: allLocations, notify: location.name + " successfully updated", notifyType: "warning"});
+            });
+        } else {
+            //could not update the location
+            Location.getLocationById(locationid, function(location){
+                console.log(location);
+                res.render('updateLocation', {
+                    locationActive: true,
+                    title: "Update Location",
+                    locationid: locationid,
+                    location: location,
+                    notify: "Error updating location: " + location.name,
+                    notifyType: "danger"
+                });
+            });
+        }
+    });
+});
+
+router.post("/locations", function(req, res){
+    console.log(req.body);
+    var newLocation = req.body;
+    Location.insertLocation(newLocation, function(result){
+        console.log(result);
+        Location.getAllLocations(function(allLocations){
+            if (result) {
+                res.render('location', {
+                    locationActive: true,
+                    title: "Location",
+                    locations: allLocations,
+                    notify: "Successfully added: " + newLocation.name
+                });
+            } else {
+                res.render('location', {
+                    locationActive: true,
+                    title: "Location",
+                    locations: allLocations,
+                    notify: "Error occurred",
+                    notifyType: "danger"
+                });
+            }
+        });
+    });
+});
+
+//company
+router.get("/companies", function(req, res) {
+    "use strict";
+    Company.getAllCompanies(function(allCompanies){
+        res.render('company', {companyActive: true, title: "Company", companies: allCompanies});
+    });
+});
+
+router.get("/companies/:companyid", function(req, res){
+    var companyid = req.params.companyid;
+    Company.getCompanyById(companyid, function(company){
+        console.log(company);
+        res.render('updateCompany', {
+            companyActive: true,
+            title: "Update Company",
+            companyid: companyid,
+            company: company
+        });
+    });
+});
+
+router.post("/companies/delete/:companyid", function(req,res){
+    var companyid = req.params.companyid;
+
+    Company.deleteCompany(companyid, function(result){
+        console.log(result);
+        if(result){
+            //success
+            Company.getAllCompanies(function(allCompanies){
+                res.render('company', {companyActive: true, title: "Company", companies: allCompanies, notify: "company successfully deleted", notifyType:"warning"});
+            });
+        } else {
+            Company.getCompanyById(companyid, function(company){
+                res.render('updateCompany', {
+                    companyActive: true,
+                    title: "Update Company",
+                    companyid: companyid,
+                    company: company,
+                    notify: "Error deleting company: " + company.name,
+                    notifyType: "danger"
+                });
+            });
+        };
+    });
+});
+
+router.post("/companies/update/:companyid", function(req,res){
+    var company = req.body;
+    var companyid = req.params.companyid;
+    Company.updateCompany(companyid, company, function(result){
+        console.log(result);
+        if (result){
+            Company.getAllCompanies(function(allCompanies){
+                res.render('company', {companyActive: true, title: "Company", companies: allCompanies, notify: company.name + " successfully updated", notifyType: "warning"});
+            });
+        } else {
+            //could not update the location
+            Company.getCompanyById(companyid, function(company){
+                res.render('updateCompany', {
+                    companyActive: true,
+                    title: "Update Company",
+                    companyid: companyid,
+                    company: company,
+                    notify: "Error deleting company: " + company.name,
+                    notifyType: "danger"
+                });
+            });
+        }
+    });
+});
+
+router.post("/companies", function (req, res) {
+    console.log(req.body);
+    var newCompany = req.body;
+    Company.insertCompany(newCompany, function (result) {
+        console.log(result);
+        Company.getAllCompanies(function (allCompanies) {
+            if (result) {
+                res.render('company', {
+                    companyActive: true,
+                    title: "Company",
+                    companies: allCompanies,
+                    notify: "Successfully added: " + newCompany.name
+                });
+            } else {
+                res.render('company', {
+                    companyActive: true, title: "Company", companies: allCompanies,
+                    notify: "Error occurred",
+                    notifyType: "danger"
+                });
+            }
+        });
     });
 });
 
@@ -121,23 +360,34 @@ router.get("/routes", function(req, res) {
     };
     Location.getAllLocations(function (result) {
         console.log(result)
-        res.render(index);
+        res.render(index, {title: "Dashboard", homeActive: true});
     });
 });
 
 router.post("/addMail", function(req,res, next){
    "use strict";
+    console.log("/addMail");
     console.log(req.body);
     var mail = req.body;
-
-    //server-side error checking
-    //destination and origin cannot be the same
+    req.session.mail = mail; //save mail in session
+    var error = ""; //server side error message to be displayed
+    //server-side error checking. Destination and origin cannot be the same
     if (mail.destination == mail.origin) {
-        console.log("error");
+        if (mail.destination) {
+            error += "Unknown error occurred.\n";
+        }
+        error += "Destination cannot be same as Origin.";
         Location.getAllLocations(function (locations) {
             Mail.getAllMail(function (mails) {
                 res.status(404);
-                res.render('mails', {mailActive: true, mail: mail, mails: mails, locations: locations});
+                res.render('mails', {
+                    mailActive: true,
+                    title: "Mails",
+                    error: error,
+                    mail: mail,
+                    mails: mails,
+                    locations: locations
+                });
             });
         });
     } else {
@@ -149,8 +399,17 @@ router.post("/addMail", function(req,res, next){
         /**
          * 1. render the confirmation page while sending the mail object
          */
-        req.session.mail = mail;
-        res.render('confirmMail', {mail: mail, mailActive: true});
+        Location.getLocationById(mail.origin, function(originLocation){
+            Location.getLocationById(mail.destination, function(destinationLocation){
+                res.render('confirmMail', {
+                    mail: mail,
+                    title: "Mails",
+                    origin: originLocation,
+                    destination: destinationLocation,
+                    mailActive: true
+                });
+            });
+        });
     }
 });
 
@@ -166,7 +425,13 @@ router.get('/confirmMail', function(req,res){
         Location.getAllLocations(function(locations){
             Mail.getAllMail(function(mails){
                 //add notification of mail added successfully
-                res.render('mails', {mailActive: true, mailAdded: true, locations: locations, mails: mails});
+                res.render('mails', {
+                    mailActive: true,
+                    title: "Mails",
+                    mailAdded: true,
+                    locations: locations,
+                    mails: mails
+                });
                 req.session.mail = null;
             });
         });
@@ -174,12 +439,17 @@ router.get('/confirmMail', function(req,res){
 });
 
 router.get("/mails", function(req, res) {
-	"use strict"
-
+	"use strict";
     Location.getAllLocations(function(locations){
         console.log(locations);
         Mail.getAllMail(function(mails){
-            res.render('mails', {mailActive:true, mails:mails, locations:locations});
+            res.render('mails', {
+                mailActive: true,
+                title: "Mails",
+                mail: req.session.mail,
+                mails: mails,
+                locations: locations
+            });
         });
     });
 });
@@ -188,7 +458,7 @@ router.get("/price", function(req, res){
   console.log('PRICE: GET');
   Location.getAllLocations(function(cb){
       console.log(cb);
-      res.render('updPrice', {priceActive: true, locations: cb});
+      res.render('updPrice', {priceActive: true, title: "Customer Prices", locations: cb});
   });
 });
 
@@ -223,7 +493,7 @@ router.post("/price", function(req, res){
   if (err.length) {
     Location.getAllLocations(function(cb){
       console.log(cb);
-      res.render('updPrice', {priceActive: true, error: err, locations: cb});
+      res.render('updPrice', {priceActive: true, title: "Customer Prices", error: err, locations: cb});
     });
   } else {
     // this means that there is nothing wrong, so we can be do the actual work
@@ -281,7 +551,7 @@ router.post("/price", function(req, res){
     // we want to do something if ori and dest have no value
   	Location.getAllLocations(function(cb){
         console.log(cb);
-        res.render('updPrice', {priceActive: true, locations: cb});
+        res.render('updPrice', {priceActive: true, title: "Customer Prices", locations: cb});
     });
   }
 });
@@ -292,7 +562,7 @@ router.get("/cost", function(req, res){
     Company.getAllCompanies(function(cbComp){
       console.log(cbLoc);
       console.log(cbComp);
-      res.render('updCost', {locations: cbLoc, companies: cbComp});
+      res.render('updCost', {costActive: true, title: "Route Costs", locations: cbLoc, companies: cbComp});
     })
   });
 });
@@ -334,7 +604,13 @@ router.post("/cost", function(req, res){
     Location.getAllLocations(function(cbLoc){
       Company.getAllCompanies(function(cbComp){
         console.log('COST: POST: Error: ' + err);
-        res.render('updCost', {error: err, locations: cbLoc, companies: cbComp});
+          res.render('updCost', {
+              costActive: true,
+              title: "Route Costs",
+              error: err,
+              locations: cbLoc,
+              companies: cbComp
+          });
         return;
       })
     });
@@ -451,11 +727,11 @@ router.post("/cost", function(req, res){
       Company.getAllCompanies(function(cbComp){
         // console.log(cbLoc);
         // console.log(cbComp);
-        res.render('updCost', {locations: cbLoc, companies: cbComp});
+        res.render('updCost', {costActive: true, title: "Route Costs", locations: cbLoc, companies: cbComp});
       })
     });
   }
-})
+});
 
 // Use the router routes in our application
 app.use('/', router);

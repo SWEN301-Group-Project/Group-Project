@@ -34,6 +34,50 @@ var Mail = function(dbFile){
     this._dbFile = dbFile ? dbFile : "./database/test.db";
     this.db = new sqlite3.Database(this._dbFile);
 
+    this.getMailStats = function(stringOffset, callback) {
+        var stmt = "SELECT mailid, ORIGIN.name AS origin, DEST.name AS destination, weight, volume, priority, totalcustomercost, totalbusinesscost, date "
+            + "FROM mails "
+            + "LEFT JOIN locations AS ORIGIN ON mails.origin = ORIGIN.locationid "
+            + "LEFT JOIN locations AS DEST ON mails.destination = DEST.locationid";
+
+        this.db.all(stmt, function(err, rows){
+            if (err){
+                console.log("Error loading mails: " + err);
+                callback([]);
+            } else if (callback){
+
+                var dateOffset = parseInt(stringOffset);
+
+                var date = new Date();
+
+                while (date.getDay() != 1) {
+                    date.setDate(date.getDate() - 1);
+                }
+
+                date.setDate(date.getDate() + (dateOffset * 7));
+
+                var range = date.getDate() + "/" + date.getMonth() + "/" + date.getFullYear();
+
+                var labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+                for (var i = 0; i < 7; i++) {
+                    labels[i] = labels[i] + ", " + date.getDate() + "/" + date.getMonth();
+                    date.setDate(date.getDate() + 1);
+                }
+
+                date.setDate(date.getDate() - 1);
+
+                range = range + " to " + date.getDate() + "/" + date.getMonth() + "/" + date.getFullYear();
+
+                var series = [
+                    [287, 385, 490, 562, 594, 626, 698],
+                    [67, 152, 193, 240, 387, 435, 535]
+                ];
+
+                callback(labels, series, range, dateOffset - 1, dateOffset + 1);
+            }
+        });
+    },
 
     //returns list of all mail objects
     this.getAllMail = function(callback){
