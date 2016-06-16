@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <link rel="apple-touch-icon" sizes="76x76" href="/static/img/apple-icon.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="/static/img/favicon.png">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+
+    <title>KPSmart Delivery</title>
+
+    <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0' name='viewport' />
+    <meta name="viewport" content="width=device-width" />
+
+    <!-- Bootstrap core CSS     -->
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet" />
+
+    <!-- Animation library for notifications   -->
+    <link href="/static/css/animate.min.css" rel="stylesheet"/>
+
+    <!--  Paper Dashboard core CSS    -->
+    <link href="/static/css/paper-dashboard.css" rel="stylesheet"/>
+
+    <!-- CSS for selectize -->
+    <link rel="stylesheet" type="text/css" href="/static/selectize/css/selectize.css" />
+
+    <!-- Default style sheet that you can use to override the template     -->
+    <link href="/static/css/style.css" rel="stylesheet" />
+
+    <!--  Fonts and icons     -->
+    <link href="http://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css" rel="stylesheet">
+    <link href='https://fonts.googleapis.com/css?family=Muli:400,300' rel='stylesheet' type='text/css'>
+    <link href="/static/css/themify-icons.css" rel="stylesheet">
+</head>
+<body>
+
+<div class="wrapper">
+    {% include "includes/sidebar.html" %}
+
+    <div class="main-panel">
+        {% include "includes/navbar.html" %}
+
+
+        <div class="content">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="header">
+                                <h4 class="title">Add Update Customer Price</h4>
+                                {% if error %}
+                                    {% for err in error %}
+                                        <label class="error"> {{err}}</label>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                            <div class="content">
+                                <form id="priceUpdate" method="post" action="/price/update/{{customerpriceid}}">
+                                    <div class="content">
+                                        <div class="form-group">
+                                            <label for="origin">Origin</label>
+                                            <select id="origin" name="origin" required>
+                                                {% for location in locations %}
+                                                   <option value={{location.locationid}} {% if customerprice.origin == location.name %}selected{% endif %}>{{location.name}}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="destination">Destination</label>
+                                            <select id="destination" name="destination" required>
+                                                {% for location in locations %}
+                                                    <option value={{location.locationid}} {% if customerprice.destination == location.name %}selected{% endif %}>{{location.name}}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <div class="radio">
+                                                <label>
+                                                    <input type="radio" name="priority" id="intAir" value="INTERNATIONAL AIR" checked>
+                                                    International Air
+                                                </label>
+                                            </div>
+                                            <div class="radio">
+                                                <label>
+                                                    <input type="radio" name="priority" id="intStd" value="INTERNATIONAL STANDARD" {% if customerprice.priority =='INTERNATIONAL STANDARD' %}checked{% endif %}>
+                                                    International Standard
+                                                </label>
+                                            </div>
+                                            <div class="radio">
+                                                <label>
+                                                    <input type="radio" name="priority" id="domAir" value="DOMESTIC AIR" {% if customerprice.priority == "DOMESTIC AIR" %}checked{% endif %}>
+                                                    Domestic Air
+                                                </label>
+                                            </div>
+                                            <div class="radio">
+                                                <label>
+                                                    <input type="radio" name="priority" id="domStd" value="DOMESTIC STANDARD" {% if customerprice.priority == "DOMESTIC STANDARD" %}checked{% endif %}>
+                                                    Domestic Standard
+                                                </label>
+                                            </div>
+                                        </div>
+
+                                        <h5>New Prices:</h5>
+                                        <div class="form-group">
+                                            <label for="weightcost">Weight</label>
+                                            <input type="number" id="weightcost" name="weightcost" class="form-control border-input" placeholder="Weight" {% if customerprice %}value = "{{customerprice.weightcost}}" {% endif %}required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="volumecost">Volume</label>
+                                            <input type="number" id="volumecost" name="volumecost" class="form-control border-input" placeholder="Volume" {% if customerprice %}value = "{{customerprice.volumecost}}" {% endif %} required>
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="btn btn-info btn-fill btn-wd">Submit</button>
+                                    <div class="clearfix"></div>
+                                </form>
+                                <div class="footer">
+                                    <hr>
+                                    <form method="post" action="/price/delete/{{customerpriceid}}">
+                                        <div class="delete">
+                                            <button type="submit" class="btn-link"><i class="ti-trash"></i> Delete</button>
+                                       </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <footer class="footer">
+            <div class="container-fluid">
+                <nav class="pull-left">
+                    <ul>
+
+                        <li>
+                            <a href="/">
+                                Home
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/price">
+                                Prices
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+                <div class="copyright pull-right">
+                    &copy; <script>document.write(new Date().getFullYear())</script>, made with <i class="fa fa-heart heart"></i> using template from <a href="http://www.creative-tim.com">Creative Tim</a>
+                </div>
+            </div>
+        </footer>
+    </div>
+</div>
+
+
+</body>
+
+<!--   Core JS Files   -->
+<script src="/static/js/jquery-1.10.2.js" type="text/javascript"></script>
+<script src="/static/js/bootstrap.min.js" type="text/javascript"></script>
+<script src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.9/jquery.validate.min.js"></script>
+<!--  Checkbox, Radio & Switch Plugins -->
+<script src="/static/js/bootstrap-checkbox-radio.js"></script>
+
+<!--  Notifications Plugin    -->
+<script src="/static/js/bootstrap-notify.js"></script>
+
+<script type="text/javascript" src="/static/selectize/js/standalone/selectize.min.js"></script>
+<script>
+    $(function() {
+        $('#origin').selectize({
+            create:false,
+            allowEmptyOption: false
+        });
+
+        $('#destination').selectize({
+            create:false,
+            allowEmptyOption: false
+        });
+
+        {% if notify %}
+        $.notify({
+            icon: 'ti-view-list-alt',
+            message: "{{notify}}"
+
+        },{
+            type: '{% if notifyType %}{{notifyType}}{% else %}success{% endif %}',
+            timer: 300
+        });
+        {% endif %}
+    });
+
+
+</script>
+<script type="text/javascript" src="/static/js/validation/customerpriceupdate.js"></script>
+</html>
+
