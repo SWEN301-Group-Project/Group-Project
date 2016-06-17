@@ -83,8 +83,8 @@ var Mail = function (dbFile) {
 
                     for (var j = 0; j < rows.length; j++) {
                         if (stringDate == rows[j].date.slice(0, 10)) {
-                            series[0][1] += rows[j].totalcustomercost;
-                            series[0][2] += rows[j].totalbusinesscost;
+                            series[0][i] += rows[j].totalcustomercost;
+                            series[1][i] += rows[j].totalbusinesscost;
                             weekRows.push(rows[j]);
                         }
                     }
