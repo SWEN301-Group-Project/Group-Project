@@ -65,7 +65,7 @@
                                         <div class="col-md-12">
                                             <div class="form-group">
                                                 <label for="name">Name</label>
-                                                <input type="text" id="name" name="name" class="form-control border-input" placeholder="Name" {% if location %}value = {{location.name}} {% endif %} required>
+                                                <input type="text" id="name" name="name" class="form-control border-input" placeholder="Name" {% if location %}value = {{location.name}} {% endif %}>
                                             </div>
                                         </div>
                                     </div>
@@ -75,13 +75,13 @@
                                             <div class="form-group">
                                                 <div class="radio">
                                                     <label>
-                                                        <input type="radio" name="isInternational" value="1" checked>
+                                                        <input type="radio" name="isInternational" value="1" {% if location %}{% if location.isInternational == 1 %}checked{% endif %}{% endif %}>
                                                         International
                                                     </label>
                                                 </div>
                                                 <div class="radio">
                                                     <label>
-                                                        <input type="radio" name="isInternational" value="0">
+                                                        <input type="radio" name="isInternational" value="0" {% if location %}{% if location.isInternational == 0 %}checked{% endif %}{% endif %}>
                                                         Domestic
                                                     </label>
                                                 </div>

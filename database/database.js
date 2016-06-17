@@ -10,7 +10,7 @@ query result.
 */
 
 function Database(){
-    "use strict"
+    "use strict";
     this._dbFile = "./database/test.db";
 
     this.init = function (dbFile) {

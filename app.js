@@ -38,7 +38,7 @@ var express = require('express'),
     Price = require('./database/customerprice'),
     Managers = require('./database/managers'),
     Graph = require('./database/graph'),
-    logFile = require('./database/logFile.js');
+    logFile = require('./database/logFile.js').logFile;
     findRoute = Graph.findRoute;
 
 
@@ -76,7 +76,7 @@ env.addFilter('isMailDestination', function(locationid, mail) {
 
 
 var nunjucksDate = require('nunjucks-date');
-nunjucksDate.setDefaultFormat('YYYY-MM-Do, hh:mm:ss');
+nunjucksDate.setDefaultFormat('YYYY-MM-DD, hh:mm:ss');
 env.addFilter("date", nunjucksDate);
 
 var router = express.Router();
@@ -87,7 +87,7 @@ var router = express.Router();
  */
 var database = new Database().init();
 Mail = new Mail();
-var logfile = logFile.logFile();
+// var logfile = logFile.logFile();
 // Graph.loadGraph();
 
 
@@ -121,20 +121,23 @@ router.post("/login", function(req, res) {
     });
 });
 
-router.get("/logFile", function(req, res) {
+router.get("/logFile", function (req, res) {
     "use strict";
-    var logfile = logFile.logFile();
-    console.log(logFile.rawJSON.events.event);
-    if(req.session.manager) {
-        res.render('logFile', {events: logFile.rawJSON.events.event, loggedin: req.session.manager ? true : false});
-    }
-    else{
-        res.render('login', {loggedin: req.session.manager ? true : false});
-    }
+    var logfile = new logFile().loadXMLDoc(function (json) {
+        console.log("in callback");
+        console.log(json.events.event);
+        if (req.session.manager) {
+            // res.send(JSON.parse(json));
+            res.render('logFile', {events: json.events.event, loggedin: req.session.manager ? true : false});
+        }
+        else {
+            res.render('login', {loggedin: req.session.manager ? true : false});
+        }
+    });
 });
 
 router.get("/logout",function(req,res) {
-    "use strict"
+    "use strict";
     console.log("POST: /logout");
     req.session.manager = null;
     console.log(req.session.manager ? true : false);

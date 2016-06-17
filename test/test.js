@@ -45,6 +45,26 @@ describe("Location Tests", function(){
                 done();
             });
     });
+    it('should not add location with empty name', function (done) {
+        chai.request(server)
+            .post('/locations')
+            .send({name: "", isInternational: 1})
+            .end(function (err, res) {
+                expect(res).to.have.status(404);
+                expect(res.text).to.contain("Must provide a valid location name");
+                done();
+            });
+    });
+    it('should not add location with empty international', function (done) {
+        chai.request(server)
+            .post('/locations')
+            .send({name: "Test"})
+            .end(function (err, res) {
+                expect(res).to.have.status(404);
+                expect(res.text).to.contain("Must provide the required details");
+                done();
+            });
+    });
 });
 // /**
 //  * Mail.html form tests
