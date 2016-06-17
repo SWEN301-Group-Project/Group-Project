@@ -25,6 +25,7 @@
     "chai": "^3.5.0",
     "coffee-script": "^1.10.0",
     "cookie-parser": "~1.4.1",
+    "deasync": "^0.1.7",
     "express": "^4.13.4",
     "express-session": "~1.13.0",
     "fs": "0.0.2",

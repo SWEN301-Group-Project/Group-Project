@@ -87,14 +87,42 @@ var router = express.Router();
  */
 var database = new Database().init();
 Mail = new Mail();
-// var logfile = logFile.logFile();
-// Graph.loadGraph();
 
+Graph.loadGraph();
 
-// Homepage
+// redirects to the stats page by default, this could be another page.
 router.get("/", function(req, res) {
+   res.redirect('/stats/0')
+});
+
+// sets date range as default it you go to stats page without a range entered
+router.get("/stats", function(req, res) {
+    res.redirect('/stats/0');
+});
+
+// Stats page
+router.get("/stats/:dateOffset", function(req, res) {
 	"use strict";
-	res.render('index',{title: "Dashboard", loggedin: req.session.manager ? true : false, homeActive: true});
+
+    Mail.getMailStats(req.params.dateOffset, function(labels, series, range, prev, next, mailAmount){
+        res.render('index', {
+            title: 'Business Figures',
+            homeActive: true,
+            labels: labels,
+            series: series,
+            dateRange: range,
+            prevDate: prev,
+            nextDate: next,
+            mailAmount: mailAmount
+        });
+    });
+
+    //res.render('index',{title: "Dashboard", homeActive: true});
+});
+
+router.get("/logFile", function(req, res) {
+    "use strict";
+    res.render('logFile',{loggedin: loggedin});
 });
 
 // Login page
