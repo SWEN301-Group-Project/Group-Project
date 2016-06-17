@@ -11,7 +11,7 @@ var Location = require('../database/location');
 router.get("/", function(req, res) {
     "use strict";
     Location.getAllLocations(function(allLocations){
-        res.render('location', {locationActive: true, title: "Location", locations: allLocations});
+        res.render('location', {locationActive: true, title: "Location", loggedin: req.session.manager ? true : false, locations: allLocations});
     });
 });
 
@@ -22,6 +22,7 @@ router.get("/:locationid", function(req, res){
         res.render('updateLocation', {
             locationActive: true,
             title: "Update Location",
+            loggedin: req.session.manager ? true : false,
             locationid: locationid,
             location: location
         });
@@ -36,7 +37,7 @@ router.post("/delete/:locationid", function(req,res){
         if(result){
             //success
             Location.getAllLocations(function(allLocations){
-                res.render('location', {locationActive: true, title: "Location", locations: allLocations, notify: "Location successfully deleted", notifyType:"warning"});
+                res.render('location', {locationActive: true, title: "Location", loggedin: req.session.manager ? true : false, locations: allLocations, notify: "Location successfully deleted", notifyType:"warning"});
             });
         } else {
             Location.getLocationById(locationid, function(location){
@@ -44,6 +45,7 @@ router.post("/delete/:locationid", function(req,res){
                 res.render('updateLocation', {
                     locationActive: true,
                     title: "Update Location",
+                    loggedin: req.session.manager ? true : false,
                     locationid: locationid,
                     location: location,
                     notify: "Error deleting location: " + location.name,
@@ -61,7 +63,7 @@ router.post("/update/:locationid", function(req,res){
         console.log(result);
         if (result){
             Location.getAllLocations(function(allLocations){
-                res.render('location', {locationActive: true, title: "Location", locations: allLocations, notify: location.name + " successfully updated", notifyType: "warning"});
+                res.render('location', {locationActive: true, title: "Location",loggedin: req.session.manager ? true : false,  locations: allLocations, notify: location.name + " successfully updated", notifyType: "warning"});
             });
         } else {
             //could not update the location
@@ -70,6 +72,7 @@ router.post("/update/:locationid", function(req,res){
                 res.render('updateLocation', {
                     locationActive: true,
                     title: "Update Location",
+                    loggedin: req.session.manager ? true : false,
                     locationid: locationid,
                     location: location,
                     notify: "Error updating location: " + location.name,
@@ -89,15 +92,13 @@ router.post("/", function(req, res){
     } else if (!newLocation.isInternational) {
         error = "Must provide the required details";
     }
-    Location.getLocationByName("", function(result){
-        console.log(result);
-    });
     Location.getAllLocations(function (allLocations) {
         if (error){
             res.status(404);
             res.render('location', {
                 locationActive: true,
                 title: "Location",
+                loggedin: req.session.manager ? true : false,
                 location: newLocation,
                 locations: allLocations,
                 error: error
@@ -110,6 +111,7 @@ router.post("/", function(req, res){
                         res.render('location', {
                             locationActive: true,
                             title: "Location",
+                            loggedin: req.session.manager ? true : false,
                             locations: allLocations,
                             notify: "Successfully added: " + newLocation.name
                         });
@@ -117,6 +119,7 @@ router.post("/", function(req, res){
                         res.render('location', {
                             locationActive: true,
                             title: "Location",
+                            loggedin: req.session.manager ? true : false,
                             locations: allLocations,
                             notify: "Error occurred",
                             notifyType: "danger"

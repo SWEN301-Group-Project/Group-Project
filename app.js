@@ -94,7 +94,7 @@ Mail = new Mail();
 // Homepage
 router.get("/", function(req, res) {
 	"use strict";
-	res.render('index',{title: "Dashboard", homeActive: true});
+	res.render('index',{title: "Dashboard", loggedin: req.session.manager ? true : false, homeActive: true});
 });
 
 // Login page
