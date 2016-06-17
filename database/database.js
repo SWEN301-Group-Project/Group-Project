@@ -10,7 +10,7 @@ query result.
 */
 
 function Database(){
-    "use strict"
+    "use strict";
     this._dbFile = "./database/test.db";
 
     this.init = function (dbFile) {
@@ -94,8 +94,10 @@ function Database(){
                 db.run('CREATE TABLE IF NOT EXISTS managers ('
                     + 'managerid INTEGER PRIMARY KEY, '
                     + 'username TEXT, '
-                    + 'password TEXT'
+                    + 'password TEXT, '
+                    + 'UNIQUE (username, password)'
                     + ')');
+                db.run('INSERT OR IGNORE INTO managers (username, password) VALUES ("admin","admin")');
             })
         });
     }

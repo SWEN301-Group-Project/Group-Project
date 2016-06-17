@@ -36,7 +36,9 @@ var express = require('express'),
     Location = require('./database/location'),
     Route = require('./database/routes'),
     Price = require('./database/customerprice'),
+    Managers = require('./database/managers'),
     Graph = require('./database/graph'),
+    logFile = require('./database/logFile.js').logFile;
     findRoute = Graph.findRoute;
 
 
@@ -48,7 +50,7 @@ app.use('/static', express.static(__dirname + '/static'));
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(cookieParser());
-app.use(session({secret: 'apparentlythishastobeaverylongsessionsecret'}));
+app.use(session({secret: 'apparentlythishastobeaverylongsessionsecret', resave: false, saveUninitialized: true}));
 
 /*
  Configure nunjucks to work with express
@@ -74,7 +76,7 @@ env.addFilter('isMailDestination', function(locationid, mail) {
 
 
 var nunjucksDate = require('nunjucks-date');
-nunjucksDate.setDefaultFormat('YYYY-MM-Do, hh:mm:ss');
+nunjucksDate.setDefaultFormat('YYYY-MM-DD, hh:mm:ss');
 env.addFilter("date", nunjucksDate);
 
 var router = express.Router();
@@ -124,139 +126,85 @@ router.get("/logFile", function(req, res) {
 });
 
 // Login page
-router.get("/login", function(req, res) {
+router.get("/login", function (req, res) {
     "use strict";
-    res.render('login',{});
-});
-var password = 1234;
-var loggedin = false;
-router.post("/login", function(req, res) {
-    var code = req.body.code;
-    if(code != password){
-        loggedin = false;
-        res.render("login", {loggedin: loggedin, error: "Invalid code."});
-    }
-    else {
-        loggedin = true;
-        res.render('logFile', {loggedin: loggedin});
-    }
+    Managers.getAllManagers(function(result){
+        console.log(result);
+    });
+    res.render('login', {});
 });
 
-router.get("/logout",function(request,response) {
-    loggedin = false;
-    res.render('login', {loggedin: loggedin});
+router.post("/login", function(req, res) {
+    console.log(req.body);
+    var manager = req.body;
+    var username = req.body.username;
+    var password = req.body.password;
+    Managers.loginManager(username, password, function(result){
+        console.log("inside loginmanager function");
+        console.log(result);
+        if (result){
+            req.session.manager = manager; //save user in session
+        }
+        res.render("index", {loggedin: req.session.manager ? true : false, error: "Invalid code."});
+    });
+});
+
+router.get("/logFile", function (req, res) {
+    "use strict";
+    new logFile().loadXMLDoc(function (json) {
+        console.log("in callback");
+        console.log(json.events.event);
+        if (req.session.manager) {
+            // res.send(JSON.parse(json));
+            res.render('logFile', {events: json.events.event, loggedin: req.session.manager ? true : false});
+        }
+        else {
+            res.render('login', {loggedin: req.session.manager ? true : false});
+        }
+    });
+});
+
+router.get("/logFile/:logFileId", function(req, res){
+    var index = req.params.logFileId;
+    new logFile().loadXMLDoc(function (json) {
+        var events = json.events.event;
+        //1. calculate business figures
+        //2. show events[i]
+        res.render('logs', {event: json.events.event[index], loggedin: req.session.manager ? true : false});
+    });
+
+
+});
+
+router.get("/logout",function(req,res) {
+    "use strict";
+    console.log("POST: /logout");
+    req.session.manager = null;
+    console.log(req.session.manager ? true : false);
+    res.render('index', {loggedin: req.session.manager ? true : false});
 });
 
 router.get("/graph", function (req, res) {
     "use strict";
     Graph.loadGraph();
-    res.render('index', {title: "Dashboard", homeActive: true});
+    res.render('index', {title: "Dashboard", loggedin: req.session.manager ? true : false, homeActive: true});
 });
 
 // Location routes
-router.get("/locations", function(req, res) {
-	"use strict";
-    Location.getAllLocations(function(allLocations){
-        res.render('location', {locationActive: true, title: "Location", locations: allLocations});
-    });
-});
+router.use('/locations', require('./routes/locations'));
 
-router.get("/locations/:locationid", function(req, res){
-    var locationid = req.params.locationid;
-    Location.getLocationById(locationid, function(location){
-        console.log(location);
-        res.render('updateLocation', {
-            locationActive: true,
-            title: "Update Location",
-            locationid: locationid,
-            location: location
-        });
-    });
-});
+// Customer Price routes
+router.use('/price', require('./routes/price'));
 
-router.post("/locations/delete/:locationid", function(req,res){
-    var locationid = req.params.locationid;
+// Route Cost routes
+router.use('/cost', require('./routes/routecost'));
 
-    Location.deleteLocation(locationid, function(result){
-        console.log(result);
-        if(result){
-            //success
-            Location.getAllLocations(function(allLocations){
-                res.render('location', {locationActive: true, title: "Location", locations: allLocations, notify: "Location successfully deleted", notifyType:"warning"});
-            });
-        } else {
-            Location.getLocationById(locationid, function(location){
-                console.log(location);
-                res.render('updateLocation', {
-                    locationActive: true,
-                    title: "Update Location",
-                    locationid: locationid,
-                    location: location,
-                    notify: "Error deleting location: " + location.name,
-                    notifyType: "danger"
-                });
-            });
-        }
-    });
-});
-
-router.post("/locations/update/:locationid", function(req,res){
-    var location = req.body;
-    var locationid = req.params.locationid;
-    Location.updateLocation(locationid, location, function(result){
-        console.log(result);
-        if (result){
-            Location.getAllLocations(function(allLocations){
-                res.render('location', {locationActive: true, title: "Location", locations: allLocations, notify: location.name + " successfully updated", notifyType: "warning"});
-            });
-        } else {
-            //could not update the location
-            Location.getLocationById(locationid, function(location){
-                console.log(location);
-                res.render('updateLocation', {
-                    locationActive: true,
-                    title: "Update Location",
-                    locationid: locationid,
-                    location: location,
-                    notify: "Error updating location: " + location.name,
-                    notifyType: "danger"
-                });
-            });
-        }
-    });
-});
-
-router.post("/locations", function(req, res){
-    console.log(req.body);
-    var newLocation = req.body;
-    Location.insertLocation(newLocation, function(result){
-        console.log(result);
-        Location.getAllLocations(function(allLocations){
-            if (result) {
-                res.render('location', {
-                    locationActive: true,
-                    title: "Location",
-                    locations: allLocations,
-                    notify: "Successfully added: " + newLocation.name
-                });
-            } else {
-                res.render('location', {
-                    locationActive: true,
-                    title: "Location",
-                    locations: allLocations,
-                    notify: "Error occurred",
-                    notifyType: "danger"
-                });
-            }
-        });
-    });
-});
 
 //company
 router.get("/companies", function(req, res) {
     "use strict";
     Company.getAllCompanies(function(allCompanies){
-        res.render('company', {companyActive: true, title: "Company", companies: allCompanies});
+        res.render('company', {companyActive: true, title: "Company", loggedin: req.session.manager ? true : false, companies: allCompanies});
     });
 });
 
@@ -267,6 +215,7 @@ router.get("/companies/:companyid", function(req, res){
         res.render('updateCompany', {
             companyActive: true,
             title: "Update Company",
+            loggedin: req.session.manager ? true : false,
             companyid: companyid,
             company: company
         });
@@ -281,20 +230,21 @@ router.post("/companies/delete/:companyid", function(req,res){
         if(result){
             //success
             Company.getAllCompanies(function(allCompanies){
-                res.render('company', {companyActive: true, title: "Company", companies: allCompanies, notify: "company successfully deleted", notifyType:"warning"});
+                res.render('company', {companyActive: true, title: "Company", loggedin: req.session.manager ? true : false, companies: allCompanies, notify: "company successfully deleted", notifyType:"warning"});
             });
         } else {
             Company.getCompanyById(companyid, function(company){
                 res.render('updateCompany', {
                     companyActive: true,
                     title: "Update Company",
+                    loggedin: req.session.manager ? true : false,
                     companyid: companyid,
                     company: company,
                     notify: "Error deleting company: " + company.name,
                     notifyType: "danger"
                 });
             });
-        };
+        }
     });
 });
 
@@ -305,7 +255,7 @@ router.post("/companies/update/:companyid", function(req,res){
         console.log(result);
         if (result){
             Company.getAllCompanies(function(allCompanies){
-                res.render('company', {companyActive: true, title: "Company", companies: allCompanies, notify: company.name + " successfully updated", notifyType: "warning"});
+                res.render('company', {companyActive: true, title: "Company", loggedin: req.session.manager ? true : false, companies: allCompanies, notify: company.name + " successfully updated", notifyType: "warning"});
             });
         } else {
             //could not update the location
@@ -313,6 +263,7 @@ router.post("/companies/update/:companyid", function(req,res){
                 res.render('updateCompany', {
                     companyActive: true,
                     title: "Update Company",
+                    loggedin: req.session.manager ? true : false,
                     companyid: companyid,
                     company: company,
                     notify: "Error deleting company: " + company.name,
@@ -333,39 +284,20 @@ router.post("/companies", function (req, res) {
                 res.render('company', {
                     companyActive: true,
                     title: "Company",
+                    loggedin: req.session.manager ? true : false,
                     companies: allCompanies,
                     notify: "Successfully added: " + newCompany.name
                 });
             } else {
                 res.render('company', {
-                    companyActive: true, title: "Company", companies: allCompanies,
+                    companyActive: true, title: "Company",
+                    loggedin: req.session.manager ? true : false,
+                    companies: allCompanies,
                     notify: "Error occurred",
                     notifyType: "danger"
                 });
             }
         });
-    });
-});
-
-router.get("/routes", function(req, res) {
-	"use strict";
-
-    var route = {
-        company: 2,
-        origin: 1,
-        destination: 2,
-        type: 'Air / Land / Sea',
-        weightcost: 5,
-        volumecost: 6,
-        maxweight: 350,
-        maxvolume: 50,
-        duration: 16,
-        frequency: 36,
-        day: 0
-    };
-    Location.getAllLocations(function (result) {
-        console.log(result)
-        res.render(index, {title: "Dashboard", homeActive: true});
     });
 });
 
@@ -388,6 +320,7 @@ router.post("/addMail", function(req,res, next){
                 res.render('mails', {
                     mailActive: true,
                     title: "Mails",
+                    loggedin: req.session.manager ? true : false,
                     error: error,
                     mail: mail,
                     mails: mails,
@@ -401,19 +334,53 @@ router.post("/addMail", function(req,res, next){
          If route can be calculated then update the business and customer cost
          Then add mail to event and insert into database
          */
-        var mailFindRoute = findRoute(mail);
-        console.log(mailFindRoute);
         /**
          * 1. render the confirmation page while sending the mail object
          */
-        Location.getLocationById(mail.origin, function(originLocation){
-            Location.getLocationById(mail.destination, function(destinationLocation){
-                res.render('confirmMail', {
-                    mail: mail,
-                    title: "Mails",
-                    origin: originLocation,
-                    destination: destinationLocation,
-                    mailActive: true
+        Graph.loadGraph(function() {
+            Location.getLocationById(mail.origin, function (originLocation) {
+                Location.getLocationById(mail.destination, function (destinationLocation) {
+                    var testMail = {
+                        origin: originLocation.name,
+                        destination: destinationLocation.name,
+                        weight: mail.weight,
+                        volume: mail.volume,
+                        priority: mail.priority
+                    };
+                    console.log(testMail);
+                    var mailFindRoute = findRoute(testMail);
+                    console.log("mailFindRoute:");
+                    console.log(mailFindRoute);
+                    if(mailFindRoute.routeTaken.length > 0 && !mailFindRoute.errorMessage) {
+                        mail.totalcustomercost = mailFindRoute.costToCustomer;
+
+                        mail.totalbusinesscost = mailFindRoute.costToCompany;
+                        res.render('confirmMail', {
+                            mail: mail,
+                            title: "Mails",
+                            loggedin: req.session.manager ? true : false,
+                            origin: originLocation,
+                            destination: destinationLocation,
+                            mailActive: true
+                        });
+                    } else {
+                        Location.getAllLocations(function(locations){
+                            console.log(locations);
+                            Mail.getAllMail(function(mails){
+                                res.render('mails', {
+                                    mailActive: true,
+                                    title: "Mails",
+                                    loggedin: req.session.manager ? true : false,
+                                    mail: req.session.mail,
+                                    mails: mails,
+                                    locations: locations,
+                                    error: mailFindRoute.errorMessage,
+                                    notify: "Could not add Mail",
+                                    notifyType: "danger"
+                                });
+                            });
+                        });
+                    }
                 });
             });
         });
@@ -431,15 +398,32 @@ router.get('/confirmMail', function(req,res){
         console.log(result);
         Location.getAllLocations(function(locations){
             Mail.getAllMail(function(mails){
-                //add notification of mail added successfully
-                res.render('mails', {
-                    mailActive: true,
-                    title: "Mails",
-                    mailAdded: true,
-                    locations: locations,
-                    mails: mails
-                });
-                req.session.mail = null;
+                if (result) {
+                    //add notification of mail added successfully
+                    res.render('mails', {
+                        mailActive: true,
+                        title: "Mails",
+                        loggedin: req.session.manager ? true : false,
+                        mailAdded: true,
+                        locations: locations,
+                        mails: mails,
+                        notify: "Successfully inserted Mail"
+                    });
+                    req.session.mail = null;
+
+                } else {
+                    //could not insert mail
+                    res.render('mails', {
+                        mailActive: true,
+                        title: "Mails",
+                        loggedin: req.session.manager ? true : false,
+                        mailAdded: true,
+                        locations: locations,
+                        mails: mails,
+                        notify: "Error occurred",
+                        notifyType: "danger"
+                    });
+                }
             });
         });
     });
@@ -453,6 +437,7 @@ router.get("/mails", function(req, res) {
             res.render('mails', {
                 mailActive: true,
                 title: "Mails",
+                loggedin: req.session.manager ? true : false,
                 mail: req.session.mail,
                 mails: mails,
                 locations: locations
@@ -461,279 +446,8 @@ router.get("/mails", function(req, res) {
     });
 });
 
-router.get("/price", function(req, res){
-  console.log('PRICE: GET');
-  Location.getAllLocations(function(cb){
-      Price.getAllPrices(function(prices){
-          console.log(prices);
-          res.render('updPrice', {priceActive: true, title: "Customer Prices", locations: cb, customerprices: prices});
-      });
-  });
-});
-
-router.post("/price", function(req, res){
-    console.log("PRICE: POST");
-    console.log(req.body);
-    var err = [];
-    if (!req.body.sourceLocation) {err.push('Origin cannot be Blank.');}
-    if (!req.body.destLocation) {err.push('Destination cannot be Blank.');}
-    if (!req.body.wgt) {err.push('Weight Price cannot be Blank.');}
-    if (!req.body.vol) {err.push('Volume Price cannot be Blank.');}
-    console.log(err);
-    if (err.length) {
-        Location.getAllLocations(function(cb){
-            Price.getAllPrices(function(prices){
-                console.log(prices);
-                res.render('updPrice', {priceActive: true, title: "Customer Prices", locations: cb, customerprices: prices, error: err});
-            });
-        });
-    } else {
-        console.log('insert');
-        var price = req.body;
-        Price.insertCustomerPrice({
-            origin: price.sourceLocation,
-            destination: price.destLocation,
-            weightcost: price.wgt,
-            volumecost: price.vol,
-            priority: price.priority
-        }, function (result){
-            console.log(result);
-            Location.getAllLocations(function(allLocations){
-               Price.getAllPrices(function(allPrices){
-                   res.render('updPrice', {priceActive: true, title: "Customer Prices", locations: allLocations, customerprices: allPrices});
-               });
-            });
-        });
-    }
-});
-
-router.get("/price/:customerpriceid", function(req, res){
-    var customerpriceid = req.params.customerpriceid;
-    Price.getPriceById(customerpriceid, function(customerprice){
-        console.log(customerprice);
-        Location.getAllLocations(function(allLocations){
-            console.log(allLocations);
-            res.render('updatePrice', {
-                priceActive: true,
-                title: "Customer Prices",
-                locations: allLocations,
-                customerprice: customerprice,
-                customerpriceid: customerpriceid
-            });
-        });
-    });
-});
-
-router.post("/price/delete/:priceid", function(req,res){
-    var priceid = req.params.priceid;
-    Price.deleteCustomerPrice(priceid, function(result){
-       console.log(result);
-        Location.getAllLocations(function(allLocations){
-           if(result){
-               Price.getAllPrices(function(allPrices){
-                   res.render('updPrice', {priceActive: true, title: "Customer Prices", locations: allLocations, customerprices: allPrices, notify: "Price successfully deleted", notifyType:"warning"});
-               });
-           } else {
-               Price.getPriceById(priceid, function(customerprice){
-                   console.log(customerprice);
-                   res.render('updatePrice', {
-                       priceActive: true,
-                       title: "Customer Prices",
-                       locations: allLocations,
-                       customerprice: customerprice,
-                       priceid: priceid,
-                       notify: "Error deleting price",
-                       notifyType: "danger"
-                   });
-               });
-           }
-        });
-    });
-});
-
-router.post("/price/update/:priceid", function(req,res){
-    var customerprice = req.body;
-    var priceid = req.params.priceid;
-    Price.updateCustomerPrice(priceid, customerprice, function(result){
-       console.log(result);
-        Location.getAllLocations(function(allLocations){
-           if(result){
-               Price.getAllPrices(function(allPrices){
-                   res.render('updPrice', {priceActive: true, title: "Customer Prices", locations: allLocations, customerprices: allPrices, notify: "Price successfully updated", notifyType:"warning"});
-               });
-           } else {
-               Price.getPriceById(priceid, function(customerprice){
-                   console.log(customerprice);
-                   res.render('updatePrice', {
-                       priceActive: true,
-                       title: "Customer Prices",
-                       locations: allLocations,
-                       customerprice: customerprice,
-                       priceid: priceid,
-                       notify: "Error updating price",
-                       notifyType: "danger"
-                   });
-               });
-           }
-        });
-    });
-});
-
-router.get("/cost", function(req, res){
-	console.log('COST: GET');
-    Location.getAllLocations(function (cbLoc) {
-        Company.getAllCompanies(function (cbComp) {
-            Route.getAllRoutes(function (routes) {
-                res.render('updCost', {
-                    costActive: true,
-                    title: "Route Costs",
-                    locations: cbLoc,
-                    companies: cbComp,
-                    routes: routes
-                });
-            });
-        });
-    });
-});
 
 
-router.post("/cost", function(req, res){
-    console.log("COST: POST");
-    console.log(req.body);
-    route = req.body;
-    // verify input
-    var err = [];
-    if (!route.sourceLocation) {err.push('Origin cannot be Blank.');}
-    if (!route.destLocation) {err.push('Destination cannot be Blank.');}
-    if (!route.weightCost) {err.push('Weight Cost cannot be Blank.');}
-    if (!route.volumeCost) {err.push('Volume Cost cannot be Blank.');}
-    if (!route.frequency) {err.push('Frequency cannot be Blank.');}
-    if (!route.duration) {err.push('Duration cannot be Blank.');}
-    if (!route.weightLimit) {err.push('Weight Limit cannot be Blank.');}
-    if (!route.volumeLimit) {err.push('Volume Limit cannot be Blank.');}
-    if (err.length) {
-        Location.getAllLocations(function (cbLoc) {
-            Company.getAllCompanies(function (cbComp) {
-                console.log('COST: POST: Error: ' + err);
-                res.render('updCost', {
-                    costActive: true,
-                    title: "Route Costs",
-                    error: err,
-                    locations: cbLoc,
-                    companies: cbComp
-                });
-            })
-        });
-    } else {
-        console.log('insert');
-        Company.getCompanyById(route.company, function(company){
-            Route.insertRoute({
-                company: company.companyid,
-                origin: route.sourceLocation,
-                destination: route.destLocation,
-                type: company.type,
-                weightcost: route.weightCost,
-                volumecost: route.volumeCost,
-                maxweight: route.weightLimit,
-                maxvolume: route.volumeLimit,
-                duration: route.duration,
-                frequency: route.frequency,
-                day: route.day
-            }, function (result) {
-                console.log(result);
-                Location.getAllLocations(function (allLocations) {
-                    Company.getAllCompanies(function (allCompanies) {
-                        Route.getAllRoutes(function(routes){
-                            res.render('updCost', {costActive: true, title: "Route Costs", locations: allLocations, companies: allCompanies, routes: routes, notify: "route successfully added"});
-                        });
-
-                    })
-                });
-            });
-        });
-    }
-});
-
-router.get("/cost/:routeid", function(req, res){
-    var routeid = req.params.routeid;
-    Route.getPriceById(routeid, function(route){
-        console.log(route);
-        Location.getAllLocations(function(allLocations){
-            Company.getAllCompanies(function(allCompanies){
-                res.render('updateCost', {
-                    costActive: true,
-                    title: "Update Route",
-                    routeid: routeid,
-                    route: route,
-                    locations: allLocations,
-                    companies: allCompanies
-                });
-            });
-        });
-    });
-});
-
-router.post("/cost/delete/:routeid", function(req,res){
-    var routeid = req.params.routeid;
-    Route.deleteRoute(routeid, function(result){
-       console.log(result);
-        Company.getAllCompanies(function(allCompanies){
-            Location.getAllLocations(function(allLocations){
-                if(result){
-                    Route.getAllRoutes(function(routes){
-                        res.render('updCost', {costActive: true, title: "Route Costs", locations: allLocations, companies: allCompanies, routes: routes, notify: "route successfully deleted", notifyType:"warning"});
-                    });
-                } else {
-                    Route.getPriceById(routeid, function(route){
-                        console.log(route);
-                        res.render('updateCost', {
-                            costActive: true,
-                            title: "Update Route",
-                            routeid: routeid,
-                            route: route,
-                            locations: allLocations,
-                            companies: allCompanies,
-                            notify: "Error deleting route",
-                            notifyType: "danger"
-                        });
-                    });
-                }
-            });
-        });
-    });
-});
-
-router.post("/cost/update/:routeid", function(req,res){
-    var route = req.body;
-    var routeid = req.params.routeid;
-    Route.updateRoute(routeid, route, function(result){
-       console.log(result);
-       Company.getAllCompanies(function(allCompanies){
-           Location.getAllLocations(function(allLocations){
-               if(result){
-                   Route.getAllRoutes(function(routes){
-                       res.render('updCost', {costActive: true, title: "Route Costs", locations: allLocations, companies: allCompanies, routes: routes, notify: "route successfully updated", notifyType:"warning"});
-                   });
-               } else {
-                   //could not update the route
-                   Route.getPriceById(routeid, function(route){
-                       console.log(route);
-                       res.render('updateCost', {
-                           costActive: true,
-                           title: "Update Route",
-                           routeid: routeid,
-                           route: route,
-                           locations: allLocations,
-                           companies: allCompanies,
-                           notify: "Error updating route",
-                           notifyType: "danger"
-                       });
-                   });
-               }
-           });
-       });
-    });
-});
 
 // Use the router routes in our application
 app.use('/', router);

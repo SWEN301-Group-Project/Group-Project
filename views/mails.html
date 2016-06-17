@@ -213,6 +213,17 @@
         $('#origin').selectize({});
 
         $('#destination').selectize();
+
+        {% if notify %}
+        $.notify({
+            icon: 'ti-email',
+            message: "{{notify}}"
+
+        },{
+            type: '{% if notifyType %}{{notifyType}}{% else %}success{% endif %}',
+            timer: 300
+        });
+        {% endif %}
     });
 </script>
 <script type="text/javascript" src="/static/js/validation/mails.js"></script>

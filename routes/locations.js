@@ -5,11 +5,13 @@
 var express = require('express');
 var router = express.Router();
 
+var Location = require('../database/location');
+
 
 router.get("/", function(req, res) {
     "use strict";
     Location.getAllLocations(function(allLocations){
-        res.render('location', {locationActive: true, title: "Location", locations: allLocations});
+        res.render('location', {locationActive: true, title: "Location", loggedin: req.session.manager ? true : false, locations: allLocations});
     });
 });
 
@@ -20,50 +22,113 @@ router.get("/:locationid", function(req, res){
         res.render('updateLocation', {
             locationActive: true,
             title: "Update Location",
+            loggedin: req.session.manager ? true : false,
             locationid: locationid,
             location: location
-        })
+        });
     });
 });
 
-router.post("/locations/delete/:locationid", function(req,res){
+router.post("/delete/:locationid", function(req,res){
     var locationid = req.params.locationid;
 
     Location.deleteLocation(locationid, function(result){
         console.log(result);
-        //TODO: Harman
-        //use result to send notification
-        //if result is success then render location page
-        //if result is failure then render locations/:locationid page
-        Location.getAllLocations(function(allLocations){
-            res.render('location', {locationActive: true, title: "Location", locations: allLocations});
-        });
+        if(result){
+            //success
+            Location.getAllLocations(function(allLocations){
+                res.render('location', {locationActive: true, title: "Location", loggedin: req.session.manager ? true : false, locations: allLocations, notify: "Location successfully deleted", notifyType:"warning"});
+            });
+        } else {
+            Location.getLocationById(locationid, function(location){
+                console.log(location);
+                res.render('updateLocation', {
+                    locationActive: true,
+                    title: "Update Location",
+                    loggedin: req.session.manager ? true : false,
+                    locationid: locationid,
+                    location: location,
+                    notify: "Error deleting location: " + location.name,
+                    notifyType: "danger"
+                });
+            });
+        }
     });
 });
 
-router.post("/locations/update/:locationid", function(req,res){
+router.post("/update/:locationid", function(req,res){
     var location = req.body;
     var locationid = req.params.locationid;
     Location.updateLocation(locationid, location, function(result){
         console.log(result);
-        //TODO: Harman
-        //use result to send notification if successful
-        //if result is success then render location page
-        //if result is failure then render locations/:locationid page
-        Location.getAllLocations(function(allLocations){
-            res.render('location', {locationActive: true, title: "Location", locations: allLocations});
-        });
+        if (result){
+            Location.getAllLocations(function(allLocations){
+                res.render('location', {locationActive: true, title: "Location",loggedin: req.session.manager ? true : false,  locations: allLocations, notify: location.name + " successfully updated", notifyType: "warning"});
+            });
+        } else {
+            //could not update the location
+            Location.getLocationById(locationid, function(location){
+                console.log(location);
+                res.render('updateLocation', {
+                    locationActive: true,
+                    title: "Update Location",
+                    loggedin: req.session.manager ? true : false,
+                    locationid: locationid,
+                    location: location,
+                    notify: "Error updating location: " + location.name,
+                    notifyType: "danger"
+                });
+            });
+        }
     });
 });
 
-router.post("/locations", function(req, res){
+router.post("/", function(req, res){
     console.log(req.body);
     var newLocation = req.body;
-    Location.insertLocation(newLocation, function(result){
-        console.log(result);
-        Location.getAllLocations(function(allLocations){
-            //TODO: Harman ==> Add notification of successful insertion of new location
-            res.render('location', {locationActive: true, title: "Location", locations: allLocations});
-        });
+    var error;
+    if (!newLocation.name) {
+        error = "Must provide a valid location name";
+    } else if (!newLocation.isInternational) {
+        error = "Must provide the required details";
+    }
+    Location.getAllLocations(function (allLocations) {
+        if (error){
+            res.status(404);
+            res.render('location', {
+                locationActive: true,
+                title: "Location",
+                loggedin: req.session.manager ? true : false,
+                location: newLocation,
+                locations: allLocations,
+                error: error
+            });
+        } else {
+            Location.insertLocation(newLocation, function (result) {
+                console.log(result);
+
+                    if (result) {
+                        res.render('location', {
+                            locationActive: true,
+                            title: "Location",
+                            loggedin: req.session.manager ? true : false,
+                            locations: allLocations,
+                            notify: "Successfully added: " + newLocation.name
+                        });
+                    } else {
+                        res.render('location', {
+                            locationActive: true,
+                            title: "Location",
+                            loggedin: req.session.manager ? true : false,
+                            locations: allLocations,
+                            notify: "Error occurred",
+                            notifyType: "danger"
+                        });
+                    }
+
+            });
+        }
     });
 });
+
+module.exports = router;
