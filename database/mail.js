@@ -145,17 +145,19 @@ var Mail = function (dbFile) {
                     }
                 }
 
-                // looks nicer in capitals
+                // looks nicer in capitals and sorted
+
+                mailAmount.sort(function(a, b){return a.origin > b.origin});
 
                 for (var i in mailAmount) {
                     mailAmount[i].origin = capitalizeFirstLetter(mailAmount[i].origin);
+
+                    mailAmount[i].destinations.sort(function(a, b){return a.destination > b.destination});
 
                     for (var j in mailAmount[i].destinations) {
                         mailAmount[i].destinations[j].destination = capitalizeFirstLetter(mailAmount[i].destinations[j].destination);
                     }
                 }
-
-                //
 
                 callback(labels, series, range, dateOffset - 1, dateOffset + 1, mailAmount);
             }
