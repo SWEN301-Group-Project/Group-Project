@@ -3,7 +3,8 @@ var chai = require("chai"),
     server = require('../app'),
     chaiHttp = require('chai-http'),
     Mail = require('../database/mail').Mail,
-    Location = require('../database/location');
+    Location = require('../database/location'),
+    Company = require('../database/company');
 
 chai.use(chaiHttp);
 
@@ -62,6 +63,71 @@ describe("Location Tests", function(){
             .end(function (err, res) {
                 expect(res).to.have.status(404);
                 expect(res.text).to.contain("Must provide the required details");
+                done();
+            });
+    });
+    it('should open the test location page', function(done){
+        chai.request(server)
+            .get('/locations/' + testLocation.id)
+            .end(function(err, res){
+                expect(res).to.have.status(200);
+                expect(res.text).to.contain(testLocation.name);
+                done();
+            });
+
+    });
+
+    it('should update the test location', function(done){
+        chai.request(server)
+            .post("/locations/update/" + testLocation.id)
+            .send({name: testLocation.name, isInternational: '0'})
+            .end(function(err, res){
+                expect(res).to.have.status(200);
+                done();
+            });
+    });
+    it('should show the updated test location', function(done){
+        Location.getLocationById(testLocation.id, function(location){
+            expect(location.isInternational).to.eql(0);
+            done();
+        })
+    });
+});
+
+describe("Companies Test", function(){
+    var testCompany;
+    before(function (done) {
+        this.timeout(5000);
+        /**
+         * Initialise the database.
+         */
+        testCompany = {name: 'test', type: 'air'};
+        Company.insertCompany(testCompany, function(result){
+            testCompany.id = result.lastID;
+            console.log("added testCompany: ");
+            console.log(testCompany);
+            console.log("id: " + testCompany.id);
+            done();
+        });
+
+    });
+
+    after(function(done){
+        console.log(testCompany.id);
+        Company.deleteCompany(testCompany.id, function(result){
+            console.log("Finished delete company");
+            console.log(result);
+            done();
+        });
+    });
+
+    it('should list ALL companies', function (done) {
+        chai.request(server)
+            .get('/companies')
+            .end(function (err, res) {
+                expect(res).to.have.status(200);
+                expect(res.text).to.contain("Add new Company");
+                expect(res.text).to.contain("Companies");
                 done();
             });
     });
