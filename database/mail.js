@@ -74,17 +74,17 @@ var Mail = function (dbFile) {
                 // against each date, but it works and for the purpose of this assignment
                 // the database is unlikely to get large enough for this to create any
                 // speed issues.
-                for (var i = 0; i < 7; i++) {
+                for (var i in labels) {
                     labels[i] = labels[i] + ", " + date.getDate() + "/" + date.getMonth();
 
                     var stringDate = date.getFullYear() + '-'
                         + ('0' + (date.getMonth() + 1)).slice(-2) + '-'
                         + ('0' + (date.getDate())).slice(-2);
 
-                    for (var j = 0; j < rows.length; j++) {
+                    for (var j in rows) {
                         if (stringDate == rows[j].date.slice(0, 10)) {
-                            series[0][1] += rows[j].totalcustomercost;
-                            series[0][2] += rows[j].totalbusinesscost;
+                            series[0][i] += rows[j].totalcustomercost;
+                            series[1][i] += rows[j].totalbusinesscost;
                             weekRows.push(rows[j]);
                         }
                     }
@@ -102,10 +102,10 @@ var Mail = function (dbFile) {
 
                 var mailAmount = [];
 
-                for (var i = 0; i < weekRows.length; i++) {
+                for (var i in weekRows) {
                     var originMatch = false;
 
-                    for (var j = 0; j < mailAmount.length; j++) {
+                    for (var j in mailAmount) {
                         if (mailAmount[j].origin == weekRows[i].origin) {
                             originMatch = true;
 
@@ -145,17 +145,19 @@ var Mail = function (dbFile) {
                     }
                 }
 
-                // looks nicer in capitals
+                // looks nicer in capitals and sorted
 
-                for (var i = 0; i < mailAmount.length; i++) {
+                mailAmount.sort(function(a, b){return a.origin > b.origin});
+
+                for (var i in mailAmount) {
                     mailAmount[i].origin = capitalizeFirstLetter(mailAmount[i].origin);
 
-                    for (var j = 0; j < mailAmount[i].destinations.length; j++) {
+                    mailAmount[i].destinations.sort(function(a, b){return a.destination > b.destination});
+
+                    for (var j in mailAmount[i].destinations) {
                         mailAmount[i].destinations[j].destination = capitalizeFirstLetter(mailAmount[i].destinations[j].destination);
                     }
                 }
-
-                //
 
                 callback(labels, series, range, dateOffset - 1, dateOffset + 1, mailAmount);
             }
@@ -301,5 +303,13 @@ var Mail = function (dbFile) {
 module.exports.Mail = Mail;
 
 function capitalizeFirstLetter(string) {
-    return string.charAt(0).toUpperCase() + string.slice(1);
+    var splitName = string.split(" ");
+
+    var fullName = "";
+
+    for (var word in splitName) {
+        fullName = fullName + splitName[word].charAt(0).toUpperCase() + splitName[word].slice(1) + " ";
+    }
+
+    return fullName.trim();
 }
