@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<events>
+    <event>
+        <type>location</type>
+        <action>create</action>
+        <data>
+            <name>Test</name>
+            <delivery>Domestic</delivery>
+        </data>
+    </event>
+    <event>
+        <type>price</type>
+        <action>update</action>
+        <data>
+            <to>Rome</to>
+            <from>Wellington</from>
+            <priority>International Air</priority>
+            <weightCost>3.0</weightCost>
+            <volumeCost>10.0</volumeCost>
+        </data>
+    </event>
+</events>
