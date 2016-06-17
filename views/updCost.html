@@ -65,29 +65,34 @@
                             <div class="content">
                                 <form id="costUpdate" method="post" action="/cost">
                                     <div class="content">
-                                        <div class="form-group">
-                                            <label for="sourceLocation">Origin</label>
-                                            <select name="sourceLocation" id="sourceLocation" placeholder="Enter a Location..." required>
-                                                <option value="">Enter a Location...</option>
-                                                    {% for location in locations %}
-                                                        <option value={{location.locationid}}>{{location.name}}</option>
-                                                    {% endfor %}
-                                            </select>
-                                        </div>
-
-                                        <div class="form-group">
-                                            <label for="destLocation">Destination</label>
-                                            <select name="destLocation" id="destLocation" placeholder="Enter a Location..." required>
-                                                <option value="">Enter a Location...</option>
-                                                   {% for location in locations %}
-                                                        <option value={{location.locationid}}>{{location.name}}</option>
-                                                    {% endfor %}
-                                            </select>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label for="sourceLocation">Origin</label>
+                                                    <select name="sourceLocation" id="sourceLocation" placeholder="Enter a Location..." required>
+                                                        <option value="">Enter a Location...</option>
+                                                        {% for location in locations %}
+                                                            <option value={{location.locationid}}>{{location.name | capitalize}}{% if location.isInternational %} - International{% endif %}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label for="destLocation">Destination</label>
+                                                    <select name="destLocation" id="destLocation" placeholder="Enter a Location..." required>
+                                                        <option value="">Enter a Location...</option>
+                                                        {% for location in locations %}
+                                                            <option value={{location.locationid}}>{{location.name | capitalize}}{% if location.isInternational %} - International{% endif %}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                            </div>
                                         </div>
 
                                         <div class="form-group">
                                             <label for="company">Company</label>
-                                            <select name="company" id="company" placeholder="Enter a Location..." required>
+                                            <select name="company" id="company" placeholder="Enter a Company..." required>
                                                 <option value="">Enter a Company...</option>
                                                 {% for company in companies %}
                                                     <option value={{company.companyid}}>{{company.name | capitalize}} - {{company.type | capitalize}}</option>
@@ -96,24 +101,38 @@
                                         </div>
 
                                         <h5>New Costs:</h5>
-                                        <div class="form-group">
-                                            <label for="weightCost">Weight</label>
-                                            <input type="number" id="weightCost" name="weightCost" class="form-control border-input" placeholder="Weight" required>
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="volumeCost">Volume</label>
-                                            <input type="number" id="volumeCost" name="volumeCost" class="form-control border-input" placeholder="Volume" required>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label for="weightCost">Weight</label>
+                                                    <input type="number" id="weightCost" name="weightCost" class="form-control border-input" placeholder="Weight" required>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label for="volumeCost">Volume</label>
+                                                    <input type="number" id="volumeCost" name="volumeCost" class="form-control border-input" placeholder="Volume" required>
+                                                </div>
+                                            </div>
                                         </div>
 
                                         <h5>New Limits:</h5>
-                                        <div class="form-group">
-                                            <label for="weightLimit">Weight</label>
-                                            <input type="number" id="weightLimit" name="weightLimit" class="form-control border-input" placeholder="Weight" required>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label for="weightLimit">Weight</label>
+                                                    <input type="number" id="weightLimit" name="weightLimit" class="form-control border-input" placeholder="Weight" required>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label for="volumeLimit">Volume</label>
+                                                    <input type="number" id="volumeLimit" name="volumeLimit" class="form-control border-input" placeholder="Volume" required>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div class="form-group">
-                                            <label for="volumeLimit">Volume</label>
-                                            <input type="number" id="volumeLimit" name="volumeLimit" class="form-control border-input" placeholder="Volume" required>
-                                        </div>
+
+                                        <h5>Transport Details:</h5>
 
                                         <div class="form-group">
                                             <label for="day">Departure Day</label>
@@ -127,15 +146,19 @@
                                                 <option value="6">Saturday</option>
                                             </select>
                                         </div>
-
-                                        <h5>Transport Details:</h5>
-                                        <div class="form-group">
-                                            <label for="frequency">Departure Frequency</label>
-                                            <input type="number" id="frequency" name="frequency" class="form-control border-input" placeholder="Frequency" required>
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="duration">Duration</label>
-                                            <input type="number" id="duration" name="duration" class="form-control border-input" placeholder="Duration" required>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label for="frequency">Departure Frequency (Hours)</label>
+                                                    <input type="number" id="frequency" name="frequency" class="form-control border-input" placeholder="Frequency" required>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label for="duration">Duration (Hours)</label>
+                                                    <input type="number" id="duration" name="duration" class="form-control border-input" placeholder="Duration" required>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                     <button type="submit" class="btn btn-info btn-fill btn-wd">Submit</button>
@@ -152,9 +175,10 @@
                                 <h4 class="title">Active Routes</h4>
                             </div>
                             <div class="content">
-                                <table id="example-table" class="table table-striped">
+                                <table id="example-table" class="table table-striped table-responsive hover">
                                     <thead>
                                     <tr>
+                                        <th>Id</th>
                                         <th>Company</th>
                                         <th>Type</th>
                                         <th>Origin</th>
@@ -167,15 +191,16 @@
                                     </thead>
                                     <tbody>
                                     {% for route in routes %}
-                                    <tr>
-                                        <td class="fit"><a href="/cost/{{route.routeid}}">{{route.company | capitalize}}</a></td>
-                                        <td class="fit">{{route.type}}</td>
-                                        <td>{{route.origin}}</td>
-                                        <td class="fit">{{route.destination}}</td>
+                                    <tr onclick="window.location.href = '/cost/{{route.routeid}}'">
+                                        <td>{{route.routeid}}</td>
+                                        <td class="fit"><a href="/companies/{{route.companyid}}">{{route.company | capitalize}}</td>
+                                        <td class="fit">{{route.type | capitalize}}</a></td>
+                                        <td><a href="/locations/{{route.originid}}">{{route.origin | capitalize}}</a></td>
+                                        <td class="fit"><a href="/locations/{{route.destinationid}}">{{route.destination | capitalize}}</a></td>
                                         <td>{{route.weightcost}}</td>
                                         <td>{{route.volumecost}}</td>
-                                        <td class="fit">{{route.frequency}}</td>
-                                        <td class="fit">{{route.duration}}</td>
+                                        <td class="fit">{{route.frequency}} hrs</td>
+                                        <td class="fit">{{route.duration}} hrs</td>
                                     </tr>
                                     {% endfor %}
                                     </tbody>
@@ -229,7 +254,8 @@
 <script>
     $(document).ready(function() {
         $('#example-table').DataTable({
-            "dom": '<"search pull-left"f>rt<"bottom"lip><"clear">'
+            "dom": '<"search pull-left"f>rt<"bottom"lip><"clear">',
+            "order": [[0, "desc"]]
         });
     } );
 </script>
@@ -239,7 +265,6 @@
         $('#sourceLocation').selectize({
             create: false,
             allowEmptyOption: false
-            // sortField: 'text'
         });
 
         $('#destLocation').selectize({

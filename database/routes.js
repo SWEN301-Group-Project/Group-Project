@@ -54,7 +54,7 @@ The following are the database function implemented by route.js file:
 
 //returns list of all route objects
 exports.getAllRoutes = function(callback){
-    var stmt = "SELECT routeid, COMPANY.name AS company, COMPANY.type AS type, ORIGIN.name AS origin, DEST.name AS destination, weightcost, volumecost, maxweight, maxvolume, frequency, duration, day "
+    var stmt = "SELECT routeid, company as companyid, COMPANY.name AS company, COMPANY.type AS type, ORIGIN.name AS origin, routes.origin as originid, DEST.name AS destination, routes.destination as destinationid, weightcost, volumecost, maxweight, maxvolume, frequency, duration, day "
                 + "FROM routes "
                 + "LEFT JOIN companies AS COMPANY ON routes.company = COMPANY.companyid "
                 + "LEFT JOIN locations AS ORIGIN ON routes.origin = ORIGIN.locationid "

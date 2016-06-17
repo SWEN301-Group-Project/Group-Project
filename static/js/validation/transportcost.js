@@ -18,6 +18,9 @@
                         required:true,
                         notEqual: "#sourceLocation",
                     },
+                    company: {
+                        required: true
+                    },
                     weightCost: {
                         required: true,
                         greaterThanZero : true
@@ -48,6 +51,9 @@
                     destLocation: {
                         required: "Please choose destination from list",
                         notEqual: "Destination must be different from origin"
+                    },
+                    company: {
+                        required: "Please choose a company from the list"
                     },
                     weightCost: {
                         required: "Please provide a weight cost",

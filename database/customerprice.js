@@ -31,7 +31,7 @@ The following are the database function implemented by customerprice.js file:
 
 //returns list of all customerprice objects
 exports.getAllPrices = function(callback){
-    var stmt = "SELECT priceid, ORIGIN.name AS origin, DEST.name AS destination, weightcost, volumecost, priority "
+    var stmt = "SELECT priceid, ORIGIN.name AS origin, customerprice.origin as originid, DEST.name AS destination, customerprice.destination as destinationid, weightcost, volumecost, priority "
     			 + "FROM customerprice "
     			 + "LEFT JOIN locations AS ORIGIN ON customerprice.origin = ORIGIN.locationid "
     			 + "LEFT JOIN locations AS DEST ON customerprice.destination = DEST.locationid";
@@ -89,7 +89,7 @@ exports.getPriceById = function(priceid, callback){
 	var stmt = "SELECT priceid, ORIGIN.name AS origin, DEST.name AS destination, weightcost, volumecost, priority "
     			 + "FROM customerprice "
     			 + "LEFT JOIN locations AS ORIGIN ON customerprice.origin = ORIGIN.locationid "
-    			 + "LEFT JOIN locations AS DEST ON customerprice.origin = DEST.locationid "
+    			 + "LEFT JOIN locations AS DEST ON customerprice.destination = DEST.locationid "
     			 + "WHERE priceid = $priceid";
     db.get(stmt, {$priceid: priceid}, function(err, customerprice){
         if(err){
@@ -129,7 +129,7 @@ exports.insertCustomerPrice = function(customerprice, callback){
             callback(this.changes);
         }
     });
-}
+};
 
 //removes a customerprice from table by its id
 //The number of rows removed is returned
