@@ -117,7 +117,7 @@ router.post("/login", function(req, res) {
         if (result){
             req.session.manager = manager; //save user in session
         }
-        res.render("login", {loggedin: req.session.manager ? true : false, error: "Invalid code."});
+        res.render("index", {loggedin: req.session.manager ? true : false, error: "Invalid code."});
     });
 });
 
@@ -136,7 +136,7 @@ router.get("/logout",function(req,res) {
     console.log("POST: /logout");
     req.session.manager = null;
     console.log(req.session.manager ? true : false);
-    res.render('login', {loggedin: req.session.manager ? true : false});
+    res.render('index', {loggedin: req.session.manager ? true : false});
 });
 
 router.get("/graph", function (req, res) {
