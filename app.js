@@ -47,7 +47,7 @@ app = express();
 app.set('view engine', 'html');
 app.set('views', __dirname + '/views');
 app.use('/static', express.static(__dirname + '/static'));
-app.use(bodyParser.json())
+app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(cookieParser());
 app.use(session({secret: 'apparentlythishastobeaverylongsessionsecret', resave: false, saveUninitialized: true}));
@@ -88,7 +88,7 @@ var router = express.Router();
 var database = new Database().init();
 Mail = new Mail();
 
-Graph.loadGraph();
+//Graph.loadGraph();
 
 // redirects to the stats page by default, this could be another page.
 router.get("/", function(req, res) {
@@ -199,107 +199,9 @@ router.use('/price', require('./routes/price'));
 // Route Cost routes
 router.use('/cost', require('./routes/routecost'));
 
+// Company routes
+router.use('/companies', require('./routes/company'));
 
-//company
-router.get("/companies", function(req, res) {
-    "use strict";
-    Company.getAllCompanies(function(allCompanies){
-        res.render('company', {companyActive: true, title: "Company", loggedin: req.session.manager ? true : false, companies: allCompanies});
-    });
-});
-
-router.get("/companies/:companyid", function(req, res){
-    var companyid = req.params.companyid;
-    Company.getCompanyById(companyid, function(company){
-        console.log(company);
-        res.render('updateCompany', {
-            companyActive: true,
-            title: "Update Company",
-            loggedin: req.session.manager ? true : false,
-            companyid: companyid,
-            company: company
-        });
-    });
-});
-
-router.post("/companies/delete/:companyid", function(req,res){
-    var companyid = req.params.companyid;
-
-    Company.deleteCompany(companyid, function(result){
-        console.log(result);
-        if(result){
-            //success
-            Company.getAllCompanies(function(allCompanies){
-                res.render('company', {companyActive: true, title: "Company", loggedin: req.session.manager ? true : false, companies: allCompanies, notify: "company successfully deleted", notifyType:"warning"});
-            });
-        } else {
-            Company.getCompanyById(companyid, function(company){
-                res.render('updateCompany', {
-                    companyActive: true,
-                    title: "Update Company",
-                    loggedin: req.session.manager ? true : false,
-                    companyid: companyid,
-                    company: company,
-                    notify: "Error deleting company: " + company.name,
-                    notifyType: "danger"
-                });
-            });
-        }
-    });
-});
-
-router.post("/companies/update/:companyid", function(req,res){
-    var company = req.body;
-    var companyid = req.params.companyid;
-    Company.updateCompany(companyid, company, function(result){
-        console.log(result);
-        if (result){
-            Company.getAllCompanies(function(allCompanies){
-                res.render('company', {companyActive: true, title: "Company", loggedin: req.session.manager ? true : false, companies: allCompanies, notify: company.name + " successfully updated", notifyType: "warning"});
-            });
-        } else {
-            //could not update the location
-            Company.getCompanyById(companyid, function(company){
-                res.render('updateCompany', {
-                    companyActive: true,
-                    title: "Update Company",
-                    loggedin: req.session.manager ? true : false,
-                    companyid: companyid,
-                    company: company,
-                    notify: "Error deleting company: " + company.name,
-                    notifyType: "danger"
-                });
-            });
-        }
-    });
-});
-
-router.post("/companies", function (req, res) {
-    console.log(req.body);
-    var newCompany = req.body;
-    Company.insertCompany(newCompany, function (result) {
-        console.log(result);
-        Company.getAllCompanies(function (allCompanies) {
-            if (result) {
-                res.render('company', {
-                    companyActive: true,
-                    title: "Company",
-                    loggedin: req.session.manager ? true : false,
-                    companies: allCompanies,
-                    notify: "Successfully added: " + newCompany.name
-                });
-            } else {
-                res.render('company', {
-                    companyActive: true, title: "Company",
-                    loggedin: req.session.manager ? true : false,
-                    companies: allCompanies,
-                    notify: "Error occurred",
-                    notifyType: "danger"
-                });
-            }
-        });
-    });
-});
 
 router.post("/addMail", function(req,res, next){
    "use strict";

@@ -191,11 +191,10 @@ var findInternationalAirRoute = function(mail, data){
     //Create a set of all the unvisited nodes called the unvisited set and init node values
     var unvisited = [];
     for (var node in nodes) {
-        unvisited.push(nodes[node]);
-    //init values
         nodes[node].distance = Number.POSITIVE_INFINITY;
         nodes[node].visited = false;
         nodes[node].fromSegment = null;
+        unvisited.push(nodes[node]);
     }
 
     this.data = data;
@@ -230,8 +229,8 @@ var findInternationalAirRoute = function(mail, data){
         this.arrivalTime = sentDate + this.currentNode.distance;
 
         //For the current node consider all of its unvisited neighbors
-        for (var segmentId in this.currentNode.segments) {
-            var segment = this.currentNode.segments[segmentId];
+        for(var i = 0; i < this.currentNode.segments.length; i++){
+            var segment = this.currentNode.segments[i];
             if (!segment.endNode.visited && segment.type.toLowerCase() === "air" && segment.maxWeight >= mail.weight && segment.maxVolume >= mail.volume) {
                 //calculate time for next departure
                 this.currentDay = new Date(this.arrivalTime).getDay();
@@ -262,15 +261,15 @@ var findInternationalAirRoute = function(mail, data){
         //remove node from unvisited
         //A visited node will never be checked again.
         this.index = unvisited.indexOf(this.currentNode);
-        if (index >= 0) {
-            unvisited.splice(index, 1);
+        if (this.index >= 0) {
+            unvisited.splice(this.index, 1);
         }
 
         //get the node with the smallest distance from unvisited
         this.smallestNode;
-        for (var nodeId in unvisited) {
-            var node = unvisited[nodeId];
-            if (nodeId == 0) {
+        for(var j = 0; j < unvisited.length; j++){
+            var node = unvisited[j];
+            if (j == 0) {
                 this.smallestNode = node;
             }
             else if (this.smallestNode.distance > node.distance) {
@@ -295,12 +294,11 @@ var findInternationalStandardRoute = function(mail, data){
 
     //Create a set of all the unvisited nodes called the unvisited set and init node values
     var unvisited = [];
-    for (var i = 0; i < nodes.length; i++) {
-        unvisited.push(nodes[i]);
-    //init values
-        nodes[i].distance = Number.POSITIVE_INFINITY;
-        nodes[i].visited = false;
-        nodes[i].fromSegment = null;
+    for (var node in nodes) {
+        nodes[node].distance = Number.POSITIVE_INFINITY;
+        nodes[node].visited = false;
+        nodes[node].fromSegment = null;
+        unvisited.push(nodes[node]);
     }
 
     this.data = data;
@@ -353,8 +351,8 @@ var findInternationalStandardRoute = function(mail, data){
         //remove node from unvisited
         //A visited node will never be checked again.
         this.index = unvisited.indexOf(this.currentNode);
-        if (index >= 0) {
-            unvisited.splice(index, 1);
+        if (this.index >= 0) {
+            unvisited.splice(this.index, 1);
         }
 
         //get the node with the smallest distance from unvisited
