@@ -18,7 +18,6 @@ router.get("/", function(req, res) {
 router.get("/:locationid", function(req, res){
     var locationid = req.params.locationid;
     Location.getLocationById(locationid, function(location){
-        console.log(location);
         res.render('updateLocation', {
             locationActive: true,
             title: "Update Location",
@@ -33,7 +32,6 @@ router.post("/delete/:locationid", function(req,res){
     var locationid = req.params.locationid;
 
     Location.deleteLocation(locationid, function(result){
-        console.log(result);
         if(result){
             //success
             Location.getAllLocations(function(allLocations){
@@ -60,7 +58,6 @@ router.post("/update/:locationid", function(req,res){
     var location = req.body;
     var locationid = req.params.locationid;
     Location.updateLocation(locationid, location, function(result){
-        console.log(result);
         if (result){
             Location.getAllLocations(function(allLocations){
                 res.render('location', {locationActive: true, title: "Location",loggedin: req.session.manager ? true : false,  locations: allLocations, notify: location.name + " successfully updated", notifyType: "warning"});
@@ -92,8 +89,8 @@ router.post("/", function(req, res){
     } else if (!newLocation.isInternational) {
         error = "Must provide the required details";
     }
-    Location.getAllLocations(function (allLocations) {
-        if (error){
+    if (error){
+        Location.getAllLocations(function(allLocations){
             res.status(404);
             res.render('location', {
                 locationActive: true,
@@ -103,32 +100,31 @@ router.post("/", function(req, res){
                 locations: allLocations,
                 error: error
             });
-        } else {
-            Location.insertLocation(newLocation, function (result) {
-                console.log(result);
-
-                    if (result) {
-                        res.render('location', {
-                            locationActive: true,
-                            title: "Location",
-                            loggedin: req.session.manager ? true : false,
-                            locations: allLocations,
-                            notify: "Successfully added: " + newLocation.name
-                        });
-                    } else {
-                        res.render('location', {
-                            locationActive: true,
-                            title: "Location",
-                            loggedin: req.session.manager ? true : false,
-                            locations: allLocations,
-                            notify: "Error occurred",
-                            notifyType: "danger"
-                        });
-                    }
-
+        });
+    } else {
+        Location.insertLocation(newLocation, function (result) {
+            Location.getAllLocations(function (allLocations) {
+                if (result.changes) {
+                    res.render('location', {
+                        locationActive: true,
+                        title: "Location",
+                        loggedin: req.session.manager ? true : false,
+                        locations: allLocations,
+                        notify: "Successfully added: " + newLocation.name
+                    });
+                } else {
+                    res.render('location', {
+                        locationActive: true,
+                        title: "Location",
+                        loggedin: req.session.manager ? true : false,
+                        locations: allLocations,
+                        notify: "Error occurred",
+                        notifyType: "danger"
+                    });
+                }
             });
-        }
-    });
+        });
+    }
 });
 
 module.exports = router;

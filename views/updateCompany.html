@@ -70,19 +70,19 @@
                                             <div class="form-group">
                                                 <div class="radio">
                                                     <label>
-                                                        <input type="radio" name="type" value="land">
+                                                        <input type="radio" name="type" value="land" {% if company.type == "land" %}checked{% endif %}>
                                                         Land
                                                     </label>
                                                 </div>
                                                 <div class="radio">
                                                     <label>
-                                                        <input type="radio" name="type" value="sea">
+                                                        <input type="radio" name="type" value="sea" {% if company.type == "sea" %}checked{% endif %}>
                                                         Sea
                                                     </label>
                                                 </div>
                                                 <div class="radio">
                                                     <label>
-                                                        <input type="radio" name="type" value="air">
+                                                        <input type="radio" name="type" value="air" {% if company.type == "air" %}checked{% endif %}>
                                                         Air
                                                     </label>
                                                 </div>
@@ -150,7 +150,7 @@
     $(document).ready(function() {
         {% if notify %}
         $.notify({
-            icon: 'ti-location-arrow',
+            icon: 'ti-world',
             message: "{{notify}}"
 
         },{

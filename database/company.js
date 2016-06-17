@@ -28,7 +28,7 @@ exports.getAllCompanies = function(callback){
             callback(rows);
         }
     });
-}
+};
 
 //returns company objects where name == companyName and type=comanyType
 exports.getCompanyByNameAndType = function(companyName, companyType, callback){
@@ -41,7 +41,7 @@ exports.getCompanyByNameAndType = function(companyName, companyType, callback){
             callback(company);
         }
     });
-}
+};
 
 //returns company object that has id == companyId
 exports.getCompanyById = function(companyId, callback){
@@ -52,7 +52,7 @@ exports.getCompanyById = function(companyId, callback){
             callback(location);
         }
     });
-}
+};
 
 //Adds a new company row to the companies table
 //The mail object must similar to:
@@ -70,10 +70,10 @@ exports.insertCompany = function(company, callback){
     ], function(err){
         if(err){console.log(err); callback(0);}
         else{
-            callback(this.changes);
+            callback(this);
         }
     });
-},
+};
 
 //removes a company from table by its id
 //The number of rows removed is returned
@@ -91,7 +91,7 @@ exports.deleteCompany = function(companyid, callback){
         }
     });
 
-}
+};
 
 //updates a company row specified by the id
 //the newCompany object must be similar to company parameter of insertCompany
@@ -109,4 +109,4 @@ exports.updateCompany = function(companyid, newCompany, callback){
             callback(this.changes);
         }
     });
-}
+};
