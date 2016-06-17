@@ -123,7 +123,7 @@ router.post("/login", function(req, res) {
 
 router.get("/logFile", function (req, res) {
     "use strict";
-    var logfile = new logFile().loadXMLDoc(function (json) {
+    new logFile().loadXMLDoc(function (json) {
         console.log("in callback");
         console.log(json.events.event);
         if (req.session.manager) {
@@ -134,6 +134,18 @@ router.get("/logFile", function (req, res) {
             res.render('login', {loggedin: req.session.manager ? true : false});
         }
     });
+});
+
+router.get("/logFile/:logFileId", function(req, res){
+    var index = req.params.logFileId;
+    new logFile().loadXMLDoc(function (json) {
+        var events = json.events.event;
+        //1. calculate business figures
+        //2. show events[i]
+        res.render('logs', {event: json.events.event[index], loggedin: req.session.manager ? true : false});
+    });
+
+
 });
 
 router.get("/logout",function(req,res) {
