@@ -123,8 +123,10 @@ router.post("/login", function(req, res) {
 
 router.get("/logFile", function(req, res) {
     "use strict";
+    var logfile = logFile.logFile();
+    console.log(logFile.rawJSON.events.event);
     if(req.session.manager) {
-        res.render('logFile', {loggedin: req.session.manager ? true : false});
+        res.render('logFile', {events: logFile.rawJSON.events.event, loggedin: req.session.manager ? true : false});
     }
     else{
         res.render('login', {loggedin: req.session.manager ? true : false});
