@@ -200,7 +200,7 @@ router.use('/price', require('./routes/price'));
 router.use('/cost', require('./routes/routecost'));
 
 // Company routes
-router.use('companies')
+router.use('/companies', require('./routes/company'));
 
 
 router.post("/addMail", function(req,res, next){
