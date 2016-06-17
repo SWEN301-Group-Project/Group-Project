@@ -47,7 +47,7 @@ app = express();
 app.set('view engine', 'html');
 app.set('views', __dirname + '/views');
 app.use('/static', express.static(__dirname + '/static'));
-app.use(bodyParser.json())
+app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(cookieParser());
 app.use(session({secret: 'apparentlythishastobeaverylongsessionsecret', resave: false, saveUninitialized: true}));
@@ -88,7 +88,7 @@ var router = express.Router();
 var database = new Database().init();
 Mail = new Mail();
 
-Graph.loadGraph();
+//Graph.loadGraph();
 
 // redirects to the stats page by default, this could be another page.
 router.get("/", function(req, res) {
