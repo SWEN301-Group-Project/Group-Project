@@ -85,30 +85,48 @@ router.post("/update/:companyid", function(req,res){
 router.post("/", function (req, res) {
     console.log(req.body);
     var newCompany = req.body;
-    Company.insertCompany(newCompany, function (result) {
-        console.log(result);
-        Company.getAllCompanies(function (allCompanies) {
-            if (result) {
-                res.render('company', {
-                    companyActive: true,
-                    title: "Company",
-                    loggedin: req.session.manager ? true : false,
-                    companies: allCompanies,
-                    notify: "Successfully added: " + newCompany.name
-                });
-            } else {
-                res.render('company', {
-                    companyActive: true, title: "Company",
-                    loggedin: req.session.manager ? true : false,
-                    companies: allCompanies,
-                    notify: "Error occurred",
-                    notifyType: "danger"
-                });
-            }
+    var error;
+    if (!newCompany.name){
+        error = "Must provide a valid company name";
+    } else if (!newCompany.type) {
+        error = "Must provide the required details";
+    }
+    if (error) {
+        Company.getAllCompanies(function(allCompanies){
+            res.status(404);
+            res.render('company', {
+                companyActive: true,
+                title: "Company",
+                loggedin: req.session.manager ? true : false,
+                company: newCompany,
+                companies: allCompanies,
+                error: error
+            });
         });
-    });
+    } else {
+        Company.insertCompany(newCompany, function (result) {
+            console.log(result);
+            Company.getAllCompanies(function (allCompanies) {
+                if (result.changes) {
+                    res.render('company', {
+                        companyActive: true,
+                        title: "Company",
+                        loggedin: req.session.manager ? true : false,
+                        companies: allCompanies,
+                        notify: "Successfully added: " + newCompany.name
+                    });
+                } else {
+                    res.render('company', {
+                        companyActive: true, title: "Company",
+                        loggedin: req.session.manager ? true : false,
+                        companies: allCompanies,
+                        notify: "Error occurred",
+                        notifyType: "danger"
+                    });
+                }
+            });
+        });
+    }
 });
-
-
 
 module.exports = router;

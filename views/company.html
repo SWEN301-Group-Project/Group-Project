@@ -65,7 +65,7 @@
                                         <div class="col-md-12">
                                             <div class="form-group">
                                                 <label for="name">Name</label>
-                                                <input type="text" id="name" name="name" class="form-control border-input" placeholder="Name" {% if location %}value = "{{location.name}}" {% endif %} required>
+                                                <input type="text" id="name" name="name" class="form-control border-input" placeholder="Name" {% if company %}value = "{{company.name}}" {% endif %}>
                                             </div>
                                         </div>
                                     </div>
@@ -75,19 +75,19 @@
                                             <div class="form-group">
                                                 <div class="radio">
                                                     <label>
-                                                        <input type="radio" name="type" value="Land" checked>
+                                                        <input type="radio" name="type" value="Land" {% if company %}{% if company.type == "land" %}checked{% endif %}{% endif %}>
                                                         Land
                                                     </label>
                                                 </div>
                                                 <div class="radio">
                                                     <label>
-                                                        <input type="radio" name="type" value="Sea">
+                                                        <input type="radio" name="type" value="Sea"{% if company %}{% if company.type == "sea" %}checked{% endif %}{% endif %}>
                                                         Sea
                                                     </label>
                                                 </div>
                                                 <div class="radio">
                                                     <label>
-                                                        <input type="radio" name="type" value="Air">
+                                                        <input type="radio" name="type" value="Air"{% if company %}{% if company.type == "air"%}checked{% endif %}{% endif %}>
                                                         Air
                                                     </label>
                                                 </div>
@@ -177,7 +177,7 @@
         });
         {% if notify %}
         $.notify({
-            icon: 'ti-location-arrow',
+            icon: 'ti-world',
             message: "{{notify}}"
 
         },{

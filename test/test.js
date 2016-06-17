@@ -19,21 +19,12 @@ describe("Location Tests", function(){
         console.log("Testing Insertion of Location");
         Location.insertLocation(testLocation, function (result) {
             testLocation.id = result.lastID;
-            console.log("added testlocation: ");
-            console.log(testLocation);
-            console.log("id: " + testLocation.id);
             done();
         });
 
     });
     after(function(done){
-
-        console.log(testLocation.id);
-        Location.deleteLocation(testLocation.id, function(result){
-            console.log("Finished delete location");
-            console.log(result);
-            done();
-        });
+        done();
     });
 
     it('should list ALL locations', function (done) {
@@ -74,9 +65,7 @@ describe("Location Tests", function(){
                 expect(res.text).to.contain(testLocation.name);
                 done();
             });
-
     });
-
     it('should update the test location', function(done){
         chai.request(server)
             .post("/locations/update/" + testLocation.id)
@@ -90,35 +79,36 @@ describe("Location Tests", function(){
         Location.getLocationById(testLocation.id, function(location){
             expect(location.isInternational).to.eql(0);
             done();
-        })
+        });
+    });
+    it('should delete the test location', function(done){
+        chai.request(server)
+            .post("/locations/delete/" + testLocation.id)
+            .end(function(err, res){
+                expect(res).to.have.status(200);
+                done();
+            });
     });
 });
 
 describe("Companies Test", function(){
     var testCompany;
+
     before(function (done) {
         this.timeout(5000);
         /**
          * Initialise the database.
          */
         testCompany = {name: 'test', type: 'air'};
+        console.log("Testing insertion of company");
         Company.insertCompany(testCompany, function(result){
             testCompany.id = result.lastID;
-            console.log("added testCompany: ");
-            console.log(testCompany);
-            console.log("id: " + testCompany.id);
             done();
         });
-
     });
 
     after(function(done){
-        console.log(testCompany.id);
-        Company.deleteCompany(testCompany.id, function(result){
-            console.log("Finished delete company");
-            console.log(result);
-            done();
-        });
+        done();
     });
 
     it('should list ALL companies', function (done) {
@@ -128,6 +118,58 @@ describe("Companies Test", function(){
                 expect(res).to.have.status(200);
                 expect(res.text).to.contain("Add new Company");
                 expect(res.text).to.contain("Companies");
+                done();
+            });
+    });
+    it('should not add company with empty name', function (done) {
+        chai.request(server)
+            .post('/companies')
+            .send({name: "", type: "air"})
+            .end(function (err, res) {
+                expect(res).to.have.status(404);
+                expect(res.text).to.contain("Must provide a valid company name");
+                done();
+            });
+    });
+    it('should not add company with empty type', function (done) {
+        chai.request(server)
+            .post('/companies')
+            .send({name: "Test"})
+            .end(function (err, res) {
+                expect(res).to.have.status(404);
+                expect(res.text).to.contain("Must provide the required details");
+                done();
+            });
+    });
+    it('should open the test company page', function(done){
+        chai.request(server)
+            .get('/companies/' + testCompany.id)
+            .end(function(err, res){
+                expect(res).to.have.status(200);
+                expect(res.text).to.contain(testCompany.name);
+                done();
+            });
+    });
+    it('should update the test company', function(done){
+        chai.request(server)
+            .post("/companies/update/" + testCompany.id)
+            .send({name: testCompany.name, type: 'sea'})
+            .end(function(err, res){
+                expect(res).to.have.status(200);
+                done();
+            });
+    });
+    it('should show the updated test company', function(done){
+        Company.getCompanyById(testCompany.id, function(company){
+            expect(company.type).to.eql('sea');
+            done();
+        });
+    });
+    it('should delete the test company', function(done){
+        chai.request(server)
+            .post("/companies/delete/" + testCompany.id)
+            .end(function(err, res){
+                expect(res).to.have.status(200);
                 done();
             });
     });

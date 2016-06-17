@@ -72,13 +72,13 @@
                                             <div class="form-group">
                                                 <div class="radio">
                                                     <label>
-                                                        <input type="radio" name="isInternational" value="1" {% if location.isInternational %}checked{% endif %}>
+                                                        <input type="radio" name="isInternational" value="1" {% if location.isInternational == "1" %}checked{% endif %}>
                                                         International
                                                     </label>
                                                 </div>
                                                 <div class="radio">
                                                     <label>
-                                                        <input type="radio" name="isInternational" value="0" {% if not location.isInternational %}checked{% endif %}>
+                                                        <input type="radio" name="isInternational" value="0" {% if not location.isInternational == "0" %}checked{% endif %}>
                                                         Domestic
                                                     </label>
                                                 </div>

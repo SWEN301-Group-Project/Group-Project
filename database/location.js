@@ -80,7 +80,6 @@ exports.deleteLocation = function(locationid, callback){
             console.log("Error removing location with id: " + locationid);
             callback(0);
         }else{
-            console.log(this);
             if(callback){
                 callback(this.changes);
             }
@@ -102,7 +101,6 @@ exports.updateLocation = function(locationid, newLocation, callback){
             console.log(err);
             callback(0);
         }else{
-            console.log(this);
             if(callback){
                 callback(this.changes);
             }
