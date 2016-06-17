@@ -140,8 +140,6 @@ router.post("/login", function(req, res) {
     var username = req.body.username;
     var password = req.body.password;
     Managers.loginManager(username, password, function(result){
-        console.log("inside loginmanager function");
-        console.log(result);
         if (result){
             req.session.manager = manager; //save user in session
         }
@@ -165,12 +163,16 @@ router.get("/logFile", function (req, res) {
 });
 
 router.get("/logFile/:logFileId", function(req, res){
-    var index = req.params.logFileId;
+    var index = req.params.logFileId-1;
     new logFile().loadXMLDoc(function (json) {
-        var events = json.events.event;
+        //var event = json.events.event;
+        console.log("in logfile id");
+        console.log(index);
+        console.log(json.events.event);
+        console.log(json.events.event[index]);
         //1. calculate business figures
         //2. show events[i]
-        res.render('logs', {event: json.events.event[index], loggedin: req.session.manager ? true : false});
+        res.render('logs', {events: json.events.event[index], loggedin: req.session.manager ? true : false});
     });
 
 
@@ -178,9 +180,7 @@ router.get("/logFile/:logFileId", function(req, res){
 
 router.get("/logout",function(req,res) {
     "use strict";
-    console.log("POST: /logout");
     req.session.manager = null;
-    console.log(req.session.manager ? true : false);
     res.render('index', {loggedin: req.session.manager ? true : false});
 });
 
