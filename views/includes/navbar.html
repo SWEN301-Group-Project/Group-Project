@@ -28,23 +28,23 @@
                 </li>
                 <li>
                     {% if loggedin %}
-                    <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                            <i class="ti-user"></i>
-                            <p>Manager</p>
-                            <b class="caret"></b>
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a href="logFile">Log File</a></li>
-                            <li><a href="/">Logout</a></li>
-                        </ul>
-                    </li>
-                    {% else %}
-                    <a href="login">
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                         <i class="ti-user"></i>
-                        <p>Login</p>
+                        <p>Manager</p>
+                        <b class="caret"></b>
                     </a>
-                    {% endif %}
+                    <ul class="dropdown-menu">
+                        <li><a href="logFile">Log File</a></li>
+                        <li><a href="logout">Logout</a></li>
+                    </ul>
+                </li>
+                {% else %}
+                <a href="login">
+                    <i class="ti-user"></i>
+                    <p>Login</p>
+                </a>
+                {% endif %}
                 </li>
             </ul>
         </div>

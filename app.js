@@ -94,33 +94,46 @@ router.get("/", function(req, res) {
 	res.render('index',{title: "Dashboard", homeActive: true});
 });
 
+// Login page
+router.get("/login", function (req, res) {
+    "use strict";
+    Managers.getAllManagers(function(result){
+        console.log(result);
+    });
+    res.render('login', {});
+});
+
+router.post("/login", function(req, res) {
+    console.log(req.body);
+    var manager = req.body;
+    var username = req.body.username;
+    var password = req.body.password;
+    Managers.loginManager(username, password, function(result){
+        console.log("inside loginmanager function");
+        console.log(result);
+        if (result){
+            req.session.manager = manager; //save user in session
+        }
+        res.render("login", {loggedin: req.session.manager ? true : false, error: "Invalid code."});
+    });
+});
+
 router.get("/logFile", function(req, res) {
     "use strict";
-    res.render('logFile',{loggedin: loggedin});
-});
-
-// Login page
-router.get("/login", function(req, res) {
-    "use strict";
-    res.render('login',{});
-});
-var password = 1234;
-var loggedin = false;
-router.post("/login", function(req, res) {
-    var code = req.body.code;
-    if(code != password){
-        loggedin = false;
-        res.render("login", {loggedin: loggedin, error: "Invalid code."});
+    if(req.session.manager) {
+        res.render('logFile', {loggedin: req.session.manager ? true : false});
     }
-    else {
-        loggedin = true;
-        res.render('logFile', {loggedin: loggedin});
+    else{
+        res.render('login', {loggedin: req.session.manager ? true : false});
     }
 });
 
-router.get("/logout",function(request,response) {
-    loggedin = false;
-    res.render('login', {loggedin: loggedin});
+router.get("/logout",function(req,res) {
+    "use strict"
+    console.log("POST: /logout");
+    req.session.manager = null;
+    console.log(req.session.manager ? true : false);
+    res.render('login', {loggedin: req.session.manager ? true : false});
 });
 
 router.get("/graph", function (req, res) {

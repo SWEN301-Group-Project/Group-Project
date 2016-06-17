@@ -1,3 +1,9 @@
+var sqlite3 = require("sqlite3").verbose(),
+    assert = require("assert");
+
+var dbFile = "./database/test.db";
+var db = new sqlite3.Database(dbFile);
+
 //adds a new manager row to the managers table
 //the manager object must be ==> {username : <manager username>}
 //The number of rows changed is returned.
@@ -5,8 +11,10 @@
 exports.insertManager = function(manager, callback){
     //TODO: ensure manager does not exist already??
     var stmt = db.prepare("INSERT INTO managers (username, password) VALUES (?, ?)");
-
-    stmt.run([manager.name.toLowerCase(), manager.password], function(err){
+    console.log("Inside insert Manager");
+    stmt.run([manager.username.toLowerCase(), manager.password], function(err){
+        console.log("done query");
+        console.log(this);
         if(err){callback(0)}
         else if (callback){
             callback(this.changes);
@@ -57,33 +65,40 @@ exports.updateManager = function(managerid, newManager, callback){
 //The number of rows removed is returned
 //PostCondition: if return > 0 ==> {return} rows deleted successfully
 exports.loginManager = function(username, password, callback){
-    db.run("SELECT * FROM managers WHERE username = $username AND password = $password", {$username: username, $password: password}, function(err){
+    var stmt = "SELECT * FROM managers WHERE username = $username AND password = $password";
+    db.get(stmt, {$username: username, $password: password}, function(err, manager){
         if(err){
             console.log("Error finding manager with username: " + username);
             callback(0);
         }else{
             console.log(this);
             if(callback){
-                callback(this.changes);
+                callback(manager);
             }
         }
     });
 };
 
 exports.getAllManagers = function(callback){
+    console.log("inside getallmanagers");
     db.all("SELECT * FROM managers", function(err, rows){
+        console.log("done query");
         if (err){console.log("Error loading managers: " + err); callback([]);}
-        else if (callback){
+        else{
+            console.log("returning from getallmanagers");
+            console.log(rows);
             callback(rows);
         }
     });
 };
 
-exports.getOneManagers = function(callback){
-    db.all("SELECT * FROM managers WHERE username = admin", function(err, rows){
-        if (err){console.log("Error loading managers: " + err); callback([]);}
+//returns manager that matches the username. This is used to retrieve specific manager objects
+exports.getManagerByUsername= function(username, callback){
+    var stmt = "SELECT * FROM managers WHERE username = $username";
+    db.get(stmt, {$username: username}, function(err, manager){
+        if(err){console.log("Error loading manager: " + err); callback();}
         else if (callback){
-            callback(rows);
+            callback(manager);
         }
     });
 };
