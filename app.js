@@ -36,7 +36,9 @@ var express = require('express'),
     Location = require('./database/location'),
     Route = require('./database/routes'),
     Price = require('./database/customerprice'),
+    Managers = require('./database/managers'),
     Graph = require('./database/graph'),
+    logFile = require('./database/logFile.js');
     findRoute = Graph.findRoute;
 
 
@@ -48,7 +50,7 @@ app.use('/static', express.static(__dirname + '/static'));
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(cookieParser());
-app.use(session({secret: 'apparentlythishastobeaverylongsessionsecret'}));
+app.use(session({secret: 'apparentlythishastobeaverylongsessionsecret', resave: false, saveUninitialized: true}));
 
 /*
  Configure nunjucks to work with express
@@ -85,6 +87,7 @@ var router = express.Router();
  */
 var database = new Database().init();
 Mail = new Mail();
+var logfile = logFile.logFile();
 // Graph.loadGraph();
 
 
@@ -139,7 +142,7 @@ router.get("/logout",function(req,res) {
 router.get("/graph", function (req, res) {
     "use strict";
     Graph.loadGraph();
-    res.render('index', {title: "Dashboard", homeActive: true});
+    res.render('index', {title: "Dashboard", loggedin: req.session.manager ? true : false, homeActive: true});
 });
 
 // Location routes
@@ -156,7 +159,7 @@ router.use('/cost', require('./routes/routecost'));
 router.get("/companies", function(req, res) {
     "use strict";
     Company.getAllCompanies(function(allCompanies){
-        res.render('company', {companyActive: true, title: "Company", companies: allCompanies});
+        res.render('company', {companyActive: true, title: "Company", loggedin: req.session.manager ? true : false, companies: allCompanies});
     });
 });
 
@@ -167,6 +170,7 @@ router.get("/companies/:companyid", function(req, res){
         res.render('updateCompany', {
             companyActive: true,
             title: "Update Company",
+            loggedin: req.session.manager ? true : false,
             companyid: companyid,
             company: company
         });
@@ -181,13 +185,14 @@ router.post("/companies/delete/:companyid", function(req,res){
         if(result){
             //success
             Company.getAllCompanies(function(allCompanies){
-                res.render('company', {companyActive: true, title: "Company", companies: allCompanies, notify: "company successfully deleted", notifyType:"warning"});
+                res.render('company', {companyActive: true, title: "Company", loggedin: req.session.manager ? true : false, companies: allCompanies, notify: "company successfully deleted", notifyType:"warning"});
             });
         } else {
             Company.getCompanyById(companyid, function(company){
                 res.render('updateCompany', {
                     companyActive: true,
                     title: "Update Company",
+                    loggedin: req.session.manager ? true : false,
                     companyid: companyid,
                     company: company,
                     notify: "Error deleting company: " + company.name,
@@ -205,7 +210,7 @@ router.post("/companies/update/:companyid", function(req,res){
         console.log(result);
         if (result){
             Company.getAllCompanies(function(allCompanies){
-                res.render('company', {companyActive: true, title: "Company", companies: allCompanies, notify: company.name + " successfully updated", notifyType: "warning"});
+                res.render('company', {companyActive: true, title: "Company", loggedin: req.session.manager ? true : false, companies: allCompanies, notify: company.name + " successfully updated", notifyType: "warning"});
             });
         } else {
             //could not update the location
@@ -213,6 +218,7 @@ router.post("/companies/update/:companyid", function(req,res){
                 res.render('updateCompany', {
                     companyActive: true,
                     title: "Update Company",
+                    loggedin: req.session.manager ? true : false,
                     companyid: companyid,
                     company: company,
                     notify: "Error deleting company: " + company.name,
@@ -233,12 +239,15 @@ router.post("/companies", function (req, res) {
                 res.render('company', {
                     companyActive: true,
                     title: "Company",
+                    loggedin: req.session.manager ? true : false,
                     companies: allCompanies,
                     notify: "Successfully added: " + newCompany.name
                 });
             } else {
                 res.render('company', {
-                    companyActive: true, title: "Company", companies: allCompanies,
+                    companyActive: true, title: "Company",
+                    loggedin: req.session.manager ? true : false,
+                    companies: allCompanies,
                     notify: "Error occurred",
                     notifyType: "danger"
                 });
@@ -266,6 +275,7 @@ router.post("/addMail", function(req,res, next){
                 res.render('mails', {
                     mailActive: true,
                     title: "Mails",
+                    loggedin: req.session.manager ? true : false,
                     error: error,
                     mail: mail,
                     mails: mails,
@@ -303,6 +313,7 @@ router.post("/addMail", function(req,res, next){
                         res.render('confirmMail', {
                             mail: mail,
                             title: "Mails",
+                            loggedin: req.session.manager ? true : false,
                             origin: originLocation,
                             destination: destinationLocation,
                             mailActive: true
@@ -314,6 +325,7 @@ router.post("/addMail", function(req,res, next){
                                 res.render('mails', {
                                     mailActive: true,
                                     title: "Mails",
+                                    loggedin: req.session.manager ? true : false,
                                     mail: req.session.mail,
                                     mails: mails,
                                     locations: locations,
@@ -346,6 +358,7 @@ router.get('/confirmMail', function(req,res){
                     res.render('mails', {
                         mailActive: true,
                         title: "Mails",
+                        loggedin: req.session.manager ? true : false,
                         mailAdded: true,
                         locations: locations,
                         mails: mails,
@@ -358,6 +371,7 @@ router.get('/confirmMail', function(req,res){
                     res.render('mails', {
                         mailActive: true,
                         title: "Mails",
+                        loggedin: req.session.manager ? true : false,
                         mailAdded: true,
                         locations: locations,
                         mails: mails,
@@ -378,6 +392,7 @@ router.get("/mails", function(req, res) {
             res.render('mails', {
                 mailActive: true,
                 title: "Mails",
+                loggedin: req.session.manager ? true : false,
                 mail: req.session.mail,
                 mails: mails,
                 locations: locations

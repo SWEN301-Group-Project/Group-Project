@@ -15,7 +15,7 @@ router.get("/", function(req, res){
   Location.getAllLocations(function(cb){
       Price.getAllPrices(function(prices){
           console.log(prices);
-          res.render('updPrice', {priceActive: true, title: "Customer Prices", locations: cb, customerprices: prices});
+          res.render('updPrice', {priceActive: true, title: "Customer Prices", loggedin: req.session.manager ? true : false, locations: cb, customerprices: prices});
       });
   });
 });
@@ -33,7 +33,7 @@ router.post("/", function(req, res){
         Location.getAllLocations(function(cb){
             Price.getAllPrices(function(prices){
                 console.log(prices);
-                res.render('updPrice', {priceActive: true, title: "Customer Prices", locations: cb, customerprices: prices, error: err});
+                res.render('updPrice', {priceActive: true, title: "Customer Prices", loggedin: req.session.manager ? true : false, locations: cb, customerprices: prices, error: err});
             });
         });
     } else {
@@ -52,7 +52,7 @@ router.post("/", function(req, res){
             console.log(result);
             Location.getAllLocations(function(allLocations){
                Price.getAllPrices(function(allPrices){
-                   res.render('updPrice', {priceActive: true, title: "Customer Prices", locations: allLocations, customerprices: allPrices, notify: "Price successfully inserted"});
+                   res.render('updPrice', {priceActive: true, title: "Customer Prices", loggedin: req.session.manager ? true : false, locations: allLocations, customerprices: allPrices, notify: "Price successfully inserted"});
                });
             });
         });
@@ -68,6 +68,7 @@ router.get("/:customerpriceid", function(req, res){
             res.render('updatePrice', {
                 priceActive: true,
                 title: "Customer Prices",
+                loggedin: req.session.manager ? true : false,
                 locations: allLocations,
                 customerprice: customerprice,
                 customerpriceid: customerpriceid
@@ -83,7 +84,7 @@ router.post("/delete/:priceid", function(req,res){
         Location.getAllLocations(function(allLocations){
            if(result){
                Price.getAllPrices(function(allPrices){
-                   res.render('updPrice', {priceActive: true, title: "Customer Prices", locations: allLocations, customerprices: allPrices, notify: "Price successfully deleted", notifyType:"warning"});
+                   res.render('updPrice', {priceActive: true, title: "Customer Prices", loggedin: req.session.manager ? true : false, locations: allLocations, customerprices: allPrices, notify: "Price successfully deleted", notifyType:"warning"});
                });
            } else {
                Price.getPriceById(priceid, function(customerprice){
@@ -91,6 +92,7 @@ router.post("/delete/:priceid", function(req,res){
                    res.render('updatePrice', {
                        priceActive: true,
                        title: "Customer Prices",
+                       loggedin: req.session.manager ? true : false,
                        locations: allLocations,
                        customerprice: customerprice,
                        priceid: priceid,
@@ -111,7 +113,7 @@ router.post("/update/:priceid", function(req,res){
         Location.getAllLocations(function(allLocations){
            if(result){
                Price.getAllPrices(function(allPrices){
-                   res.render('updPrice', {priceActive: true, title: "Customer Prices", locations: allLocations, customerprices: allPrices, notify: "Price successfully updated", notifyType:"warning"});
+                   res.render('updPrice', {priceActive: true, title: "Customer Prices", loggedin: req.session.manager ? true : false, locations: allLocations, customerprices: allPrices, notify: "Price successfully updated", notifyType:"warning"});
                });
            } else {
                Price.getPriceById(priceid, function(customerprice){
@@ -119,6 +121,7 @@ router.post("/update/:priceid", function(req,res){
                    res.render('updatePrice', {
                        priceActive: true,
                        title: "Customer Prices",
+                       loggedin: req.session.manager ? true : false,
                        locations: allLocations,
                        customerprice: customerprice,
                        priceid: priceid,

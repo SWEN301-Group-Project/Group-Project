@@ -18,6 +18,7 @@ router.get("/", function(req, res){
                 res.render('updCost', {
                     costActive: true,
                     title: "Route Costs",
+                    loggedin: req.session.manager ? true : false,
                     locations: cbLoc,
                     companies: cbComp,
                     routes: routes
@@ -49,6 +50,7 @@ router.post("/", function(req, res){
                 res.render('updCost', {
                     costActive: true,
                     title: "Route Costs",
+                    loggedin: req.session.manager ? true : false,
                     error: err,
                     locations: cbLoc,
                     companies: cbComp
@@ -75,7 +77,7 @@ router.post("/", function(req, res){
                 Location.getAllLocations(function (allLocations) {
                     Company.getAllCompanies(function (allCompanies) {
                         Route.getAllRoutes(function(routes){
-                            res.render('updCost', {costActive: true, title: "Route Costs", locations: allLocations, companies: allCompanies, routes: routes, notify: "route successfully added"});
+                            res.render('updCost', {costActive: true, title: "Route Costs", loggedin: req.session.manager ? true : false, locations: allLocations, companies: allCompanies, routes: routes, notify: "route successfully added"});
                         });
 
                     })
@@ -94,6 +96,7 @@ router.get("/:routeid", function(req, res){
                 res.render('updateCost', {
                     costActive: true,
                     title: "Update Route",
+                    loggedin: req.session.manager ? true : false,
                     routeid: routeid,
                     route: route,
                     locations: allLocations,
@@ -112,7 +115,7 @@ router.post("/delete/:routeid", function(req,res){
             Location.getAllLocations(function(allLocations){
                 if(result){
                     Route.getAllRoutes(function(routes){
-                        res.render('updCost', {costActive: true, title: "Route Costs", locations: allLocations, companies: allCompanies, routes: routes, notify: "route successfully deleted", notifyType:"warning"});
+                        res.render('updCost', {costActive: true, title: "Route Costs", loggedin: req.session.manager ? true : false, locations: allLocations, companies: allCompanies, routes: routes, notify: "route successfully deleted", notifyType:"warning"});
                     });
                 } else {
                     Route.getPriceById(routeid, function(route){
@@ -120,6 +123,7 @@ router.post("/delete/:routeid", function(req,res){
                         res.render('updateCost', {
                             costActive: true,
                             title: "Update Route",
+                            loggedin: req.session.manager ? true : false,
                             routeid: routeid,
                             route: route,
                             locations: allLocations,
@@ -143,7 +147,7 @@ router.post("/update/:routeid", function(req,res){
            Location.getAllLocations(function(allLocations){
                if(result){
                    Route.getAllRoutes(function(routes){
-                       res.render('updCost', {costActive: true, title: "Route Costs", locations: allLocations, companies: allCompanies, routes: routes, notify: "route successfully updated", notifyType:"warning"});
+                       res.render('updCost', {costActive: true, title: "Route Costs", loggedin: req.session.manager ? true : false, locations: allLocations, companies: allCompanies, routes: routes, notify: "route successfully updated", notifyType:"warning"});
                    });
                } else {
                    //could not update the route
@@ -152,6 +156,7 @@ router.post("/update/:routeid", function(req,res){
                        res.render('updateCost', {
                            costActive: true,
                            title: "Update Route",
+                           loggedin: req.session.manager ? true : false,
                            routeid: routeid,
                            route: route,
                            locations: allLocations,
