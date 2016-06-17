@@ -94,8 +94,10 @@ function Database(){
                 db.run('CREATE TABLE IF NOT EXISTS managers ('
                     + 'managerid INTEGER PRIMARY KEY, '
                     + 'username TEXT, '
-                    + 'password TEXT'
+                    + 'password TEXT, '
+                    + 'UNIQUE (username, password)'
                     + ')');
+                db.run('INSERT OR IGNORE INTO managers (username, password) VALUES ("admin","admin")');
             })
         });
     }
