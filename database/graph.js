@@ -429,7 +429,9 @@ exports.loadGraph = function (callback) {
         console.log("still loading graph");
         return !isGraphLoaded;
     });
-    callback();
+    if (callback) {
+        callback();
+    }
 };
 module.exports.findRoute = findRoute;
 
