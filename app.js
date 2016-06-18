@@ -111,6 +111,7 @@ router.get("/stats/:dateOffset", function(req, res) {
     Mail.getMailStats(req.params.dateOffset, function(labels, series, range, prev, next, weekTotal, mailAmount){
         res.render('index', {
             title: 'Business Figures',
+            loggedin: req.session.manager ? true : false,
             homeActive: true,
             labels: labels,
             series: series,
@@ -172,7 +173,7 @@ router.get("/logFile/:logFileId", function(req, res){
         console.log(json.events.event[index]);
         //1. calculate business figures
         //2. show events[i]
-        res.render('logs', {events: json.events.event[index], loggedin: req.session.manager ? true : false});
+        res.render('logs', {events: json.events.event[index],index: index + 1, loggedin: req.session.manager ? true : false});
     });
 });
 
