@@ -33,25 +33,22 @@ router.post("/delete/:locationid", function(req,res){
     Location.getLocationById(locationid, function(deleteLocation){
         Location.deleteLocation(locationid, function(result){
             if(result){
-                
                 new logFile().addEvent({type: 'location', action: 'delete', data: deleteLocation});
                 //success
                 Location.getAllLocations(function(allLocations){
                     res.render('location', {locationActive: true, title: "Location", loggedin: req.session.manager ? true : false, locations: allLocations, notify: "Location successfully deleted", notifyType:"warning"});
                 });
             } else {
-                Location.getLocationById(locationid, function(location){
-                    console.log(location);
+                    console.log(deleteLocation);
                     res.render('updateLocation', {
                         locationActive: true,
                         title: "Update Location",
                         loggedin: req.session.manager ? true : false,
                         locationid: locationid,
-                        location: location,
+                        location: deleteLocation,
                         notify: "Error deleting location: " + location.name,
                         notifyType: "danger"
                     });
-                });
             }
         });
     });
@@ -111,6 +108,7 @@ router.post("/", function(req, res){
         Location.insertLocation(newLocation, function (result) {
             Location.getAllLocations(function (allLocations) {
                 if (result.changes) {
+                    new logFile().addEvent({type: 'location', action: 'insert', data: newLocation});
                     res.render('location', {
                         locationActive: true,
                         title: "Location",
