@@ -119,6 +119,10 @@ var Mail = function (dbFile) {
                                         = mailAmount[j].destinations[k].totalVolume + weekRows[i].volume;
                                     mailAmount[j].destinations[k].totalWeight
                                         = mailAmount[j].destinations[k].totalWeight + weekRows[i].weight;
+                                    mailAmount[j].destinations[k].totalIncome
+                                        = mailAmount[j].destinations[k].totalIncome + weekRows[i].totalcustomercost;
+                                    mailAmount[j].destinations[k].totalExpenses
+                                        = mailAmount[j].destinations[k].totalExpenses + weekRows[i].totalbusinesscost;
                                 }
                             }
 
@@ -127,7 +131,9 @@ var Mail = function (dbFile) {
                                     destination: weekRows[i].destination,
                                     totalNumber: 1,
                                     totalVolume: weekRows[i].volume,
-                                    totalWeight: weekRows[i].weight
+                                    totalWeight: weekRows[i].weight,
+                                    totalIncome: weekRows[i].totalcustomercost,
+                                    totalExpenses: weekRows[i].totalbusinesscost
                                 })
                             }
                         }
@@ -140,7 +146,9 @@ var Mail = function (dbFile) {
                                 destination: weekRows[i].destination,
                                 totalNumber: 1,
                                 totalVolume: weekRows[i].volume,
-                                totalWeight: weekRows[i].weight
+                                totalWeight: weekRows[i].weight,
+                                totalIncome: weekRows[i].totalcustomercost,
+                                totalExpenses: weekRows[i].totalbusinesscost
                             }]
                         });
                     }
