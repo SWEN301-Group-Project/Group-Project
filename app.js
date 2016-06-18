@@ -173,29 +173,30 @@ router.get("/logFile/:logFileId", function(req, res){
         console.log("in logfile id");
         var mailEvents = [];
         var mailStats = {};
-        for (var i = 0; i < (index + 1); i++){
+        for (var i = 0; i < (index + 1); i++) {
             var event = json.events.event[i];
             var data = event.data[0];
-            if (data.totalcustomercost){
+            if (data.totalcustomercost) {
                 totalcustomercost += parseInt(data.totalcustomercost[0]);
             }
-            if (data.totalbusinesscost){
+            if (data.totalbusinesscost) {
                 totalbusinesscost += parseInt(data.totalbusinesscost[0]);
             }
-            if (event.type == "mail"){
+            if (event.type == "mail") {
                 totalmail += 1;
             }
-            if (data.volume){
+            if (data.volume) {
                 totalvolume += parseInt(data.volume[0]);
             }
-            if (data.weight){
+            if (data.weight) {
                 totalweight += parseInt(data.weight[0]);
             }
-            if (event.type == "mail"){
+            if (event.type == "mail") {
                 mailEvents.push({
                     event: event
                 })
             }
+        }
             console.log(mailEvents);
             for (var j = 0; j < mailEvents.length; j++){
                 var mail = mailEvents[j].event;
@@ -213,7 +214,7 @@ router.get("/logFile/:logFileId", function(req, res){
                 console.log("DESTINATION: " + destination);
                 console.log(mailStats[mailEvents.origin]);
             }
-        }
+
         //1. calculate business figures
         //2. show events[i]
         res.render('logs',
