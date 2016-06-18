@@ -195,11 +195,13 @@ router.get("/logFile/:logFileId", function(req, res){
                     event: event
                 })
             }
+            console.log(mailEvents);
             for (var j = 0; j < mailEvents.length; j++){
-                var origin = mailEvents[j].data[0].origin[0];
+                var mail = mailEvents[j].event;
+                var origin = mail.data[0].origin[0];
+                console.log("MAIL object: " + mail);
+                console.log("ORIGIN: " + origin);
             }
-            console.log("MAIL EVENT ARRAY: " + mailEvents);
-            console.log("ORIGIN: " + origin);
         }
         //1. calculate business figures
         //2. show events[i]
