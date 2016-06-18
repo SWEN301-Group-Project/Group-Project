@@ -134,7 +134,6 @@ router.get("/login", function (req, res) {
 });
 
 router.post("/login", function(req, res) {
-    console.log(req.body);
     var manager = req.body;
     var username = req.body.username;
     var password = req.body.password;
@@ -152,8 +151,6 @@ router.post("/login", function(req, res) {
 router.get("/logFile", function (req, res) {
     "use strict";
     new logFile().loadXMLDoc(function (json) {
-        console.log("in callback");
-        console.log(json.events.event);
         if (req.session.manager) {
             // res.send(JSON.parse(json));
             res.render('logFile', {events: json.events.event, loggedin: req.session.manager ? true : false});
@@ -169,30 +166,52 @@ router.get("/logFile/:logFileId", function(req, res){
     new logFile().loadXMLDoc(function (json) {
         var totalcustomercost = 0;
         var totalbusinesscost = 0;
+        var totalvolume = 0;
+        var totalweight = 0;
+        var totalmail = 0;
         //var event = json.events.event;
         console.log("in logfile id");
-        console.log(json.events.event.data);
+        var mailEvents = [];
         for (var i = 0; i < (index + 1); i++){
             var event = json.events.event[i];
-            console.log(event);
             var data = event.data[0];
             if (data.totalcustomercost){
-                console.log("TCC: " + totalcustomercost);
-                console.log("PARSE: " + parseInt(data.totalcustomercost[0]));
                 totalcustomercost += parseInt(data.totalcustomercost[0]);
-                console.log("TCC2: " + totalcustomercost);
             }
             if (data.totalbusinesscost){
-                console.log("TBC: " + totalbusinesscost);
-                console.log("PARSE: " + parseInt(data.totalbusinesscost[0]));
                 totalbusinesscost += parseInt(data.totalbusinesscost[0]);
-                console.log("TBC2: " + totalbusinesscost);
             }
-            
+            if (event.type == "mail"){
+                totalmail += 1;
+            }
+            if (data.volume){
+                totalvolume += parseInt(data.volume[0]);
+            }
+            if (data.weight){
+                totalweight += parseInt(data.weight[0]);
+            }
+            if (event.type == "mail"){
+                mailEvents.push({
+                    event: event
+                })
+            }
+            for (var j = index; j < mailEvents.length; j++){
+                var origin = mailEvents.origin[j];
+            }
+            console.log("MAIL EVENT ARRAY: " + mailEvents);
+            console.log("ORIGIN: " + origin);
         }
         //1. calculate business figures
         //2. show events[i]
-        res.render('logs', {customercost: totalcustomercost, businesscost: totalbusinesscost, events: json.events.event[index],index: index + 1, loggedin: req.session.manager ? true : false});
+        res.render('logs',
+            {customercost: totalcustomercost,
+                businesscost: totalbusinesscost,
+                volume: totalvolume,
+                weight: totalweight,
+                mails: totalmail,
+                events: json.events.event[index],
+                index: index + 1,
+                loggedin: req.session.manager ? true : false});
     });
 });
 
