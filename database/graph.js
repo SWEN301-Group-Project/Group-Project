@@ -114,9 +114,9 @@ var findDomesticRoute = function (mail, data) {
             }
             this.data.routeTaken.reverse();
             this.data.costToCompany = this.cost;
-            this.data.departureTime = nodes[mail.destination].waitTime + sentDate;
-            this.data.duration = nodes[mail.destination].timeToHere - sentDate;
-            this.data.estArrival = nodes[mail.destination].timeToHere;
+            this.data.departureTime = new Date((nodes[mail.origin].waitTime * 3600000) + sentDate);
+            this.data.duration = nodes[mail.destination].timeToHere;
+            this.data.estArrival = new Date((nodes[mail.destination].timeToHere * 3600000) + sentDate);
             this.data.errorMessage = false;
             console.log("Completed");
             isGraphLoaded = false;
@@ -234,9 +234,9 @@ var findInternationalAirRoute = function(mail, data){
             }
             this.data.routeTaken.reverse();
             this.data.costToCompany = this.cost;
-            this.data.departureTime = nodes[mail.destination].waitTime + sentDate;
-            this.data.estArrival = nodes[mail.destination].timeToHere;
-            this.data.duration = nodes[mail.destination].timeToHere - sentDate;
+            this.data.departureTime = new Date((nodes[mail.origin].waitTime * 3600000) + sentDate);
+            this.data.duration = nodes[mail.destination].timeToHere;
+            this.data.estArrival = new Date((nodes[mail.destination].timeToHere * 3600000) + sentDate);
             this.data.errorMessage = false;
 
             console.log("Completed");
@@ -347,9 +347,9 @@ var findInternationalStandardRoute = function(mail, data){
             }
             this.data.routeTaken.reverse();
             this.data.costToCompany = this.cost;
-            this.data.departureTime = nodes[mail.destination].waitTime + sentDate;
-            this.data.duration = nodes[mail.destination].timeToHere - sentDate;
-            this.data.estArrival = nodes[mail.destination].timeToHere;
+            this.data.departureTime = new Date((nodes[mail.origin].waitTime * 3600000) + sentDate);
+            this.data.duration = nodes[mail.destination].timeToHere;
+            this.data.estArrival = new Date((nodes[mail.destination].timeToHere * 3600000) + sentDate);
             this.data.errorMessage = false;
             console.log("");
             isGraphLoaded = false;
@@ -552,9 +552,9 @@ var node = function (id, name, inter) {
 
 var mailRouteData = function () {
     this.routeTaken = [];//a list of route Id's, in order from origin to destination
-    this.duration; //total delivery time
-    this.departureTime;//time it left
-    this.estArrival;//estimated arrival
+    this.duration; //total delivery time in hours
+    this.departureTime;//Date it left
+    this.estArrival;//estimated arrival date
     this.costToCompany;//total cost to company
     this.costToCustomer;//customer price
     this.errorMessage;//if search was success this is false, else it contains a string
