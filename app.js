@@ -172,6 +172,7 @@ router.get("/logFile/:logFileId", function(req, res){
         //var event = json.events.event;
         console.log("in logfile id");
         var mailEvents = [];
+        var mailStats = {};
         for (var i = 0; i < (index + 1); i++){
             var event = json.events.event[i];
             var data = event.data[0];
@@ -199,8 +200,18 @@ router.get("/logFile/:logFileId", function(req, res){
             for (var j = 0; j < mailEvents.length; j++){
                 var mail = mailEvents[j].event;
                 var origin = mail.data[0].origin[0];
+                var destination = mail.data[0].destination[0];
+                if (mailStats[mailEvents.origin]){
+                    continue;
+                }
+                else{
+                    mailStats[mailEvents.origin] = [destination, 0, 0, 0];
+                }
+                console.log(j);
                 console.log("MAIL object: " + mail);
                 console.log("ORIGIN: " + origin);
+                console.log("DESTINATION: " + destination);
+                console.log(mailStats[mailEvents.origin]);
             }
         }
         //1. calculate business figures
