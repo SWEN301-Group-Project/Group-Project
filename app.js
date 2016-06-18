@@ -74,6 +74,10 @@ env.addFilter('isMailDestination', function(locationid, mail) {
     return mail ? locationid == mail.destination : false;
 });
 
+env.addFilter('round', function(value){
+    value = parseInt(value);
+    return value.toFixed(2);
+});
 
 var nunjucksDate = require('nunjucks-date');
 nunjucksDate.setDefaultFormat('YYYY-MM-DD, hh:mm:ss');
@@ -107,6 +111,7 @@ router.get("/stats/:dateOffset", function(req, res) {
     Mail.getMailStats(req.params.dateOffset, function(labels, series, range, prev, next, weekTotal, mailAmount, criticalRoutes){
         res.render('index', {
             title: 'Business Figures',
+            loggedin: req.session.manager ? true : false,
             homeActive: true,
             labels: labels,
             series: series,
@@ -125,9 +130,6 @@ router.get("/stats/:dateOffset", function(req, res) {
 // Login page
 router.get("/login", function (req, res) {
     "use strict";
-    Managers.getAllManagers(function(result){
-        console.log(result);
-    });
     res.render('login', {});
 });
 
@@ -139,8 +141,11 @@ router.post("/login", function(req, res) {
     Managers.loginManager(username, password, function(result){
         if (result){
             req.session.manager = manager; //save user in session
+            res.render("index", {loggedin: req.session.manager ? true : false});
+        } else {
+            res.render("index", {loggedin: req.session.manager ? true : false, error: "Invalid code."});
         }
-        res.render("index", {loggedin: req.session.manager ? true : false, error: "Invalid code."});
+
     });
 });
 
@@ -169,7 +174,7 @@ router.get("/logFile/:logFileId", function(req, res){
         console.log(json.events.event[index]);
         //1. calculate business figures
         //2. show events[i]
-        res.render('logs', {events: json.events.event[index], loggedin: req.session.manager ? true : false});
+        res.render('logs', {events: json.events.event[index],index: index + 1, loggedin: req.session.manager ? true : false});
     });
 });
 
@@ -248,6 +253,7 @@ router.post("/addMail", function(req,res, next){
                     var mailFindRoute = findRoute(testMail);
                     console.log("mailFindRoute:");
                     console.log(mailFindRoute);
+                    var routes = Route.getListOfRoutes(mailFindRoute.routeTaken);
                     if(mailFindRoute.routeTaken.length > 0 && !mailFindRoute.errorMessage) {
                         mail.totalcustomercost = mailFindRoute.costToCustomer;
 
