@@ -166,14 +166,32 @@ router.get("/logFile", function (req, res) {
 router.get("/logFile/:logFileId", function(req, res){
     var index = req.params.logFileId-1;
     new logFile().loadXMLDoc(function (json) {
+        var totalcustomercost = 0;
+        var totalbusinesscost = 0;
         //var event = json.events.event;
         console.log("in logfile id");
-        console.log(index);
-        console.log(json.events.event);
-        console.log(json.events.event[index]);
+        console.log(json.events.event.data);
+        for (var i = 0; i < (index + 1); i++){
+            var event = json.events.event[i];
+            console.log(event);
+            var data = event.data[0];
+            if (data.totalcustomercost){
+                console.log("TCC: " + totalcustomercost);
+                console.log("PARSE: " + parseInt(data.totalcustomercost[0]));
+                totalcustomercost += parseInt(data.totalcustomercost[0]);
+                console.log("TCC2: " + totalcustomercost);
+            }
+            if (data.totalbusinesscost){
+                console.log("TBC: " + totalbusinesscost);
+                console.log("PARSE: " + parseInt(data.totalbusinesscost[0]));
+                totalbusinesscost += parseInt(data.totalbusinesscost[0]);
+                console.log("TBC2: " + totalbusinesscost);
+            }
+            
+        }
         //1. calculate business figures
         //2. show events[i]
-        res.render('logs', {events: json.events.event[index],index: index + 1, loggedin: req.session.manager ? true : false});
+        res.render('logs', {customercost: totalcustomercost, businesscost: totalbusinesscost, events: json.events.event[index],index: index + 1, loggedin: req.session.manager ? true : false});
     });
 });
 
