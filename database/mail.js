@@ -183,19 +183,23 @@ var Mail = function (dbFile) {
                     for (var j in fullMailAmount[i].destinations) {
                         for (var k in fullMailAmount[i].destinations[j].priorities) {
                             if (fullMailAmount[i].destinations[j].priorities[k].length > 0) {
+                                var count = 0;
                                 var income = 0;
                                 var expenses = 0;
                                 for (var l in fullMailAmount[i].destinations[j].priorities[k]) {
+                                    count++;
                                     income += fullMailAmount[i].destinations[j].priorities[k][l].totalcustomercost;
                                     expenses += fullMailAmount[i].destinations[j].priorities[k][l].totalbusinesscost;
                                 }
-                                if (income < expenses) {
+
+                                var difference = (expenses-income)/count;
+
+                                if (difference > 0) {
                                     criticalRoutes.push({
                                         origin: fullMailAmount[i].origin,
                                         destination: fullMailAmount[i].destinations[j].destination,
                                         priority: fullMailAmount[i].destinations[j].priorities[k][0].priority,
-                                        income: income,
-                                        expenses: expenses
+                                        difference: difference
                                     })
                                 }
                             }
