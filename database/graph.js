@@ -86,6 +86,7 @@ var findDomesticRoute = function (mail, data) {
         nodes[node].visited = false;
         nodes[node].fromSegment = null;
         nodes[node].timeToHere = 0;
+        nodes[node].waitTime = 0;
         unvisited.push(nodes[node]);
     }
     console.log("Univisited Nodes: ");
@@ -113,6 +114,7 @@ var findDomesticRoute = function (mail, data) {
             }
             this.data.routeTaken.reverse();
             this.data.costToCompany = this.cost;
+            this.data.departureTime = nodes[mail.destination].waitTime + sentDate;
             this.data.duration = nodes[mail.destination].timeToHere - sentDate;
             this.data.estArrival = nodes[mail.destination].timeToHere;
             this.data.errorMessage = false;
@@ -149,6 +151,10 @@ var findDomesticRoute = function (mail, data) {
 
                 this.waitTime = (segment.frequency - ((24 * this.days + this.hours) % segment.frequency));
             }
+            //if the currentNode is the origin, the wait time is also the departure time
+            if(this.currentNode === nodes[mail.origin]){
+              this.data.departureTime = this.waitTime;
+            }
 
             //calculate tentative travelPenalty. Compare tentative travelPenalty to the current assigned value
             //assign the smaller one.
@@ -157,6 +163,7 @@ var findDomesticRoute = function (mail, data) {
                 segment.endNode.travelPenalty = this.currentNode.travelPenalty + segment.duration + this.waitTime;
                 segment.endNode.timeToHere = this.currentNode.travelPenalty + segment.duration + this.waitTime;
                 segment.endNode.fromSegment = segment;
+                this.currentNode.waitTime = this.waitTime;
             }
         }
         //When we are done considering all of the neighbors of the current node,
@@ -201,6 +208,7 @@ var findInternationalAirRoute = function(mail, data){
         nodes[node].visited = false;
         nodes[node].fromSegment = null;
         nodes[node].timeToHere = 0;
+        nodes[node].waitTime = 0;
         unvisited.push(nodes[node]);
     }
 
@@ -226,6 +234,7 @@ var findInternationalAirRoute = function(mail, data){
             }
             this.data.routeTaken.reverse();
             this.data.costToCompany = this.cost;
+            this.data.departureTime = nodes[mail.destination].waitTime + sentDate;
             this.data.estArrival = nodes[mail.destination].timeToHere;
             this.data.duration = nodes[mail.destination].timeToHere - sentDate;
             this.data.errorMessage = false;
@@ -263,6 +272,7 @@ var findInternationalAirRoute = function(mail, data){
                     segment.endNode.travelPenalty = this.currentNode.travelPenalty + segment.duration + this.waitTime;
                     segment.endNode.timeToHere = this.currentNode.travelPenalty + segment.duration + this.waitTime;
                     segment.endNode.fromSegment = segment;
+                    this.currentNode.waitTime = this.waitTime;
                 }
             }
         }
@@ -309,6 +319,7 @@ var findInternationalStandardRoute = function(mail, data){
         nodes[node].visited = false;
         nodes[node].fromSegment = null;
         nodes[node].timeToHere = 0;
+        nodes[node].waitTime = 0;
         unvisited.push(nodes[node]);
     }
 
@@ -336,6 +347,7 @@ var findInternationalStandardRoute = function(mail, data){
             }
             this.data.routeTaken.reverse();
             this.data.costToCompany = this.cost;
+            this.data.departureTime = nodes[mail.destination].waitTime + sentDate;
             this.data.duration = nodes[mail.destination].timeToHere - sentDate;
             this.data.estArrival = nodes[mail.destination].timeToHere;
             this.data.errorMessage = false;
@@ -380,6 +392,7 @@ var findInternationalStandardRoute = function(mail, data){
                     segment.endNode.travelPenalty = this.currentNode.travelPenalty + this.weightCost + this.volumeCost + this.airPenalty;
                     segment.endNode.timeToHere = this.currentNode.timeToHere + segment.duration + this.waitTime;
                     segment.endNode.fromSegment = segment;
+                    this.currentNode.waitTime = this.waitTime;
                 }
             }
         }
@@ -532,6 +545,7 @@ var node = function (id, name, inter) {
     this.timeToHere = 0;
     this.visited = false;
     this.fromSegment = null;
+    this.waitTime = 0;
     this.international = inter;
 };
 
