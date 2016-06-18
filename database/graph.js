@@ -112,7 +112,7 @@ var findDomesticRoute = function (mail, data) {
                 route.push(this.currentNode.fromSegment.startNode.name);
                 route.push(this.currentNode.fromSegment.endNode.name);
                 this.data.routeTakenName.push(route);
-                console.log(this.currentNode.fromSegment);
+
                 this.data.routeTaken.push(this.currentNode.fromSegment.id);
                 console.log(this.currentNode.name + " from " + this.currentNode.fromSegment.startNode.name);
                 this.cost += (this.currentNode.fromSegment.weightCost * mail.weight) + (this.currentNode.fromSegment.volumeCost * mail.volume);
@@ -234,12 +234,18 @@ var findInternationalAirRoute = function(mail, data){
             this.cost = 0;
             this.currentNode = nodes[mail.destination];
             while (this.currentNode != nodes[mail.origin]) {
+                var route = [];
+                route.push(this.currentNode.fromSegment.startNode.name);
+                route.push(this.currentNode.fromSegment.endNode.name);
+                this.data.routeTakenName.push(route);
+
                 this.data.routeTaken.push(this.currentNode.fromSegment.id);
                 console.log(this.currentNode.name + " from " + this.currentNode.fromSegment.startNode.name);
                 this.cost += (this.currentNode.fromSegment.weightCost * mail.weight) + (this.currentNode.fromSegment.volumeCost * mail.volume);
                 this.currentNode = this.currentNode.fromSegment.startNode;
             }
             this.data.routeTaken.reverse();
+            this.data.routeTakenName.reverse();
             this.data.costToCompany = this.cost;
             this.data.departureTime = new Date((nodes[mail.origin].waitTime * 3600000) + sentDate);
             this.data.duration = nodes[mail.destination].timeToHere;
@@ -347,12 +353,18 @@ var findInternationalStandardRoute = function(mail, data){
             this.cost = 0;
             this.currentNode = nodes[mail.destination];
             while (this.currentNode != nodes[mail.origin]) {
+                var route = [];
+                route.push(this.currentNode.fromSegment.startNode.name);
+                route.push(this.currentNode.fromSegment.endNode.name);
+                this.data.routeTakenName.push(route);
+
                 this.data.routeTaken.push(this.currentNode.fromSegment.id);
                 console.log(this.currentNode.name + " from " + this.currentNode.fromSegment.startNode.name);
                 this.cost += (this.currentNode.fromSegment.weightCost * mail.weight) + (this.currentNode.fromSegment.volumeCost * mail.volume);
                 this.currentNode = this.currentNode.fromSegment.startNode;
             }
             this.data.routeTaken.reverse();
+            this.data.routeTakenName.reverse();
             this.data.costToCompany = this.cost;
             this.data.departureTime = new Date((nodes[mail.origin].waitTime * 3600000) + sentDate);
             this.data.duration = nodes[mail.destination].timeToHere;

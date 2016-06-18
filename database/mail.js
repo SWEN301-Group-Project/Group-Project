@@ -36,7 +36,7 @@ var Mail = function (dbFile) {
     this.db = new sqlite3.Database(this._dbFile);
 
     this.getMailStats = function (stringOffset, callback) {
-        var stmt = "SELECT mailid, ORIGIN.name AS origin, DEST.name AS destination, weight, volume, priority, totalcustomercost, totalbusinesscost, date "
+        var stmt = "SELECT mailid, ORIGIN.name AS origin, DEST.name AS destination, weight, volume, priority, totalcustomercost, totalbusinesscost, duration, date "
             + "FROM mails "
             + "LEFT JOIN locations AS ORIGIN ON mails.origin = ORIGIN.locationid "
             + "LEFT JOIN locations AS DEST ON mails.destination = DEST.locationid";
@@ -245,12 +245,11 @@ var Mail = function (dbFile) {
 
         //returns list of all mail objects
         this.getAllMail = function (callback) {
-            var stmt = "SELECT mailid, ORIGIN.name AS origin, DEST.name AS destination, weight, volume, priority, totalcustomercost, totalbusinesscost, date "
+            var stmt = "SELECT mailid, ORIGIN.name AS origin, DEST.name AS destination, weight, volume, priority, totalcustomercost, totalbusinesscost, duration, date "
                 + "FROM mails "
                 + "LEFT JOIN locations AS ORIGIN ON mails.origin = ORIGIN.locationid "
                 + "LEFT JOIN locations AS DEST ON mails.destination = DEST.locationid";
 
-//    var stmt = "SELECT * from mails";
             //need to join table with location
             this.db.all(stmt, function (err, rows) {
                 if (err) {
@@ -266,7 +265,7 @@ var Mail = function (dbFile) {
 //The paramter: dateAsString must be string representation of date.
 // e.g. new Date().toISOString();
         this.getMailByDate = function (dateAsString, callback) {
-            var stmt = "SELECT mailid, ORIGIN.name AS origin, DEST.name AS destination, weight, volume, priority, totalcustomercost, totalbusinesscost, date "
+            var stmt = "SELECT mailid, ORIGIN.name AS origin, DEST.name AS destination, weight, volume, priority, totalcustomercost, totalbusinesscost, duration, date "
                 + "FROM mails "
                 + "LEFT JOIN locations AS ORIGIN ON mails.origin = ORIGIN.locationid "
                 + "LEFT JOIN locations AS DEST ON mails.origin = DEST.locationid "
@@ -282,7 +281,7 @@ var Mail = function (dbFile) {
         },
 //returns mail object that has id == mailid
         this.getMailById = function (mailid, callback) {
-            var stmt = "SELECT mailid, ORIGIN.name AS origin, DEST.name AS destination, weight, volume, priority, totalcustomercost, totalbusinesscost, date "
+            var stmt = "SELECT mailid, ORIGIN.name AS origin, DEST.name AS destination, weight, volume, priority, totalcustomercost, totalbusinesscost, duration, date "
                 + "FROM mails "
                 + "LEFT JOIN locations AS ORIGIN ON mails.origin = ORIGIN.locationid "
                 + "LEFT JOIN locations AS DEST ON mails.origin = DEST.locationid "
@@ -311,7 +310,10 @@ var Mail = function (dbFile) {
 //Origin and destination are foreign keys so they must be integers
 //PostCondition: if return value > 0 ==> mail inserted sucessfully
         this.insertMail = function (mail, callback) {
-            var stmt = this.db.prepare("INSERT INTO mails (origin, destination, weight, volume, priority, totalcustomercost, totalbusinesscost, date) VALUES (?, ?, ?, ?, ?, ?, ?, ?) ");
+            if (!mail.duration){
+                mail.duration = 0.00;
+            }
+            var stmt = this.db.prepare("INSERT INTO mails (origin, destination, weight, volume, priority, totalcustomercost, totalbusinesscost, duration, date) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) ");
 
             stmt.run([
                 mail.origin,
@@ -321,6 +323,7 @@ var Mail = function (dbFile) {
                 mail.priority,
                 mail.totalcustomercost,
                 mail.totalbusinesscost,
+                mail.duration,
                 new Date().toISOString()
 
             ], function (err) {
@@ -356,7 +359,10 @@ var Mail = function (dbFile) {
 //the newMail object must be similar to mail object of insertMail paramters
 //Returns the number of rows changed
         this.updateMail = function (mailid, newMail, callback) {
-            this.db.run("UPDATE mails SET origin = $origin, destination=$destination, weight=$weight, volume=$volume, priority=$priority, totalcustomercost=$totalcustomercost, totalbusinesscost=$totalbusinesscost, date=$date WHERE mailid = $id", {
+            if (!newMail.duration){
+                newMail.duration = 0.00;
+            }
+            this.db.run("UPDATE mails SET origin = $origin, destination=$destination, weight=$weight, volume=$volume, priority=$priority, totalcustomercost=$totalcustomercost, totalbusinesscost=$totalbusinesscost, duration=$duration, date=$date WHERE mailid = $id", {
                 $id: mailid,
                 $origin: newMail.origin,
                 $destination: newMail.destination,
@@ -365,6 +371,7 @@ var Mail = function (dbFile) {
                 $priority: newMail.priority,
                 $totalcustomercost: newMail.totalcustomercost,
                 $totalbusinesscost: newMail.totalbusinesscost,
+                $duration: newMail.duration,
                 $date: new Date().toISOString()
             }, function (err) {
                 if (err) {
@@ -375,8 +382,7 @@ var Mail = function (dbFile) {
                 }
             });
         }
-
-
+    
 };
 
 module.exports.Mail = Mail;

@@ -75,7 +75,7 @@ env.addFilter('isMailDestination', function(locationid, mail) {
 });
 
 env.addFilter('round', function(value){
-    value = parseInt(value);
+    value = parseFloat(value);
     return value.toFixed(2);
 });
 
@@ -292,9 +292,10 @@ router.post("/addMail", function(req,res, next){
                     console.log(mailFindRoute);
 
                     if(mailFindRoute.routeTaken.length > 0 && !mailFindRoute.errorMessage) {
-
+                        mail.duration = mailFindRoute.duration;
                         mail.totalcustomercost = mailFindRoute.costToCustomer;
                         mail.totalbusinesscost = mailFindRoute.costToCompany;
+                        req.session.mail = mail; //resave mail into session
                         res.render('confirmMail', {
                             mail: mail,
                             title: "Mails",
@@ -333,7 +334,7 @@ router.post("/addMail", function(req,res, next){
 
 router.get('/confirmMail', function(req,res){
     //insert mail
-    console.log
+    "use strict";
     var mail = req.session.mail;
     console.log('confirmMail');
     console.log(mail);

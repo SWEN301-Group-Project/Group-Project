@@ -75,6 +75,7 @@ function Database(){
                     + 'priority TEXT, '
                     + 'totalcustomercost REAL, '
                     + 'totalbusinesscost REAL, '
+                    + 'duration REAL, '
                     + 'date TEXT, ' //storing date as string since it is simplest to work with javascript date object
                     + 'FOREIGN KEY(origin) REFERENCES locations(locationid), '
                     + 'FOREIGN KEY(destination) REFERENCES locations(locationid) '
@@ -90,7 +91,6 @@ function Database(){
                     + 'FOREIGN KEY(origin) REFERENCES locations(locationid), '
                     + 'FOREIGN KEY(destination) REFERENCES locations(locationid) '
                     + ')');
-
                 db.run('CREATE TABLE IF NOT EXISTS managers ('
                     + 'managerid INTEGER PRIMARY KEY, '
                     + 'username TEXT, '
