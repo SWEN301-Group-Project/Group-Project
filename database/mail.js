@@ -3,7 +3,8 @@ var sqlite3 = require("sqlite3").verbose(),
 // dbFile = "./database/test.db",
 // db = new sqlite3.Database(dbFile),
     Company = require('./company'),
-    Location = require('./location');
+    Location = require('./location'),
+    priorities = ['DOMESTIC AIR', 'DOMESTIC STANDARD', 'INTERNATIONAL AIR', 'INTERNATIONAL STANDARD'];
 /*
  A mail object looks like:
  var mail = {
@@ -101,56 +102,104 @@ var Mail = function (dbFile) {
                 //this logic will end up a bit ugly :(
                 //may the gods of computer science have mercy on me for this hackery.
 
-                var mailAmount = [];
+                var fullMailAmount = [];
 
                 for (var i in weekRows) {
                     var originMatch = false;
 
-                    for (var j in mailAmount) {
-                        if (mailAmount[j].origin == weekRows[i].origin) {
+                    for (var j in fullMailAmount) {
+                        if (fullMailAmount[j].origin == weekRows[i].origin) {
                             originMatch = true;
 
                             var destinationMatch = false;
-                            for (var k = 0; k < mailAmount[j].destinations.length; k++) {
-                                if (mailAmount[j].destinations[k].destination == weekRows[i].destination) {
+                            for (var k = 0; k < fullMailAmount[j].destinations.length; k++) {
+                                if (fullMailAmount[j].destinations[k].destination == weekRows[i].destination) {
                                     destinationMatch = true;
-                                    mailAmount[j].destinations[k].totalNumber += 1;
-                                    mailAmount[j].destinations[k].totalVolume
-                                        = mailAmount[j].destinations[k].totalVolume + weekRows[i].volume;
-                                    mailAmount[j].destinations[k].totalWeight
-                                        = mailAmount[j].destinations[k].totalWeight + weekRows[i].weight;
-                                    mailAmount[j].destinations[k].totalIncome
-                                        = mailAmount[j].destinations[k].totalIncome + weekRows[i].totalcustomercost;
-                                    mailAmount[j].destinations[k].totalExpenses
-                                        = mailAmount[j].destinations[k].totalExpenses + weekRows[i].totalbusinesscost;
+                                    fullMailAmount[j].destinations[k].priorities[priorities.indexOf(weekRows[i].priority)].push(weekRows[i]);
                                 }
                             }
 
                             if (!destinationMatch) {
-                                mailAmount[j].destinations.push({
+                                fullMailAmount[j].destinations.push({
                                     destination: weekRows[i].destination,
-                                    totalNumber: 1,
-                                    totalVolume: weekRows[i].volume,
-                                    totalWeight: weekRows[i].weight,
-                                    totalIncome: weekRows[i].totalcustomercost,
-                                    totalExpenses: weekRows[i].totalbusinesscost
-                                })
+                                    priorities: [[], [], [], []]
+                                });
+                                var k = fullMailAmount[j].destinations.length - 1;
+                                fullMailAmount[j].destinations[k].priorities[priorities.indexOf(weekRows[i].priority)].push(weekRows[i]);
                             }
                         }
                     }
 
                     if (!originMatch) {
-                        mailAmount.push({
+                        var j = fullMailAmount.length;
+                        fullMailAmount.push({
                             origin: weekRows[i].origin,
                             destinations: [{
                                 destination: weekRows[i].destination,
-                                totalNumber: 1,
-                                totalVolume: weekRows[i].volume,
-                                totalWeight: weekRows[i].weight,
-                                totalIncome: weekRows[i].totalcustomercost,
-                                totalExpenses: weekRows[i].totalbusinesscost
+                                priorities: [[], [], [], []]
                             }]
                         });
+                        fullMailAmount[j].destinations[0].priorities[priorities.indexOf(weekRows[i].priority)].push(weekRows[i]);
+                    }
+                }
+
+                // need to extract the details for each origin and destination, ignoring priorities
+                var mailAmount = [];
+
+                for (var i in fullMailAmount) {
+                    mailAmount.push({
+                        origin: fullMailAmount[i].origin,
+                        destinations: []
+                    });
+                    for (var j in fullMailAmount[i].destinations) {
+                        mailAmount[i].destinations.push({
+                            destination: fullMailAmount[i].destinations[j].destination,
+                            totalNumber: 0,
+                            totalVolume: 0,
+                            totalWeight: 0,
+                            totalIncome: 0,
+                            totalExpenses: 0
+                        })
+                        for (var k in fullMailAmount[i].destinations[j].priorities) {
+                            for (var l in fullMailAmount[i].destinations[j].priorities[k]) {
+                                mailAmount[i].destinations[j].totalNumber++;
+                                mailAmount[i].destinations[j].totalVolume
+                                   += fullMailAmount[i].destinations[j].priorities[k][l].volume;
+                                mailAmount[i].destinations[j].totalWeight
+                                    += fullMailAmount[i].destinations[j].priorities[k][l].weight;
+                                mailAmount[i].destinations[j].totalIncome
+                                    += fullMailAmount[i].destinations[j].priorities[k][l].totalcustomercost;
+                                mailAmount[i].destinations[j].totalExpenses
+                                    += fullMailAmount[i].destinations[j].priorities[k][l].totalbusinesscost;
+                            }
+                        }
+                    }
+                }
+
+                // also need to calculate critical routes!
+                var criticalRoutes = [];
+
+                for (var i in fullMailAmount) {
+                    for (var j in fullMailAmount[i].destinations) {
+                        for (var k in fullMailAmount[i].destinations[j].priorities) {
+                            if (fullMailAmount[i].destinations[j].priorities[k].length > 0) {
+                                var income = 0;
+                                var expenses = 0;
+                                for (var l in fullMailAmount[i].destinations[j].priorities[k]) {
+                                    income += fullMailAmount[i].destinations[j].priorities[k][l].totalcustomercost;
+                                    expenses += fullMailAmount[i].destinations[j].priorities[k][l].totalbusinesscost;
+                                }
+                                if (income < expenses) {
+                                    criticalRoutes.push({
+                                        origin: fullMailAmount[i].origin,
+                                        destination: fullMailAmount[i].destinations[j].destination,
+                                        priority: fullMailAmount[i].destinations[j].priorities[k][0].priority,
+                                        income: income,
+                                        expenses: expenses
+                                    })
+                                }
+                            }
+                        }
                     }
                 }
 
@@ -171,8 +220,6 @@ var Mail = function (dbFile) {
                     weekTotal.expenses += weekRows[i].totalbusinesscost;
                 }
 
-                console.log(weekTotal);
-
                 // looks nicer in capitals and sorted
 
                 mailAmount.sort(function(a, b){return a.origin > b.origin});
@@ -187,7 +234,7 @@ var Mail = function (dbFile) {
                     }
                 }
 
-                callback(labels, series, range, dateOffset - 1, dateOffset + 1, weekTotal, mailAmount);
+                callback(labels, series, range, dateOffset - 1, dateOffset + 1, weekTotal, mailAmount, criticalRoutes);
             }
         });
     },
