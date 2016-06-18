@@ -107,12 +107,19 @@ var findDomesticRoute = function (mail, data) {
             this.cost = 0;
             this.currentNode = nodes[mail.destination];
             while (this.currentNode != nodes[mail.origin]) {
+                // this.data.routeTakenName.push(this.currentNode.fromSegment.)
+                var route = [];
+                route.push(this.currentNode.fromSegment.startNode.name);
+                route.push(this.currentNode.fromSegment.endNode.name);
+                this.data.routeTakenName.push(route);
+                console.log(this.currentNode.fromSegment);
                 this.data.routeTaken.push(this.currentNode.fromSegment.id);
                 console.log(this.currentNode.name + " from " + this.currentNode.fromSegment.startNode.name);
                 this.cost += (this.currentNode.fromSegment.weightCost * mail.weight) + (this.currentNode.fromSegment.volumeCost * mail.volume);
                 this.currentNode = this.currentNode.fromSegment.startNode;
             }
             this.data.routeTaken.reverse();
+            this.data.routeTakenName.reverse();
             this.data.costToCompany = this.cost;
             this.data.departureTime = new Date((nodes[mail.origin].waitTime * 3600000) + sentDate);
             this.data.duration = nodes[mail.destination].timeToHere;
@@ -120,7 +127,6 @@ var findDomesticRoute = function (mail, data) {
             this.data.errorMessage = false;
             console.log("Completed");
             isGraphLoaded = false;
-            console.log(this);
             return this.data;
         }
         //date and time mail arrived at current node
@@ -553,6 +559,7 @@ var node = function (id, name, inter) {
 
 var mailRouteData = function () {
     this.routeTaken = [];//a list of route Id's, in order from origin to destination
+    this.routeTakenName = []; //a list of route names's, in order from origin to destination
     this.duration; //total delivery time in hours
     this.departureTime;//Date it left
     this.estArrival;//estimated arrival date

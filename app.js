@@ -271,10 +271,10 @@ router.post("/addMail", function(req,res, next){
                     var mailFindRoute = findRoute(testMail);
                     console.log("mailFindRoute:");
                     console.log(mailFindRoute);
-                    var routes = Route.getListOfRoutes(mailFindRoute.routeTaken);
-                    if(mailFindRoute.routeTaken.length > 0 && !mailFindRoute.errorMessage) {
-                        mail.totalcustomercost = mailFindRoute.costToCustomer;
 
+                    if(mailFindRoute.routeTaken.length > 0 && !mailFindRoute.errorMessage) {
+
+                        mail.totalcustomercost = mailFindRoute.costToCustomer;
                         mail.totalbusinesscost = mailFindRoute.costToCompany;
                         res.render('confirmMail', {
                             mail: mail,
@@ -282,7 +282,11 @@ router.post("/addMail", function(req,res, next){
                             loggedin: req.session.manager ? true : false,
                             origin: originLocation,
                             destination: destinationLocation,
-                            mailActive: true
+                            mailActive: true,
+                            routes: mailFindRoute.routeTakenName,
+                            departureTime: mailFindRoute.departureTime,
+                            duration: mailFindRoute.duration,
+                            arrivalTime: mailFindRoute.estArrival
                         });
                     } else {
                         Location.getAllLocations(function(locations){
