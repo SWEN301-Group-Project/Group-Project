@@ -57,40 +57,40 @@
                             <div class="content">
                                 <form method="get" action="/confirmMail" id="mailform">
                                     <h3>Mail will be dispatched: {day and date from graph}</h3>
-                                    <div class="form-group row">
+                                    <div class="form-group">
                                         <label class="col-sm-2 form-control-label">Origin</label>
                                         <div class="col-sm-10">
-                                            <p class="form-control-static">{{origin.name}}</p>
+                                            <p class="form-control-static">{{origin.name | capitalize}}</p>
                                         </div>
                                     </div>
-                                    <div class="form-group row">
+                                    <div class="form-group">
                                         <label class="col-sm-2 form-control-label">Destination</label>
                                         <div class="col-sm-10">
-                                            <p class="form-control-static">{{destination.name}}</p>
+                                            <p class="form-control-static">{{destination.name | capitalize}}</p>
                                         </div>
                                     </div>
-                                    <div class="form-group row">
+                                    <div class="form-group">
                                         <label class="col-sm-2 form-control-label">Weight</label>
                                         <div class="col-sm-10">
-                                            <p class="form-control-static">{{mail.weight}}</p>
+                                            <p class="form-control-static">{{mail.weight | round}} grams</p>
                                         </div>
                                     </div>
-                                    <div class="form-group row">
+                                    <div class="form-group">
                                         <label class="col-sm-2 form-control-label">Volume</label>
                                         <div class="col-sm-10">
-                                            <p class="form-control-static">{{mail.volume}}</p>
+                                            <p class="form-control-static">{{mail.volume | round}} cm<sup>3</sup></p>
                                         </div>
                                     </div>
-                                    <div class="form-group row">
+                                    <div class="form-group">
                                         <label class="col-sm-2 form-control-label">Priority</label>
                                         <div class="col-sm-10">
                                             <p class="form-control-static">{{mail.priority}}</p>
                                         </div>
                                     </div>
-                                    <div class="form-group row">
+                                    <div class="form-group">
                                         <label class="col-sm-2 form-control-label">Cost</label>
                                         <div class="col-sm-10">
-                                            <p class="form-control-static">${{mail.totalbusinesscost}}</p>
+                                            <p class="form-control-static">${{mail.totalbusinesscost | round}}</p>
                                         </div>
                                     </div>
                                     <div>
