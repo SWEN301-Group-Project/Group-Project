@@ -63,4 +63,19 @@
             <totalbusinesscost>15</totalbusinesscost>
         </data>
     </event>
+
+    <event>
+        <type>mail</type>
+        <action>create</action>
+        <data>
+            <mailid>2</mailid>
+            <origin>Auckland</origin>
+            <destination>Sydney</destination>
+            <weight>4.0</weight>
+            <volume>3.0</volume>
+            <priority>Domestic Air</priority>
+            <totalcustomercost>25</totalcustomercost>
+            <totalbusinesscost>20</totalbusinesscost>
+        </data>
+    </event>
 </events>
