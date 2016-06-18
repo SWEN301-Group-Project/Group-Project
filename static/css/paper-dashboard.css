@@ -1259,7 +1259,22 @@ textarea.form-control {
   padding: 15px 8px;
 }
 
-.caption-table {
+/* Stats CSS */
+
+.stats-graph {
+  color: rgb(119, 119, 119);
+  text-align: center;
+  font-size: 2em;
+  font-weight: 600;
+}
+
+.stats-nav {
+  text-align: center;
+  font-size: 1.5em;
+  font-weight: 600;
+}
+
+.stats-table {
   text-align: center;
   font-size: 1.5em;
   font-weight: 600;

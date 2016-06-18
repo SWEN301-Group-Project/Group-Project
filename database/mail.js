@@ -68,6 +68,7 @@ var Mail = function (dbFile) {
                     [0, 0, 0, 0, 0, 0, 0]
                 ];
 
+                // will be only the rows for this week
                 var weekRows = [];
 
                 // This is super inefficient, looping over each entry in the database
@@ -118,6 +119,10 @@ var Mail = function (dbFile) {
                                         = mailAmount[j].destinations[k].totalVolume + weekRows[i].volume;
                                     mailAmount[j].destinations[k].totalWeight
                                         = mailAmount[j].destinations[k].totalWeight + weekRows[i].weight;
+                                    mailAmount[j].destinations[k].totalIncome
+                                        = mailAmount[j].destinations[k].totalIncome + weekRows[i].totalcustomercost;
+                                    mailAmount[j].destinations[k].totalExpenses
+                                        = mailAmount[j].destinations[k].totalExpenses + weekRows[i].totalbusinesscost;
                                 }
                             }
 
@@ -126,7 +131,9 @@ var Mail = function (dbFile) {
                                     destination: weekRows[i].destination,
                                     totalNumber: 1,
                                     totalVolume: weekRows[i].volume,
-                                    totalWeight: weekRows[i].weight
+                                    totalWeight: weekRows[i].weight,
+                                    totalIncome: weekRows[i].totalcustomercost,
+                                    totalExpenses: weekRows[i].totalbusinesscost
                                 })
                             }
                         }
@@ -139,11 +146,32 @@ var Mail = function (dbFile) {
                                 destination: weekRows[i].destination,
                                 totalNumber: 1,
                                 totalVolume: weekRows[i].volume,
-                                totalWeight: weekRows[i].weight
+                                totalWeight: weekRows[i].weight,
+                                totalIncome: weekRows[i].totalcustomercost,
+                                totalExpenses: weekRows[i].totalbusinesscost
                             }]
                         });
                     }
                 }
+
+                // calculate the total for the week
+                var weekTotal = {
+                    number: 0,
+                    volume: 0,
+                    weight: 0,
+                    income: 0,
+                    expenses: 0
+                };
+
+                for (var i in weekRows) {
+                    weekTotal.number += 1;
+                    weekTotal.volume += weekRows[i].volume;
+                    weekTotal.weight += weekRows[i].weight;
+                    weekTotal.income += weekRows[i].totalcustomercost;
+                    weekTotal.expenses += weekRows[i].totalbusinesscost;
+                }
+
+                console.log(weekTotal);
 
                 // looks nicer in capitals and sorted
 
@@ -159,7 +187,7 @@ var Mail = function (dbFile) {
                     }
                 }
 
-                callback(labels, series, range, dateOffset - 1, dateOffset + 1, mailAmount);
+                callback(labels, series, range, dateOffset - 1, dateOffset + 1, weekTotal, mailAmount);
             }
         });
     },

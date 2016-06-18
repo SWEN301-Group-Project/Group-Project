@@ -46,10 +46,12 @@
                     <div class="col-md-12">
                         <div class="card">
                             <div class="header">
-                                <h4 class="title">Weekly income and expenses</h4>
-                                <p class="category">For the week of {{ dateRange }}</p>
-                                <a href="{{ prevDate }}">Previous</a>
-                                <a href="{{ nextDate }}">Next</a>
+                                <p class="stats-graph">Weekly Income and Expenses</p>
+                                <p class="stats-graph">{{ dateRange }}</p>
+                                <div class="stats-nav">
+                                    <a href="{{ prevDate }}">Previous</a>
+                                    <a href="{{ nextDate }}">Next</a>
+                                </div>
                             </div>
                             <div>
                             </div>
@@ -64,15 +66,40 @@
                             </div>
                         </div>
                         <div class="card">
+                            <table class="table table-responsive">
+                                <caption class="stats-table">Totals for week</caption>
+                                <thead>
+                                <tr>
+                                    <th>Number</th>
+                                    <th>Volume</th>
+                                    <th>Weight</th>
+                                    <th>Income</th>
+                                    <th>Expenses</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td>{{weekTotal.number}}</td>
+                                    <td>{{weekTotal.volume}}</td>
+                                    <td>{{weekTotal.weight}}</td>
+                                    <td>{{weekTotal.income}}</td>
+                                    <td>{{weekTotal.expenses}}</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="card">
                             {% for origin in mailAmount %}
                             <table class="table table-striped table-responsive">
-                                <caption class="caption-table">Origin: {{origin.origin}}</caption>
+                                <caption class="stats-table">Origin: {{origin.origin}}</caption>
                                 <thead>
                                     <tr>
                                         <th>Destination</th>
                                         <th>Number</th>
                                         <th>Volume</th>
                                         <th>Weight</th>
+                                        <th>Income</th>
+                                        <th>Expenses</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -82,6 +109,8 @@
                                      <td>{{destination.totalNumber}}</td>
                                      <td>{{destination.totalVolume}}</td>
                                      <td>{{destination.totalWeight}}</td>
+                                     <td>{{destination.totalIncome}}</td>
+                                     <td>{{destination.totalExpenses}}</td>
                                  </tr>
                                  {% endfor %}
                                 </tbody>
