@@ -55,7 +55,7 @@
         <data>
             <mailid>1</mailid>
             <origin>Wellington</origin>
-            <destination>Sydney</destination>
+            <destination>Hamilton</destination>
             <weight>7.0</weight>
             <volume>6.0</volume>
             <priority>Domestic Air</priority>

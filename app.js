@@ -198,11 +198,12 @@ router.get("/logFile/:logFileId", function(req, res){
             }
         }
             console.log(mailEvents);
+            console.log("mailEvents.length: " + mailEvents.length);
             for (var j = 0; j < mailEvents.length; j++){
                 var mail = mailEvents[j].event;
                 var origin = mail.data[0].origin[0];
                 var destination = mail.data[0].destination[0];
-                if (mailStats[mailEvents.origin]){
+                if (mailStats[mail.data[0].origin]){
                     continue;
                 }
                 else{
