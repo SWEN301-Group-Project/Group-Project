@@ -25,16 +25,16 @@ var findRoute = function(mail){
         var price = prices[i];
         console.log("Price: ");
         console.log(price);
-        console.log(price.destination);
-        console.log(mail.destination);
+        console.log(price);
+        console.log(mail);
         if (price.destination === mail.destination && price.origin === mail.origin) {
-          if(((mail.priority.toUpperCase() === "DOMESTIC AIR" || mail.priority.toUpperCase() === "INTERNATIONAL AIR") && price.priority.toUpperCase() === "AIR") || ((mail.priority.toUpperCase() === "DOMESTIC STANDARD" || mail.priority.toUpperCase() === "INTERNATIONAL STANDARD") && (price.priority.toUpperCase() === "LAND" || price.priority.toUpperCase() === "SEA"))){
+          // if(((mail.priority.toUpperCase() === "DOMESTIC AIR" || mail.priority.toUpperCase() === "INTERNATIONAL AIR") && price.priority.toUpperCase() === "AIR") || ((mail.priority.toUpperCase() === "DOMESTIC STANDARD" || mail.priority.toUpperCase() === "INTERNATIONAL STANDARD") && (price.priority.toUpperCase() === "LAND" || price.priority.toUpperCase() === "SEA"))){
             this.wCost = price.weightcost * mail.weight;
             this.vCost = price.volumecost * mail.volume;
             this.data.costToCustomer = this.wCost + this.vCost;
             console.log("Found destination and origin in database");
             break;
-          }
+          // }
         }
         if (i == (prices.length - 1)) {
             this.data.errorMessage = "We don't ship from " + mail.origin + " to " + mail.destination;
@@ -120,6 +120,7 @@ var findDomesticRoute = function (mail, data) {
             this.data.errorMessage = false;
             console.log("Completed");
             isGraphLoaded = false;
+            console.log(this);
             return this.data;
         }
         //date and time mail arrived at current node
@@ -133,12 +134,12 @@ var findDomesticRoute = function (mail, data) {
                 console.log("segment");
                 console.log(segment);
                 //calculate time for next departure
-                this.currentDay = new Date(this.arrivalTime).getDay();
+                this.currentDay = new Date(this.arrivalTime).getDay(); //today
                 console.log("currentDay: " + this.currentDay);
-                this.routeStart = segment.day;
+                this.routeStart = segment.day; //day mail is sent from this route
                 console.log("routeStart: " + this.routeStart);
                 this.hours = ((this.arrivalTime) / 3600000) % 24;
-                this.days = 0;
+                this.days = 0; //
                 if (this.currentDay === this.routeStart) {
                     this.days = 0;
                 }

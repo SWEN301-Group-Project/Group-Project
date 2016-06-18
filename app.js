@@ -252,6 +252,7 @@ router.post("/addMail", function(req,res, next){
                     var mailFindRoute = findRoute(testMail);
                     console.log("mailFindRoute:");
                     console.log(mailFindRoute);
+                    var routes = Route.getListOfRoutes(mailFindRoute.routeTaken);
                     if(mailFindRoute.routeTaken.length > 0 && !mailFindRoute.errorMessage) {
                         mail.totalcustomercost = mailFindRoute.costToCustomer;
 
