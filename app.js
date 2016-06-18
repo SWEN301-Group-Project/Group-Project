@@ -120,11 +120,6 @@ router.get("/stats/:dateOffset", function(req, res) {
     //res.render('index',{title: "Dashboard", homeActive: true});
 });
 
-router.get("/logFile", function(req, res) {
-    "use strict";
-    res.render('logFile',{loggedin: loggedin});
-});
-
 // Login page
 router.get("/login", function (req, res) {
     "use strict";
@@ -174,8 +169,6 @@ router.get("/logFile/:logFileId", function(req, res){
         //2. show events[i]
         res.render('logs', {events: json.events.event[index], loggedin: req.session.manager ? true : false});
     });
-
-
 });
 
 router.get("/logout",function(req,res) {
