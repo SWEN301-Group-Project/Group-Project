@@ -28,11 +28,13 @@ var findRoute = function(mail){
         console.log(price.destination);
         console.log(mail.destination);
         if (price.destination === mail.destination && price.origin === mail.origin) {
+          if(((mail.priority.toUpperCase() === "DOMESTIC AIR" || mail.priority.toUpperCase() === "INTERNATIONAL AIR") && price.priority.toUpperCase() === "AIR") || ((mail.priority.toUpperCase() === "DOMESTIC STANDARD" || mail.priority.toUpperCase() === "INTERNATIONAL STANDARD") && (price.priority.toUpperCase() === "LAND" || price.priority.toUpperCase() === "SEA"))){
             this.wCost = price.weightcost * mail.weight;
             this.vCost = price.volumecost * mail.volume;
             this.data.costToCustomer = this.wCost + this.vCost;
             console.log("Found destination and origin in database");
             break;
+          }
         }
         if (i == (prices.length - 1)) {
             this.data.errorMessage = "We don't ship from " + mail.origin + " to " + mail.destination;
