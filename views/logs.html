@@ -52,28 +52,218 @@
                                     <h4 class="title">Log File</h4>
                                 </div>
                                 <div class="content">
-                                    <table id="example-table" class="table table-striped table-responsive hover">
-                                        <thead>
-                                        <tr>
-                                            <th>Log Number</th>
-                                            <th>Type</th>
-                                            <th>Action</th>
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-                                        {% for event in events %}
-                                        <tr>
-                                            <td>{{event[index].type[0] | capitalize}}</td>
-                                            <td>{{event.action[0] | capitalize}}</td>
-                                        </tr>
+                                    <p>Action:
+                                        {% for action in events.action %}
+                                        {{action | capitalize}}
                                         {% endfor %}
-                                        </tbody>
-                                    </table>
+                                    </p>
+                                    <p>Type:
+                                        {% for type in events.type %}
+                                        {{type | capitalize}}
+                                        {% endfor %}
+                                    </p>
+                                    {% for data in events.data %}
+                                    {% if data.name %}
+                                        <p>Name:
+                                            {% for name in data.name %}
+                                            {{name | capitalize}}
+                                            {% endfor %}
+                                        </p>
+                                    {% endif %}
+
+                                    {% if data.isInternational %}
+                                    <p>Delivery Type:
+                                        {% for isInternational in data.isInternational %}
+                                            {% if isInternational == 1 %}
+                                                International
+                                            {% else %}
+                                                Domestic
+                                            {% endif %}
+                                        {% endfor %}
+                                    </p>
+                                    {% endif %}
+
+                                    {% if data.to %}
+                                    <p>To:
+                                        {% for to in data.to %}
+                                        {{to | capitalize}}
+                                        {% endfor %}
+                                    </p>
+                                    {% endif %}
+
+                                    {% if data.from %}
+                                    <p>From:
+                                        {% for from in data.from %}
+                                        {{from | capitalize}}
+                                        {% endfor %}
+                                    </p>
+                                    {% endif %}
+
+                                    {% if data.priority %}
+                                    <p>Priority:
+                                        {% for priority in data.priority %}
+                                        {{priority | capitalize}}
+                                        {% endfor %}
+                                    </p>
+                                    {% endif %}
+
+                                    {% if data.weightCost %}
+                                    <p>Weight Cost:
+                                        {% for weightCost in data.weightCost %}
+                                        {{weightCost | capitalize}}
+                                        {% endfor %}
+                                    </p>
+                                    {% endif %}
+
+                                    {% if data.volumeCost %}
+                                    <p>Volume Cost:
+                                        {% for volumeCost in data.volumeCost %}
+                                        {{volumeCost | capitalize}}
+                                        {% endfor %}
+                                    </p>
+                                    {% endif %}
+
+                                    {% if data.transport %}
+                                    <p>Transport method:
+                                        {% for transport in data.transport %}
+                                        {{transport | capitalize}}
+                                        {% endfor %}
+                                    </p>
+                                    {% endif %}
+
+                                    {% if data.routeid %}
+                                    <p>Route ID:
+                                        {% for routeid in data.routeid %}
+                                        {{routeid | capitalize}}
+                                        {% endfor %}
+                                    </p>
+                                    {% endif %}
+
+                                    {% if data.origin %}
+                                    <p>Origin:
+                                        {% for origin in data.origin %}
+                                        {{origin | capitalize}}
+                                        {% endfor %}
+                                    </p>
+                                    {% endif %}
+
+                                    {% if data.destination %}
+                                    <p>Destination:
+                                        {% for destination in data.destination %}
+                                        {{destination | capitalize}}
+                                        {% endfor %}
+                                    </p>
+                                    {% endif %}
+
+                                    {% if data.weightcost %}
+                                    <p>Weight Cost:
+                                        {% for weightcost in data.weightcost %}
+                                        {{weightcost | capitalize}}
+                                        {% endfor %}
+                                    </p>
+                                    {% endif %}
+
+                                    {% if data.volumecost %}
+                                    <p>Volume Cost:
+                                        {% for volumecost in data.volumecost %}
+                                        {{volumecost | capitalize}}
+                                        {% endfor %}
+                                    </p>
+                                    {% endif %}
+
+                                    {% if data.maxweight %}
+                                    <p>Max Weight:
+                                        {% for maxweight in data.maxweight %}
+                                        {{maxweight | capitalize}}
+                                        {% endfor %}
+                                    </p>
+                                    {% endif %}
+
+                                    {% if data.maxvolume %}
+                                    <p>Max Volume:
+                                        {% for maxvolume in data.maxvolume %}
+                                        {{maxvolume | capitalize}}
+                                        {% endfor %}
+                                    </p>
+                                    {% endif %}
+
+                                    {% if data.frequency %}
+                                    <p>Frequency:
+                                        {% for frequency in data.frequency %}
+                                        {{frequency | capitalize}}
+                                        {% endfor %}
+                                    </p>
+                                    {% endif %}
+
+                                    {% if data.duration %}
+                                    <p>Duration:
+                                        {% for duration in data.duration %}
+                                        {{duration | capitalize}}
+                                        {% endfor %}
+                                    </p>
+                                    {% endif %}
+
+                                    {% if data.day %}
+                                    <p>Day:
+                                        {% for day in data.day %}
+                                        {{day | capitalize}}
+                                        {% endfor %}
+                                    </p>
+                                    {% endif %}
+
+                                    {% if data.mailid %}
+                                    <p>Mail ID:
+                                        {% for mailid in data.mailid %}
+                                        {{mailid | capitalize}}
+                                        {% endfor %}
+                                    </p>
+                                    {% endif %}
+
+                                    {% if data.weight %}
+                                    <p>Weight:
+                                        {% for weight in data.weight %}
+                                        {{weight | capitalize}}
+                                        {% endfor %}
+                                    </p>
+                                    {% endif %}
+
+                                    {% if data.volume %}
+                                    <p>Volume:
+                                        {% for volume in data.volume %}
+                                        {{volume | capitalize}}
+                                        {% endfor %}
+                                    </p>
+                                    {% endif %}
+
+                                    {% if data.totalcustomercost %}
+                                    <p>Total Customer Cost:
+                                        {% for totalcustomercost in data.totalcustomercost %}
+                                        {{totalcustomercost | capitalize}}
+                                        {% endfor %}
+                                    </p>
+                                    {% endif %}
+
+                                    {% if data.totalbusinesscost %}
+                                    <p>Total Business Cost:
+                                        {% for totalbusinesscost in data.totalbusinesscost %}
+                                        {{totalbusinesscost | capitalize}}
+                                        {% endfor %}
+                                    </p>
+                                    {% endif %}
+                                    {% endfor %}
+                                    <!--<p>Total Revenue: </p>-->
+                                    <!--<p>Total Expenditure: </p>-->
+                                    <!--<p>Amount of Mail: </p>-->
+                                    <!--<p>Average Delivery Times: </p>-->
+                                    <!--<p>Critical Routes: </p>-->
                                 </div>
                                 <div class="footer">
                                     <hr />
                                     <div class="stats">
-                                        <i class="ti-reload"></i> Updated now
+                                        <a href ="/logFile/{{index - 1}}"><i class="ti-arrow-left"></i> Previous log</a>
+                                    </div>
+                                    <div class="stats pull-right">
+                                        <a class="pull-right" href ="/logFile/{{index + 1}}">Next log <i class="ti-arrow-right"></i></a>
                                     </div>
                                 </div>
                             </div>
@@ -97,22 +287,5 @@
 
 <!-- Datatables Plugin -->
 <script type="text/javascript" src="/static/js/datatables.min.js"></script>
-<script>
-    $(document).ready(function() {
-        $('#example-table').DataTable({
-            "dom": '<"search pull-left"f>rt<"bottom"lip><"clear">'
-        });
-        {% if notify %}
-        $.notify({
-            icon: 'ti-location-arrow',
-            message: "{{notify}}"
-
-        },{
-            type: '{% if notifyType %}{{notifyType}}{% else %}success{% endif %}',
-            timer: 300
-        });
-        {% endif %}
-    } );
-</script>
 
 </html>

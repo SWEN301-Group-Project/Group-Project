@@ -4,10 +4,20 @@
         <type>location</type>
         <action>create</action>
         <data>
-            <name>Test</name>
-            <delivery>Domestic</delivery>
+            <name>Auckland</name>
+            <isInternational>0</isInternational>
         </data>
     </event>
+
+    <event>
+        <type>companies</type>
+        <action>create</action>
+        <data>
+            <name>Air NZ</name>
+            <transport>Land</transport>
+        </data>
+    </event>
+
     <event>
         <type>price</type>
         <action>update</action>
@@ -17,6 +27,40 @@
             <priority>International Air</priority>
             <weightCost>3.0</weightCost>
             <volumeCost>10.0</volumeCost>
+        </data>
+    </event>
+
+    <event>
+        <type>routes</type>
+        <action>create</action>
+        <data>
+            <routeid>2</routeid>
+            <company>Air NZ</company>
+            <transport>Air</transport>
+            <origin>Wellington</origin>
+            <destination>Sydney</destination>
+            <weightcost>5.0</weightcost>
+            <volumecost>3.0</volumecost>
+            <maxweight>5.0</maxweight>
+            <maxvolume>4.0</maxvolume>
+            <frequency>4</frequency>
+            <duration>10</duration>
+            <day>Tuesday</day>
+        </data>
+    </event>
+
+    <event>
+        <type>mail</type>
+        <action>create</action>
+        <data>
+            <mailid>1</mailid>
+            <origin>Wellington</origin>
+            <destination>Sydney</destination>
+            <weight>7.0</weight>
+            <volume>6.0</volume>
+            <priority>Domestic Air</priority>
+            <totalcustomercost>20</totalcustomercost>
+            <totalbusinesscost>15</totalbusinesscost>
         </data>
     </event>
 </events>
