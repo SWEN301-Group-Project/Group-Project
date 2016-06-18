@@ -1280,6 +1280,14 @@ textarea.form-control {
   font-weight: 600;
 }
 
+.stats-no-critical {
+  text-align: center;
+  font-size: 1.5em;
+  font-weight: 600;
+  padding: 20px;
+  color: rgb(79, 119, 79);
+}
+
 /*      Checkbox and radio         */
 .checkbox,
 .radio {

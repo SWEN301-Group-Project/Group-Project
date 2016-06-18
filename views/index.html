@@ -142,6 +142,10 @@
                                 {% endfor %}
                             </table>
                         </div>
+                        {% else %}
+                        <div class="card">
+                            <p class="stats-no-critical">no critical routes to show</p>
+                        </div>
                         {% endif %}
                     </div>
                 </div>
