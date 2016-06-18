@@ -74,6 +74,10 @@ env.addFilter('isMailDestination', function(locationid, mail) {
     return mail ? locationid == mail.destination : false;
 });
 
+env.addFilter('round', function(value){
+    value = parseInt(value);
+    return value.toFixed(2);
+});
 
 var nunjucksDate = require('nunjucks-date');
 nunjucksDate.setDefaultFormat('YYYY-MM-DD, hh:mm:ss');
@@ -124,9 +128,6 @@ router.get("/stats/:dateOffset", function(req, res) {
 // Login page
 router.get("/login", function (req, res) {
     "use strict";
-    Managers.getAllManagers(function(result){
-        console.log(result);
-    });
     res.render('login', {});
 });
 
@@ -138,8 +139,11 @@ router.post("/login", function(req, res) {
     Managers.loginManager(username, password, function(result){
         if (result){
             req.session.manager = manager; //save user in session
+            res.render("index", {loggedin: req.session.manager ? true : false});
+        } else {
+            res.render("index", {loggedin: req.session.manager ? true : false, error: "Invalid code."});
         }
-        res.render("index", {loggedin: req.session.manager ? true : false, error: "Invalid code."});
+
     });
 });
 
