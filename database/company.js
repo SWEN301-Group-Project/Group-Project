@@ -68,9 +68,11 @@ exports.insertCompany = function(company, callback){
         company.name,
         company.type
     ], function(err){
-        if(err){console.log(err); callback(0);}
+        if(err){console.log(err); if(callback){callback(0);}}
         else{
-            callback(this);
+            if(callback) {
+                callback(this);
+            }
         }
     });
 };
@@ -106,7 +108,9 @@ exports.updateCompany = function(companyid, newCompany, callback){
             console.log("Error updating company with id: " + companid);
         }else{
             console.log(this);
-            callback(this.changes);
+            if(callback) {
+                callback(this.changes);
+            }
         }
     });
 };

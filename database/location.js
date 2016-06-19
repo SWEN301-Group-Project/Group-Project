@@ -38,7 +38,7 @@ exports.getAllLocations = function(callback){
 exports.getLocationByName = function(locationName, callback){
     var stmt = "SELECT locationid, name, isInternational FROM locations WHERE name = $locationName";
     db.get(stmt, {$locationName: locationName}, function(err, location){
-        if(err){console.log("Error loading location: " + err); callback();}
+        if(err){console.log("Error loading location: " + err); if(callback){callback();}}
         else if (callback){
             callback(location);
         }
@@ -49,7 +49,7 @@ exports.getLocationByName = function(locationName, callback){
 exports.getLocationById = function(locationid, callback){
     var stmt = "SELECT locationid, name, isInternational FROM locations WHERE locationid = $locationid";
     db.get(stmt, {$locationid: locationid}, function(err, location){
-        if(err){console.log("Error loading location: " + err); callback();}
+        if(err){console.log("Error loading location: " + err); if(callback){callback();}}
         else if (callback){
             callback(location);
         }
@@ -64,7 +64,7 @@ exports.insertLocation = function(location, callback){
     var stmt = db.prepare("INSERT INTO locations (name, isInternational) VALUES (?, ?)");
 
     stmt.run([location.name.toLowerCase(), location.isInternational], function(err){
-        if(err){callback(0)}
+        if(err){if(callback){callback(0);}}
         else if (callback){
             callback(this);
         }
@@ -78,7 +78,9 @@ exports.deleteLocation = function(locationid, callback){
     db.run("DELETE FROM locations WHERE locationid = $id", {$id: locationid}, function(err){
         if(err){
             console.log("Error removing location with id: " + locationid);
-            callback(0);
+            if(callback) {
+                callback(0);
+            }
         }else{
             if(callback){
                 callback(this.changes);
@@ -99,7 +101,9 @@ exports.updateLocation = function(locationid, newLocation, callback){
         if(err){
             console.log("Error updating location with id: " + locationid);
             console.log(err);
-            callback(0);
+            if(callback) {
+                callback(0);
+            }
         }else{
             if(callback){
                 callback(this.changes);

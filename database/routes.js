@@ -145,7 +145,7 @@ exports.getPriceById = function(routeid, callback){
 };*/
 //Origin and destination are foreign keys so they must be integers
 //company is foreign key so must be integer corresponding to key 
-//PostCondition: if return value > 0 ==> route inserted sucessfully
+//PostCondition: if return value > 0 ==> route inserted successfully
 exports.insertRoute = function(route, callback){
 	var stmt = db.prepare("INSERT INTO routes (company, origin, destination, weightcost, volumecost, maxweight, maxvolume, duration, frequency, day) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ");
 
@@ -162,10 +162,14 @@ exports.insertRoute = function(route, callback){
         route.day
     ], function(err){
         if(err){
-            callback(0)
+            if(callback) {
+                callback(0);
+            }
         }else{
             console.log(this);
-            callback(this.changes);
+            if(callback) {
+                callback(this.changes);
+            }
         }
     });
 };
@@ -177,7 +181,9 @@ exports.deleteRoute = function(routeid, callback){
     db.run("DELETE FROM routes WHERE routeid = $id", {$id: routeid}, function(err){
         if(err){
             console.log("Error removing route with id: " + routeid);
-            callback(0);
+            if(callback) {
+                callback(0);
+            }
         }else{
             console.log(this);
             if(callback){
@@ -207,9 +213,14 @@ exports.updateRoute = function(routeid, newRoute, callback){
     	}, function(err){
             if(err){
                 console.log("Error updating route with id: " + routeid);
+                if(callback){
+                    callback(null);
+                }
             }else{
                 console.log(this);
-                callback(this.changes);
+                if(callback) {
+                    callback(this.changes);
+                }
             }
         });
 };

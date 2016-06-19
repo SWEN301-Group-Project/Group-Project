@@ -343,6 +343,9 @@ var Mail = function (dbFile) {
 //Origin and destination are foreign keys so they must be integers
 //PostCondition: if return value > 0 ==> mail inserted sucessfully
         this.insertMail = function (mail, callback) {
+            if (!mail.date){
+                mail.date = new Date().toISOString();
+            }
             if (!mail.duration){
                 mail.duration = 0.00;
             }
@@ -357,15 +360,18 @@ var Mail = function (dbFile) {
                 mail.totalcustomercost,
                 mail.totalbusinesscost,
                 mail.duration,
-                new Date().toISOString()
-
+                mail.date
             ], function (err) {
                 if (err) {
-                    callback(0)
+                    if(callback) {
+                        callback(0)
+                    }
                 }
                 else {
                     console.log(this);
-                    callback(this.changes);
+                    if(callback) {
+                        callback(this.changes);
+                    }
                 }
             });
         },
