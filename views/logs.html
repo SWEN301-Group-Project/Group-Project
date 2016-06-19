@@ -277,7 +277,35 @@
                                     <p>Total Expenditure: ${{businesscost | round}}</p>
                                     <p>Total Number of Events Processed: {{index}}</p>
                                     {% if mails %}
-                                    <p>Amount of Mail from {{ori | capitalize}} to {{dest | capitalize}}: </p>
+                                    <p>Amount of Mail from
+                                        {% for data in events.data %}
+                                            {% if data.originName %}
+                                                {% for originName in data.originName %}
+                                                {{originName | capitalize}}
+                                                {% endfor %}
+                                            {% else %}
+                                                {% if data.origin %}
+                                                    {% for origin in data.origin %}
+                                                    {{origin | capitalize}}
+                                                    {% endfor %}
+                                                {% endif %}
+                                            {% endif %}
+
+                                         to
+
+                                            {% if data.destinationName %}
+                                                {% for destinationName in data.destinationName %}
+                                                   {{destinationName | capitalize}}
+                                                {% endfor %}
+                                            {% else %}
+                                                {% if data.destination %}
+                                                    {% for destination in data.destination %}
+                                                        {{destination | capitalize}}
+                                                    {% endfor %}
+                                                {% endif %}
+                                            {% endif %}
+                                        {% endfor %}
+                                    </p>
                                     <table id="example-table" class="table table-striped table-responsive hover">
                                         <thead>
                                         <tr>
