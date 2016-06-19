@@ -201,6 +201,8 @@ router.get("/logFile/:logFileId", function(req, res){
         for (var j = 0; j < mailEvents.length; j++){
             mail = mailEvents[j].event;
             var origin = mail.data[0].origin[0];
+            var originName = mail.data[0].originName[0];
+            var destinationName = mail.data[0].destinationName[0];
             var destination = mail.data[0].destination[0];
             if (!mailStats[origin]){
                 mailStats[origin] = {};
@@ -251,6 +253,8 @@ router.get("/logFile/:logFileId", function(req, res){
                             if (thirdMail.data[0].origin[0] == origin && thirdMail.data[0].destination[0] == destination && thirdMail.data[0].priority[0] == priority) {
                                 deliveryStats[origin][destination][priority].duration += parseFloat(thirdMail.data[0].duration[0]);
                                 deliveryStats[origin][destination][priority].count += 1;
+                                deliveryStats[origin][destination][priority].originName = originName;
+                                deliveryStats[origin][destination][priority].destinationName = destinationName;
                                 deliveryStats[origin][destination][priority].customercost += parseFloat(thirdMail.data[0].totalcustomercost[0]);
                                 deliveryStats[origin][destination][priority].businesscost += parseFloat(thirdMail.data[0].totalbusinesscost[0]);
                             }
@@ -265,7 +269,7 @@ router.get("/logFile/:logFileId", function(req, res){
                             if (!criticalRoutes[origin][destination]){
                                 criticalRoutes[origin][destination] = {};
                             }
-                            criticalRoutes[origin][destination][priority] = difference;
+                            criticalRoutes[origin][destination][priority] = {originName : originName, destinationName: destinationName, difference: difference};
                         }
                         //
                     }
@@ -273,9 +277,16 @@ router.get("/logFile/:logFileId", function(req, res){
             }
         }
         console.log("printing criticalRoutes");
-        for (var route in criticalRoutes){
-            console.log(route);
-            console.log(criticalRoutes[route]);
+        for (var origin in criticalRoutes){
+            for(var destination in criticalRoutes[origin]){
+                for(var priority in criticalRoutes[origin][destination]){
+                    console.log(criticalRoutes[origin][destination][priority]);
+                    console.log(origin);
+                    console.log(destination);
+                    console.log(priority);
+                }
+            }
+
         }
 
         res.render('logs',
@@ -293,7 +304,7 @@ router.get("/logFile/:logFileId", function(req, res){
                 totalVolume: (mailStats[origin] && mailStats[origin][destination]) ? mailStats[origin][destination].volume : 0,
                 totalItems: (mailStats[origin] && mailStats[origin][destination]) ? mailStats[origin][destination].mails : 0,
                 avgDelivery: (deliveryStats[origin] && deliveryStats[origin][destination] && deliveryStats[origin][destination][priority]) ? (deliveryStats[origin][destination][priority].duration/deliveryStats[origin][destination][priority].count) : 0,
-                criticalRoutes: criticalRoutes[route] ? criticalRoutes[route] : null,
+                // criticalRoutes: criticalRoutes[route] ? criticalRoutes[route] : null,
                 loggedin: req.session.manager ? true : false});
     });
 });
