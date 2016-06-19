@@ -120,21 +120,52 @@
                                         {% endfor %}
                                     </p>
                                     {% endif %}
-
-                                    {% if data.origin %}
+                                    {% if data.originName %}
                                     <p>Origin:
-                                        {% for origin in data.origin %}
-                                        {{origin | capitalize}}
+                                        {% for originName in data.originName %}
+                                            {{originName | capitalize}}
                                         {% endfor %}
                                     </p>
+                                    {% else %}
+                                        {% if data.origin %}
+                                        <p>Origin:
+                                            {% for origin in data.origin %}
+                                            {{origin | capitalize}}
+                                            {% endfor %}
+                                        </p>
+                                        {% endif %}
                                     {% endif %}
 
-                                    {% if data.destination %}
+                                    {% if data.destinationName %}
                                     <p>Destination:
-                                        {% for destination in data.destination %}
-                                        {{destination | capitalize}}
+                                        {% for destinationName in data.destinationName %}
+                                        {{destinationName | capitalize}}
                                         {% endfor %}
                                     </p>
+                                    {% else %}
+                                        {% if data.destination %}
+                                        <p>Destination:
+                                            {% for destination in data.destination %}
+                                            {{destination | capitalize}}
+                                            {% endfor %}
+                                        </p>
+                                        {% endif %}
+                                    {% endif %}
+
+                                    {% if data.companyName %}
+                                    <p>Company:
+                                        {% for companyName in data.companyName%}
+                                        {{companyName | capitalize}}
+                                        {% endfor %}
+                                    </p>
+                                    {% else %}
+                                        {% if data.company %}
+                                        <p>Company:
+                                            {% for company in data.company%}
+                                            {{company | capitalize}}
+                                            {% endfor %}
+                                        </p>
+                                        {% endif %}
                                     {% endif %}
 
                                     {% if data.weightcost %}
@@ -172,7 +203,7 @@
                                     {% if data.frequency %}
                                     <p>Frequency:
                                         {% for frequency in data.frequency %}
-                                        {{frequency}}
+                                        {{frequency | round}}
                                         {% endfor %}
                                     </p>
                                     {% endif %}
@@ -180,7 +211,7 @@
                                     {% if data.duration %}
                                     <p>Duration:
                                         {% for duration in data.duration %}
-                                        {{duration}} hours
+                                        {{duration | round}} hours
                                         {% endfor %}
                                     </p>
                                     {% endif %}
@@ -242,8 +273,8 @@
                                     <h4 class="title">Business Figures</h4>
                                 </div>
                                 <div class="content">
-                                    <p>Total Revenue: {{customercost}}</p>
-                                    <p>Total Expenditure: {{businesscost}}</p>
+                                    <p>Total Revenue: ${{customercost | round}}</p>
+                                    <p>Total Expenditure: ${{businesscost | round}}</p>
                                     <p>Total Number of Events Processed: {{index}}</p>
                                     {% if mails %}
                                     <p>Amount of Mail from {{ori | capitalize}} to {{dest | capitalize}}: </p>
@@ -265,9 +296,11 @@
                                     </table>
                                     <p>Average Delivery Time: {{avgDelivery | round}} hours</p>
                                     <p>Critical Routes: </p>
-                                    {% for ori, criticalRoutes in criticalRoutes[orgin] %}
-                                    <li>{{ ori }}: {{ criticalRoutes[origin] }}</li>
-                                    {% endfor %}
+                                    {% if criticalRoutes %}
+                                        {% for ori, criticalRoutes in criticalRoutes[orgin] %}
+                                        <li>{{ ori }}: {{ criticalRoutes[origin] }}</li>
+                                        {% endfor %}
+                                    {% endif %}
                                     {% endif %}
                                 </div>
                             </div>

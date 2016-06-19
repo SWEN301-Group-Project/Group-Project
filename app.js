@@ -288,11 +288,11 @@ router.get("/logFile/:logFileId", function(req, res){
                 index: index + 1,
                 ori: origin,
                 dest: destination,
-                totalWeight: mailStats[origin][destination].weight,
-                totalVolume: mailStats[origin][destination].volume,
-                totalItems: mailStats[origin][destination].mails,
-                avgDelivery: (deliveryStats[origin][destination][priority].duration/deliveryStats[origin][destination][priority].count),
-                criticalRoutes: criticalRoutes[route],
+                totalWeight: (mailStats[origin] && mailStats[origin][destination]) ? mailStats[origin][destination].weight : 0,
+                totalVolume: (mailStats[origin] && mailStats[origin][destination]) ? mailStats[origin][destination].volume : 0,
+                totalItems: (mailStats[origin] && mailStats[origin][destination]) ? mailStats[origin][destination].mails : 0,
+                avgDelivery: (deliveryStats[origin] && deliveryStats[origin][destination] && deliveryStats[origin][destination][priority]) ? (deliveryStats[origin][destination][priority].duration/deliveryStats[origin][destination][priority].count) : 0,
+                criticalRoutes: criticalRoutes[route] ? criticalRoutes[route] : null,
                 loggedin: req.session.manager ? true : false});
     });
 });
