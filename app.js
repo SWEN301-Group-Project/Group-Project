@@ -195,24 +195,26 @@ router.get("/logFile/:logFileId", function(req, res){
                 })
             }
         }
-            console.log(mailEvents);
-            console.log("mailEvents.length: " + mailEvents.length);
-            for (var j = 0; j < mailEvents.length; j++){
-                var mail = mailEvents[j].event;
-                var origin = mail.data[0].origin[0];
-                var destination = mail.data[0].destination[0];
-                if (mailStats[mail.data[0].origin]){
-                    continue;
-                }
-                else{
-                    mailStats[mailEvents.origin] = [destination, 0, 0, 0];
-                }
-                console.log(j);
-                console.log("MAIL object: " + mail);
-                console.log("ORIGIN: " + origin);
-                console.log("DESTINATION: " + destination);
-                console.log(mailStats[mailEvents.origin]);
+        for (var j = 0; j < mailEvents.length; j++){
+            var mail = mailEvents[j].event;
+            var origin = mail.data[0].origin[0];
+            var destination = mail.data[0].destination[0];
+            if (mailStats[mail.data[0].origin]){
+                continue;
             }
+            else{
+                mailStats[mailEvents.origin] = [destination, 0, 0, 0];
+            }
+            for (var k = 0; k < mailEvents.length; k++){
+                var anotherMail = mailEvents[k].event;
+                if(anotherMail.data[0].origin[0] == mail.data[0].origin[0] && anotherMail.data[0].destination[0] == mail.data[0].destination[0]){
+                    mailStats[mail.data[0].origin][1] += parseInt(anotherMail.data[0].weight);
+                    mailStats[mail.data[0].origin][2] += parseInt(anotherMail.data[0].volume);
+                    mailStats[mail.origin][3] += 1;
+                }
+            }
+            console.log(mailStats[mailEvents.destination]);
+        }
 
         //1. calculate business figures
         //2. show events[i]
@@ -224,6 +226,11 @@ router.get("/logFile/:logFileId", function(req, res){
                 mails: totalmail,
                 events: json.events.event[index],
                 index: index + 1,
+                ori: origin,
+                dest: destination,
+                totalWeight: mailStats[mail.origin][1],
+                totalVolume: mailStats[mail.origin][2],
+                totalItems: mailStats[mail.origin][3],
                 loggedin: req.session.manager ? true : false});
     });
 });
