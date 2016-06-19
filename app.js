@@ -38,7 +38,7 @@ var express = require('express'),
     Price = require('./database/customerprice'),
     Managers = require('./database/managers'),
     Graph = require('./database/graph'),
-    logFile = require('./database/logFile.js').logFile,
+    // logFile = require('./database/logFile.js').logFile,
     findRoute = Graph.findRoute,
     logFile = require('./database/logFile').logFile;
 
@@ -163,6 +163,7 @@ router.get("/logFile", function (req, res) {
 router.get("/logFile/:logFileId", function(req, res){
     var index = req.params.logFileId-1;
     new logFile().loadXMLDoc(function (json) {
+        var mail;
         var totalcustomercost = 0;
         var totalbusinesscost = 0;
         var totalvolume = 0;
@@ -196,25 +197,27 @@ router.get("/logFile/:logFileId", function(req, res){
                 })
             }
         }
+
         for (var j = 0; j < mailEvents.length; j++){
-            var mail = mailEvents[j].event;
+            mail = mailEvents[j].event;
             var origin = mail.data[0].origin[0];
             var destination = mail.data[0].destination[0];
-            if (mailStats[mail.data[0].origin]){
+            if (mailStats[mail.data[0].origin[0]]){
                 continue;
             }
-            else{
-                mailStats[mailEvents.origin] = [destination, 0, 0, 0];
-            }
-            for (var k = 0; k < mailEvents.length; k++){
-                var anotherMail = mailEvents[k].event;
-                if(anotherMail.data[0].origin[0] == mail.data[0].origin[0] && anotherMail.data[0].destination[0] == mail.data[0].destination[0]){
-                    mailStats[mail.data[0].origin][1] += parseInt(anotherMail.data[0].weight);
-                    mailStats[mail.data[0].origin][2] += parseInt(anotherMail.data[0].volume);
-                    mailStats[mail.origin][3] += 1;
+            else {
+                mailStats[mail.data[0].origin[0]] = [destination, 0, 0, 0];
+
+                for (var k = 0; k < mailEvents.length; k++) {
+                    var anotherMail = mailEvents[k].event;
+                    if (anotherMail.data[0].origin[0] == mail.data[0].origin[0] && anotherMail.data[0].destination[0] == mail.data[0].destination[0]) {
+                        mailStats[mail.data[0].origin][1] += parseInt(anotherMail.data[0].weight[0]);
+                        mailStats[mail.data[0].origin][2] += parseInt(anotherMail.data[0].volume[0]);
+                        mailStats[mail.data[0].origin][3] += 1;
+                    }
                 }
             }
-            console.log(mailStats[mailEvents.destination]);
+            console.log(mailStats[mail.data[0].origin[0]]);
         }
 
         //1. calculate business figures
@@ -229,9 +232,9 @@ router.get("/logFile/:logFileId", function(req, res){
                 index: index + 1,
                 ori: origin,
                 dest: destination,
-                totalWeight: mailStats[mail.origin][1],
-                totalVolume: mailStats[mail.origin][2],
-                totalItems: mailStats[mail.origin][3],
+                totalWeight: mail ? mailStats[mail.data[0].origin][1] : null,
+                totalVolume: mail ? mailStats[mail.data[0].origin][2] : null,
+                totalItems: mail ? mailStats[mail.data[0].origin][3] : null,
                 loggedin: req.session.manager ? true : false});
     });
 });
