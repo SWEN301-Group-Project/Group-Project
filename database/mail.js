@@ -192,7 +192,9 @@ var Mail = function (dbFile) {
                                     expenses += fullMailAmount[i].destinations[j].priorities[k][l].totalbusinesscost;
                                 }
 
-                                var difference = (expenses-income)/count;
+                                var difference = (expenses)/count;
+
+                                console.log(difference);
 
                                 if (difference > 0) {
                                     criticalRoutes.push({
