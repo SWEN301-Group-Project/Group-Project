@@ -177,19 +177,19 @@ router.get("/logFile/:logFileId", function(req, res){
             var event = json.events.event[i];
             var data = event.data[0];
             if (data.totalcustomercost) {
-                totalcustomercost += parseInt(data.totalcustomercost[0]);
+                totalcustomercost += parseFloat(data.totalcustomercost[0]);
             }
             if (data.totalbusinesscost) {
-                totalbusinesscost += parseInt(data.totalbusinesscost[0]);
+                totalbusinesscost += parseFloat(data.totalbusinesscost[0]);
             }
             if (event.type == "mail") {
                 totalmail += 1;
             }
             if (data.volume) {
-                totalvolume += parseInt(data.volume[0]);
+                totalvolume += parseFloat(data.volume[0]);
             }
             if (data.weight) {
-                totalweight += parseInt(data.weight[0]);
+                totalweight += parseFloat(data.weight[0]);
             }
             if (event.type == "mail") {
                 mailEvents.push({

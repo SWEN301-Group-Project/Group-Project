@@ -257,16 +257,16 @@
                                         </thead>
                                         <tbody>
                                         <tr>
-                                            <td>{{totalWeight}} grams</td>
-                                            <td>{{totalVolume}} cm<sup>3</sup></td>
+                                            <td>{{totalWeight | round}} grams</td>
+                                            <td>{{totalVolume | round}} cm<sup>3</sup></td>
                                             <td>{{totalItems}}</td>
                                         </tr>
                                         </tbody>
                                     </table>
                                     <p>Average Delivery Time: {{avgDelivery | round}} hours</p>
                                     <p>Critical Routes: </p>
-                                    {% for origin, criticalRoutes in items %}
-                                    <li>{{ origin }}: {{ criticalRoutes.origin }}</li>
+                                    {% for ori, criticalRoutes in criticalRoutes[orgin] %}
+                                    <li>{{ ori }}: {{ criticalRoutes[origin] }}</li>
                                     {% endfor %}
                                     {% endif %}
                                 </div>
