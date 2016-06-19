@@ -56,6 +56,7 @@
                                 </div>
                                 {% endif %}
                                 <form method="post" action="/companies/update/{{companyid}}" id="companyForm">
+                                    <div class="content">
                                     <div class="row">
                                         <div class="col-md-12">
                                             <div class="form-group">
@@ -70,24 +71,25 @@
                                             <div class="form-group">
                                                 <div class="radio">
                                                     <label>
-                                                        <input type="radio" name="type" value="land" {% if company.type == "land" %}checked{% endif %}>
+                                                        <input type="radio" name="type" value="land" {% if company.type == "Land" %}checked{% endif %}>
                                                         Land
                                                     </label>
                                                 </div>
                                                 <div class="radio">
                                                     <label>
-                                                        <input type="radio" name="type" value="sea" {% if company.type == "sea" %}checked{% endif %}>
+                                                        <input type="radio" name="type" value="sea" {% if company.type == "Sea" %}checked{% endif %}>
                                                         Sea
                                                     </label>
                                                 </div>
                                                 <div class="radio">
                                                     <label>
-                                                        <input type="radio" name="type" value="air" {% if company.type == "air" %}checked{% endif %}>
+                                                        <input type="radio" name="type" value="air" {% if company.type == "Air" %}checked{% endif %}>
                                                         Air
                                                     </label>
                                                 </div>
                                             </div>
                                         </div>
+                                    </div>
                                     </div>
                                     <div class="text-center pull-left">
                                         <button type="submit" class="btn btn-warning btn-fill btn-wd">Update</button>
