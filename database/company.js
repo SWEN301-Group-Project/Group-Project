@@ -68,8 +68,11 @@ exports.insertCompany = function(company, callback){
         company.name,
         company.type
     ], function(err){
-        if(err){console.log(err); if(callback){callback(0);}}
-        else{
+        if(err){console.log(err);
+            if(callback){
+                callback(0);
+            }
+        } else{
             if(callback) {
                 callback(this);
             }
@@ -84,7 +87,9 @@ exports.deleteCompany = function(companyid, callback){
     db.run("DELETE FROM companies WHERE companyid = $id", {$id: companyid}, function(err){
         if(err){
             console.log("Error removing company with id: " + companyid);
-            callback(0);
+            if(callback) {
+                callback(0);
+            }
         }else{
             console.log(this);
             if(callback){

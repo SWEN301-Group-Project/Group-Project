@@ -377,6 +377,8 @@ router.post("/addMail", function(req,res, next){
                         mail.duration = mailFindRoute.duration;
                         mail.totalcustomercost = mailFindRoute.costToCustomer;
                         mail.totalbusinesscost = mailFindRoute.costToCompany;
+                        mail.originName = originLocation.name;
+                        mail.destinationName = destinationLocation.name;
                         req.session.mail = mail; //resave mail into session
                         res.render('confirmMail', {
                             mail: mail,
@@ -459,7 +461,6 @@ router.get('/confirmMail', function(req,res){
 router.get("/mails", function(req, res) {
 	"use strict";
     Location.getAllLocations(function(locations){
-        console.log(locations);
         Mail.getAllMail(function(mails){
             res.render('mails', {
                 mailActive: true,

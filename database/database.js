@@ -33,7 +33,6 @@ function Database(){
             console.log("DB file does not exist:\n\t Creating one now.");
             fs.openSync(this._dbFile, "w"); //create database file for writing to
         }
-        console.log("initialising the database");
         //initialise the database
         var db = new sqlite3.Database(this._dbFile);
         var $this = this;
@@ -110,8 +109,6 @@ function Database(){
                     //
                     // Dear fellow coder:
                     //
-                    // I want to read the xml file after the database tables have been created. This is my hack!!!
-                    //
                     // Once you are done trying to 'optimize' this routine,
                     // and have realized what a terrible mistake that was,
                     // please increment the following counter as a warning
@@ -125,7 +122,9 @@ function Database(){
                     // Magic, Do not touch
 
                     //initialise the table values from log file
+                    // I want to read the xml file after the database tables have been created. HACK HACK!!!
                     $this.readLogFile();
+                    console.log('Loaded Data from XML document');
                 });
             });
         });
@@ -136,36 +135,25 @@ function Database(){
         //if logFile filename is given then set it as default logFile name otherwise use the default
         var $this = this;
         new logFile().loadXMLDoc(function (json) {
-            console.log('done reading the log file');
-            // console.log(json.events.event[0]);
             //the plugin stores the events as an event array so we rename it here for clarity and simplicity in code
             var events = json.events.event;
             var event;
             if(events) {
                 for (var i = 0; i < events.length; i++) {
-                    console.log(events[i]);
                     /**
                      * Now we iterate over each event in the log file
                      *
                      * There are 4 types of types:
-                     *  1. mail - DONE
+                     *  1. mail
                      *      * a mail event
                      *  2. location
                      *      * a location event
-                     *  3. company - DONE
+                     *  3. company
                      *      * a company event
                      *  4. route
                      *      * a route event
                      *  5. price
                      *      * a customer price event
-                     * -----//------
-                     * There are three types of applicable actions:
-                     *  1. insert
-                     *      * doesn't contain the id
-                     *  2. update
-                     *      * must contain the id for reference
-                     *  3. delete
-                     *      * must contain the id for reference
                      */
                     var eventAdded = false;
                     event = events[i];
@@ -199,6 +187,7 @@ function Database(){
                         console.log(event);
                         eventAdded = true;
                     }
+                    //Wow look at this HACK : COOOOL
                     require('deasync').loopWhile(function () {
                         return !eventAdded;
                     });
@@ -209,13 +198,12 @@ function Database(){
             }
         });
     };
+
     this.readPriceEvent = function(priceEvent, callback){
         var price = {};
         for(var prop in priceEvent.data[0]){
             price[prop] = priceEvent.data[0][prop][0];
         }
-        console.log("price:");
-        console.log(price);
         if (priceEvent.action[0].toLowerCase() == 'insert'){
             Price.insertCustomerPrice(price, function(){
                callback();
@@ -232,13 +220,12 @@ function Database(){
             });
         }
     };
+
     this.readRouteEvent = function(routeEvent, callback){
         var route = {};
         for(var prop in routeEvent.data[0]){
             route[prop] = routeEvent.data[0][prop][0];
         }
-        console.log("route:");
-        console.log(route);
         if (routeEvent.action[0].toLowerCase() == 'insert'){
             Route.insertRoute(route, function(){
                 callback();
@@ -255,6 +242,7 @@ function Database(){
             });
         }
     };
+
     this.readMailEvent = function(mailEvent, callback){
         /**
          * There are three types of applicable actions:
@@ -265,8 +253,6 @@ function Database(){
         for(var prop in mailEvent.data[0]){
             mail[prop] = mailEvent.data[0][prop][0];
         }
-        console.log("mail:");
-        console.log(mail);
         if (mailEvent.action[0].toLowerCase() == 'insert'){
             Mail.insertMail(mail, function(){
                 callback();
@@ -288,15 +274,12 @@ function Database(){
         for(var prop in companyEvent.data[0]){
             company[prop] = companyEvent.data[0][prop][0];
         }
-        console.log("company:");
-        console.log(company);
         if (companyEvent.action[0].toLowerCase() == 'insert'){
             Company.insertCompany(company, function(){
                 callback();
             });
         }
         if (companyEvent.action[0].toLowerCase() == 'update'){
-            // var newCompany = {name: companyEvent.data[0].name[0], type: companyEvent.data[0].type[0]};
             Company.updateCompany(companyEvent.data[0].companyid[0],company, function(){
                 callback();
             });
@@ -322,8 +305,6 @@ function Database(){
         for(var prop in locationEvent.data[0]){
             location[prop] = locationEvent.data[0][prop][0];
         }
-        console.log("location:");
-        console.log(location);
         if (locationEvent.action[0].toLowerCase() == 'insert'){
             Location.insertLocation(location, function(){
                 callback();

@@ -45,11 +45,27 @@ router.post("/", function(req, res){
         };
         Price.insertCustomerPrice(data, function (result){
             console.log(result);
-            new logFile().addEvent({type: 'price', action: 'insert', data: data});
+
             Location.getAllLocations(function(allLocations){
-               Price.getAllPrices(function(allPrices){
-                   res.render('updPrice', {priceActive: true, title: "Customer Prices", loggedin: req.session.manager ? true : false, locations: allLocations, customerprices: allPrices, notify: "Price successfully inserted"});
-               });
+                for(var i = 0; i < allLocations.length; i++){
+                    if(allLocations[i].locationid == data.origin){
+                        data.originName = allLocations[i].name;
+                    }
+                    if(allLocations[i].locationid == data.destination){
+                        data.destinationName = allLocations[i].name;
+                    }
+                }
+                new logFile().addEvent({type: 'price', action: 'insert', data: data});
+                Price.getAllPrices(function (allPrices) {
+                    res.render('updPrice', {
+                        priceActive: true,
+                        title: "Customer Prices",
+                        loggedin: req.session.manager ? true : false,
+                        locations: allLocations,
+                        customerprices: allPrices,
+                        notify: "Price successfully inserted"
+                    });
+                });
             });
         });
     }
@@ -119,13 +135,20 @@ router.post("/update/:priceid", function(req,res){
            if(result){
                var data = customerprice;
                data.priceid = priceid;
+               for(var i = 0; i < allLocations.length; i++){
+                   if(allLocations[i].locationid == data.origin){
+                       data.originName = allLocations[i].name;
+                   }
+                   if(allLocations[i].locationid == data.destination){
+                       data.destinationName = allLocations[i].name;
+                   }
+               }
                new logFile().addEvent({type: 'price', action: 'update', data: data});
                Price.getAllPrices(function(allPrices){
                    res.render('updPrice', {priceActive: true, title: "Customer Prices", loggedin: req.session.manager ? true : false, locations: allLocations, customerprices: allPrices, notify: "Price successfully updated", notifyType:"warning"});
                });
            } else {
                Price.getPriceById(priceid, function(customerprice){
-                   console.log(customerprice);
                    res.render('updatePrice', {
                        priceActive: true,
                        title: "Customer Prices",

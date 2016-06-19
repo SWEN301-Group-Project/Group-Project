@@ -39,7 +39,6 @@ router.post("/delete/:locationid", function(req,res){
                     res.render('location', {locationActive: true, title: "Location", loggedin: req.session.manager ? true : false, locations: allLocations, notify: "Location successfully deleted", notifyType:"warning"});
                 });
             } else {
-                    console.log(deleteLocation);
                     res.render('updateLocation', {
                         locationActive: true,
                         title: "Update Location",
@@ -68,7 +67,6 @@ router.post("/update/:locationid", function(req,res){
         } else {
             //could not update the location
             Location.getLocationById(locationid, function(location){
-                console.log(location);
                 res.render('updateLocation', {
                     locationActive: true,
                     title: "Update Location",
@@ -84,7 +82,6 @@ router.post("/update/:locationid", function(req,res){
 });
 
 router.post("/", function(req, res){
-    console.log(req.body);
     var newLocation = req.body;
     var error;
     if (!newLocation.name) {

@@ -15,7 +15,6 @@ router.get("/", function(req, res) {
 router.get("/:companyid", function(req, res){
     var companyid = req.params.companyid;
     Company.getCompanyById(companyid, function(company){
-        console.log(company);
         res.render('updateCompany', {
             companyActive: true,
             title: "Update Company",
@@ -30,7 +29,6 @@ router.post("/delete/:companyid", function (req, res) {
     var companyid = req.params.companyid;
     Company.getCompanyById(companyid, function (deleteCompany) {
         Company.deleteCompany(companyid, function (result) {
-            console.log(result);
             if (result) {
                 //success
                 new logFile().addEvent({type: 'company', action: 'delete', data: deleteCompany});
@@ -63,7 +61,6 @@ router.post("/update/:companyid", function(req,res){
     var company = req.body;
     var companyid = req.params.companyid;
     Company.updateCompany(companyid, company, function(result){
-        console.log(result);
         if (result){
             var data = company;
             data.companyid = companyid;
@@ -89,7 +86,6 @@ router.post("/update/:companyid", function(req,res){
 });
 
 router.post("/", function (req, res) {
-    console.log(req.body);
     var newCompany = req.body;
     var error;
     if (!newCompany.name){
@@ -111,7 +107,6 @@ router.post("/", function (req, res) {
         });
     } else {
         Company.insertCompany(newCompany, function (result) {
-            console.log(result);
             Company.getAllCompanies(function (allCompanies) {
                 if (result.changes) {
                     new logFile().addEvent({type: 'company', action: 'insert', data: newCompany});

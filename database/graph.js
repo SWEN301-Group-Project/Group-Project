@@ -23,10 +23,6 @@ var findRoute = function(mail){
     //check if we have a price for this routes
     for (var i = 0; i < prices.length; i++) {
         var price = prices[i];
-        console.log("Price: ");
-        console.log(price);
-        console.log(price);
-        console.log(mail);
         if (price.destination === mail.destination && price.origin === mail.origin) {
           // if(((mail.priority.toUpperCase() === "DOMESTIC AIR" || mail.priority.toUpperCase() === "INTERNATIONAL AIR") && price.priority.toUpperCase() === "AIR") || ((mail.priority.toUpperCase() === "DOMESTIC STANDARD" || mail.priority.toUpperCase() === "INTERNATIONAL STANDARD") && (price.priority.toUpperCase() === "LAND" || price.priority.toUpperCase() === "SEA"))){
             this.wCost = price.weightcost * mail.weight;
@@ -44,8 +40,6 @@ var findRoute = function(mail){
     }
 
     if (mail.priority.toUpperCase() === "DOMESTIC AIR" || mail.priority.toUpperCase() === "DOMESTIC STANDARD") {
-        console.log('nodes[mail.destination]');
-        console.log(nodes[mail.destination]);
         if (nodes[mail.destination].international > 0) {
             this.data.errorMessage = "This mail must be sent via International Priority";
             isGraphLoaded = false;
@@ -72,12 +66,6 @@ var findRoute = function(mail){
 };
 
 var findDomesticRoute = function (mail, data) {
-    console.log("inside findDomesticRoute");
-    console.log("Parameters:");
-    console.log(mail);
-    console.log(data);
-    console.log("---Finished Parameters");
-    console.log("---");
     //Create a set of all the unvisited nodes called the unvisited set and init node values
     var unvisited = [];
     // for(var i = 0; i < nodes.length; i++){
@@ -89,18 +77,12 @@ var findDomesticRoute = function (mail, data) {
         nodes[node].waitTime = 0;
         unvisited.push(nodes[node]);
     }
-    console.log("Univisited Nodes: ");
-    console.log(unvisited);
     this.data = data;
-    console.log("Data");
-    console.log(this.data);
     this.currentNode = nodes[mail.origin];
     this.currentNode.travelPenalty = 0;
     var sentDate = new Date().getTime();
     while (true) {
         this.currentNode.visited = true;
-        console.log("currentNode");
-        console.log(this.currentNode);
         //If the destination node has been visited then stop. The algorithm has finished.
         if (nodes[mail.destination].visited) {
             console.log("Reached Destination. Route:");
@@ -137,13 +119,9 @@ var findDomesticRoute = function (mail, data) {
         // for (var segmentId in this.currentNode.segments) {
             var segment = this.currentNode.segments[i];
             if (!segment.endNode.visited && segment.maxWeight >= mail.weight && segment.maxVolume >= mail.volume) {
-                console.log("segment");
-                console.log(segment);
                 //calculate time for next departure
                 this.currentDay = new Date(this.arrivalTime).getDay(); //today
-                console.log("currentDay: " + this.currentDay);
                 this.routeStart = segment.day; //day mail is sent from this route
-                console.log("routeStart: " + this.routeStart);
                 this.hours = ((this.arrivalTime) / 3600000) % 24;
                 this.days = 0; //
                 if (this.currentDay === this.routeStart) {
@@ -449,10 +427,7 @@ var findInternationalStandardRoute = function(mail, data){
 
 
 var createPrices = function (customerprices) {
-    console.log("CustomerPrices: ");
     prices = customerprices;
-    console.log(prices);
-    console.log("prices.length= " + prices.length);
     isGraphLoaded = true;
 };
 
@@ -473,15 +448,10 @@ var createSegments = function (costs) {
     segments = [];
     if (typeof costs != 'undefined') {
         for (var i = 0; i < costs.length; i++) {
-            console.log(costs[i]);
             var newSegment = new segment(costs[i].routeid, nodes[costs[i].origin], nodes[costs[i].destination], costs[i]['type'], costs[i].weightcost, costs[i].volumecost, costs[i].maxweight, costs[i].maxvolume, costs[i].duration, costs[i].frequency, costs[i].day);
             segments.push(newSegment);
             nodes[costs[i].origin].segments.push(newSegment);
         }
-        console.log('nodes');
-        console.log(nodes);
-        console.log('segments');
-        console.log(segments);
         customerprice.getAllPrices(createPrices);
     }
     else {

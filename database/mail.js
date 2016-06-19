@@ -368,7 +368,6 @@ var Mail = function (dbFile) {
                     }
                 }
                 else {
-                    console.log(this);
                     if(callback) {
                         callback(this.changes);
                     }

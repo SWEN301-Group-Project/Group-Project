@@ -71,8 +71,18 @@ router.post("/", function(req, res){
             };
             Route.insertRoute(data, function (result) {
                 console.log(result);
-                new logFile().addEvent({type: 'routes', action: 'insert', data: data});
+                // Company.getCompanyById()
+                data.companyName = company.name;
                 Location.getAllLocations(function (allLocations) {
+                    for(var i = 0; i < allLocations.length; i++){
+                        if(allLocations[i].locationid == data.origin){
+                            data.originName = allLocations[i].name;
+                        }
+                        if(allLocations[i].locationid == data.destination){
+                            data.destinationName = allLocations[i].name;
+                        }
+                    }
+                    new logFile().addEvent({type: 'routes', action: 'insert', data: data});
                     Company.getAllCompanies(function (allCompanies) {
                         Route.getAllRoutes(function(routes){
                             res.render('updCost', {costActive: true, title: "Route Costs", loggedin: req.session.manager ? true : false, locations: allLocations, companies: allCompanies, routes: routes, notify: "route successfully added"});
@@ -88,7 +98,6 @@ router.post("/", function(req, res){
 router.get("/:routeid", function(req, res){
     var routeid = req.params.routeid;
     Route.getPriceById(routeid, function(route){
-        console.log(route);
         Location.getAllLocations(function(allLocations){
             Company.getAllCompanies(function(allCompanies){
                 res.render('updateCost', {
@@ -109,7 +118,6 @@ router.post("/delete/:routeid", function(req,res){
     var routeid = req.params.routeid;
     Route.getPriceById(routeid, function(route) {
         Route.deleteRoute(routeid, function (result) {
-            console.log(result);
             Company.getAllCompanies(function (allCompanies) {
                 Location.getAllLocations(function (allLocations) {
                     if (result) {
@@ -127,7 +135,6 @@ router.post("/delete/:routeid", function(req,res){
                             });
                         });
                     } else {
-                        console.log(route);
                         res.render('updateCost', {
                             costActive: true,
                             title: "Update Route",
@@ -150,12 +157,25 @@ router.post("/update/:routeid", function(req,res){
     var route = req.body;
     var routeid = req.params.routeid;
     Route.updateRoute(routeid, route, function(result){
-       console.log(result);
        Company.getAllCompanies(function(allCompanies){
            Location.getAllLocations(function(allLocations){
                if(result){
                    var data = route;
                    data.routeid = routeid;
+                   for(var i = 0; i < allLocations.length; i++){
+                       if(allLocations[i].locationid == data.origin){
+                           data.originName = allLocations[i].name;
+                       }
+                       if(allLocations[i].locationid == data.destination){
+                           data.destinationName = allLocations[i].name;
+                       }
+                   }
+                   for(var i = 0; i < allCompanies.length; i++){
+                       if(allCompanies[i].companyid == data.company){
+                           data.companyName = allCompanies[i].name;
+                           break;
+                       }
+                   }
                    new logFile().addEvent({type: 'routes', action: 'update', data: data});
                    Route.getAllRoutes(function(routes){
                        res.render('updCost', {costActive: true, title: "Route Costs", loggedin: req.session.manager ? true : false, locations: allLocations, companies: allCompanies, routes: routes, notify: "route successfully updated", notifyType:"warning"});
@@ -163,7 +183,6 @@ router.post("/update/:routeid", function(req,res){
                } else {
                    //could not update the route
                    Route.getPriceById(routeid, function(route){
-                       console.log(route);
                        res.render('updateCost', {
                            costActive: true,
                            title: "Update Route",

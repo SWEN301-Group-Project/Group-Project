@@ -119,11 +119,14 @@ exports.insertCustomerPrice = function(customerprice, callback){
         customerprice.volumecost,
         customerprice.priority
     ], function(err){
-        if(err){
-            callback(0)}
-        else{
-            console.log(this);
-            callback(this.changes);
+        if(err) {
+            if (callback) {
+                callback(0);
+            }
+        }else{
+            if(callback) {
+                callback(this.changes);
+            }
         }
     });
 };
@@ -135,7 +138,9 @@ exports.deleteCustomerPrice = function(priceid, callback){
     db.run("DELETE FROM customerprice WHERE priceid = $id", {$id: priceid}, function(err){
         if(err){
             console.log("Error removing customerprice with id: " + priceid);
-            callback(0);
+            if(callback) {
+                callback(0);
+            }
         }else{
             console.log(this);
             if(callback){
@@ -162,8 +167,9 @@ exports.updateCustomerPrice = function(priceid, newCustomerPrice, callback){
             console.log("Error updating customerprice with id: " + priceid);
             console.log(err);
         }else{
-            console.log(this);
-            callback(this.changes);
+            if(callback) {
+                callback(this.changes);
+            }
         }
     });
 };

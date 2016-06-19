@@ -166,7 +166,6 @@ exports.insertRoute = function(route, callback){
                 callback(0);
             }
         }else{
-            console.log(this);
             if(callback) {
                 callback(this.changes);
             }
