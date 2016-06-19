@@ -3,6 +3,12 @@ logs
 *.log
 npm-debug.log*
 
+# Ignore log file
+logFile.xml
+
+# Ignore database
+test.db
+
 # Runtime data
 pids
 *.pid
