@@ -202,26 +202,82 @@ router.get("/logFile/:logFileId", function(req, res){
             mail = mailEvents[j].event;
             var origin = mail.data[0].origin[0];
             var destination = mail.data[0].destination[0];
-            if (mailStats[mail.data[0].origin[0]]){
+            if (!mailStats[origin]){
+                mailStats[origin] = {};
+            }
+            if (mailStats[origin][destination]){
                 continue;
             }
             else {
-                mailStats[mail.data[0].origin[0]] = [destination, 0, 0, 0];
+                mailStats[origin][destination] = {volume: 0, weight: 0, mails: 0};
 
                 for (var k = 0; k < mailEvents.length; k++) {
                     var anotherMail = mailEvents[k].event;
-                    if (anotherMail.data[0].origin[0] == mail.data[0].origin[0] && anotherMail.data[0].destination[0] == mail.data[0].destination[0]) {
-                        mailStats[mail.data[0].origin][1] += parseInt(anotherMail.data[0].weight[0]);
-                        mailStats[mail.data[0].origin][2] += parseInt(anotherMail.data[0].volume[0]);
-                        mailStats[mail.data[0].origin][3] += 1;
+                    if (anotherMail.data[0].origin[0] == origin && anotherMail.data[0].destination[0] == destination) {
+                        mailStats[origin][destination].weight += parseFloat(anotherMail.data[0].weight[0]);
+                        mailStats[origin][destination].volume += parseFloat(anotherMail.data[0].volume[0]);
+                        mailStats[origin][destination].mails += 1;
                     }
                 }
             }
-            console.log(mailStats[mail.data[0].origin[0]]);
+            console.log(mailStats[origin][destination]);
+        }
+        var deliveryStats = {};
+        var criticalRoutes = {};
+        for (var j = 0; j < mailEvents.length; j++){
+            mail = mailEvents[j].event;
+            var origin = mail.data[0].origin[0];
+            var destination = mail.data[0].destination[0];
+            var priority = mail.data[0].priority[0];
+
+            if (!deliveryStats[origin]) {
+                deliveryStats[origin] = {};
+            }
+            if (!deliveryStats[origin][destination]){
+                deliveryStats[origin][destination] = {};
+            }
+            if(deliveryStats[origin][destination][priority]){
+                continue;
+            }
+            else {
+
+                for (var k = 0; k < mailEvents.length; k++) {
+                    var anotherMail = mailEvents[k].event;
+                    deliveryStats[origin][destination][priority] = {duration : 0, customercost: 0, businesscost: 0, count: 0};
+                    if (anotherMail.data[0].origin[0] == origin && anotherMail.data[0].destination[0] == destination) {
+
+                        for (var l = 0; l < mailEvents.length; l++) {
+                            var thirdMail = mailEvents[l].event;
+                            if (thirdMail.data[0].origin[0] == origin && thirdMail.data[0].destination[0] == destination && thirdMail.data[0].priority[0] == priority) {
+                                deliveryStats[origin][destination][priority].duration += parseFloat(thirdMail.data[0].duration[0]);
+                                deliveryStats[origin][destination][priority].count += 1;
+                                deliveryStats[origin][destination][priority].customercost += parseFloat(thirdMail.data[0].totalcustomercost[0]);
+                                deliveryStats[origin][destination][priority].businesscost += parseFloat(thirdMail.data[0].totalbusinesscost[0]);
+                            }
+                        }
+                        console.log(deliveryStats[origin][destination][priority]);
+                        var data = deliveryStats[origin][destination][priority];
+                        var difference = (data.customercost/data.count) - (data.businesscost/data.count);
+                        if(difference){
+                            if (!criticalRoutes[origin]){
+                                criticalRoutes[origin] = {};
+                            }
+                            if (!criticalRoutes[origin][destination]){
+                                criticalRoutes[origin][destination] = {};
+                            }
+                            criticalRoutes[origin][destination][priority] = difference;
+                        }
+                        //
+                    }
+                }
+            }
+        }
+        console.log("printing criticalRoutes");
+        for (var route in criticalRoutes){
+            console.log(route);
+            console.log(criticalRoutes[route]);
         }
 
-        //1. calculate business figures
-        //2. show events[i]
         res.render('logs',
             {customercost: totalcustomercost,
                 businesscost: totalbusinesscost,
@@ -232,9 +288,11 @@ router.get("/logFile/:logFileId", function(req, res){
                 index: index + 1,
                 ori: origin,
                 dest: destination,
-                totalWeight: mail ? mailStats[mail.data[0].origin][1] : null,
-                totalVolume: mail ? mailStats[mail.data[0].origin][2] : null,
-                totalItems: mail ? mailStats[mail.data[0].origin][3] : null,
+                totalWeight: mailStats[origin][destination].weight,
+                totalVolume: mailStats[origin][destination].volume,
+                totalItems: mailStats[origin][destination].mails,
+                avgDelivery: (deliveryStats[origin][destination][priority].duration/deliveryStats[origin][destination][priority].count),
+                criticalRoutes: criticalRoutes[route],
                 loggedin: req.session.manager ? true : false});
     });
 });
