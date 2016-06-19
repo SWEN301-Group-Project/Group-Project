@@ -49,12 +49,17 @@
                                 <h4 class="title">Log In</h4>
                             </div>
                             <div class="content">
+                                {% if error %}
+                                <div class="alert alert-danger">
+                                    <span>{{ error }}</span>
+                                </div>
+                                {% endif %}
                                 <form method="post" id="loginForm">
                                     <div class="form-group">
                                         <input type="text" name="username" id="username" class="form-control border-input" placeholder="Username" required="required">
                                         <input type="password" name="password" id="password" class="form-control border-input" placeholder="Password" required="required">
                                     </div>
-                                    <button href="logFile" type="submit" class="btn btn-info btn-fill btn-wd">Login</button>
+                                    <button type="submit" class="btn btn-info btn-fill btn-wd">Login</button>
                                 </form>
                             </div>
                         </div>

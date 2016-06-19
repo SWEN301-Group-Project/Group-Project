@@ -141,9 +141,9 @@ router.post("/login", function(req, res) {
     Managers.loginManager(username, password, function(result){
         if (result){
             req.session.manager = manager; //save user in session
-            res.render("index", {loggedin: req.session.manager ? true : false});
+            res.redirect('/stats/0')
         } else {
-            res.render("index", {loggedin: req.session.manager ? true : false, error: "Invalid code."});
+            res.render("login", {loggedin: req.session.manager ? true : false, error: "Invalid credentials. Please try again."});
         }
 
     });
@@ -169,13 +169,13 @@ router.get("/logFile/:logFileId", function(req, res){
         var totalvolume = 0;
         var totalweight = 0;
         var totalmail = 0;
-        //var event = json.events.event;
-        console.log("in logfile id");
         var mailEvents = [];
         var mailStats = {};
+        var length = 0;
         for (var i = 0; i < (index + 1); i++) {
             var event = json.events.event[i];
             var data = event.data[0];
+            length = json.events.event.length;
             if (data.totalcustomercost) {
                 totalcustomercost += parseFloat(data.totalcustomercost[0]);
             }
@@ -286,6 +286,7 @@ router.get("/logFile/:logFileId", function(req, res){
                 mails: totalmail,
                 events: json.events.event[index],
                 index: index + 1,
+                length: length,
                 ori: origin,
                 dest: destination,
                 totalWeight: (mailStats[origin] && mailStats[origin][destination]) ? mailStats[origin][destination].weight : 0,
@@ -300,7 +301,7 @@ router.get("/logFile/:logFileId", function(req, res){
 router.get("/logout",function(req,res) {
     "use strict";
     req.session.manager = null;
-    res.render('index', {loggedin: req.session.manager ? true : false});
+    res.redirect('/stats/0');
 });
 
 router.get("/graph", function (req, res) {
