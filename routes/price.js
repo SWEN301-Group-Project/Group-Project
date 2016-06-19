@@ -1,13 +1,8 @@
-/**
- * Created by elliot on 17/06/16.
- */
-
-var express = require('express');
-var router = express.Router();
-var logFile = require('../database/logFile').logFile;
-
-var Location = require('../database/location'),
-	Price = require('../database/customerprice');
+var express = require('express'),
+    router = express.Router(),
+    logFile = require('../database/logFile').logFile,
+    Location = require('../database/location'),
+    Price = require('../database/customerprice');
 
 
 router.get("/", function(req, res){

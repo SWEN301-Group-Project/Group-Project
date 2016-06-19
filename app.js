@@ -38,9 +38,9 @@ var express = require('express'),
     Price = require('./database/customerprice'),
     Managers = require('./database/managers'),
     Graph = require('./database/graph'),
-    logFile = require('./database/logFile.js').logFile;
-    findRoute = Graph.findRoute;
-
+    logFile = require('./database/logFile.js').logFile,
+    findRoute = Graph.findRoute,
+    logFile = require('./database/logFile').logFile;
 
 // Set up express
 app = express();
@@ -150,15 +150,13 @@ router.post("/login", function(req, res) {
 
 router.get("/logFile", function (req, res) {
     "use strict";
-    new logFile().loadXMLDoc(function (json) {
-        if (req.session.manager) {
-            // res.send(JSON.parse(json));
-            res.render('logFile', {events: json.events.event, loggedin: req.session.manager ? true : false});
-        }
-        else {
-            res.render('login', {loggedin: req.session.manager ? true : false});
-        }
-    });
+    if(req.session.manager){
+        new logFile().loadXMLDoc(function (json) {
+                res.render('logFile', {events: json.events.event, loggedin: req.session.manager ? true : false});
+        });
+    } else {
+        res.render('login', {loggedin: false});
+    }
 });
 
 router.get("/logFile/:logFileId", function(req, res){
@@ -354,6 +352,7 @@ router.get('/confirmMail', function(req,res){
     console.log('confirmMail');
     console.log(mail);
     Mail.insertMail(mail, function (result) {
+        new logFile().addEvent({type: 'mail', action: 'insert', data: mail});
         console.log("mail entered");
         console.log(result);
         Location.getAllLocations(function(locations){
@@ -370,7 +369,6 @@ router.get('/confirmMail', function(req,res){
                         notify: "Successfully inserted Mail"
                     });
                     req.session.mail = null;
-
                 } else {
                     //could not insert mail
                     res.render('mails', {

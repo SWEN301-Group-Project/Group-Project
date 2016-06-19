@@ -1,11 +1,8 @@
-/**
- * Created by elliot on 17/06/16.
- */
 
-var express = require('express');
-var router = express.Router();
-var logFile = require('../database/logFile').logFile;
-var Company = require('../database/company');
+var express = require('express'),
+    router = express.Router(),
+    logFile = require('../database/logFile').logFile,
+    Company = require('../database/company');
 
 //company
 router.get("/", function(req, res) {

@@ -2,10 +2,10 @@
  * Created by harmansingh on 11/06/16.
  */
 
-var express = require('express');
-var router = express.Router();
-var logFile = require('../database/logFile').logFile;
-var Location = require('../database/location');
+var express = require('express'),
+    router = express.Router(),
+    logFile = require('../database/logFile').logFile,
+    Location = require('../database/location');
 
 
 router.get("/", function(req, res) {
