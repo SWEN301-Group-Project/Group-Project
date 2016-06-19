@@ -55,12 +55,27 @@
         <data>
             <mailid>1</mailid>
             <origin>Wellington</origin>
-            <destination>Sydney</destination>
+            <destination>Hamilton</destination>
             <weight>7.0</weight>
             <volume>6.0</volume>
             <priority>Domestic Air</priority>
             <totalcustomercost>20</totalcustomercost>
             <totalbusinesscost>15</totalbusinesscost>
+        </data>
+    </event>
+
+    <event>
+        <type>mail</type>
+        <action>create</action>
+        <data>
+            <mailid>2</mailid>
+            <origin>Auckland</origin>
+            <destination>Sydney</destination>
+            <weight>4.0</weight>
+            <volume>3.0</volume>
+            <priority>Domestic Air</priority>
+            <totalcustomercost>25</totalcustomercost>
+            <totalbusinesscost>20</totalbusinesscost>
         </data>
     </event>
 </events>

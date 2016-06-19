@@ -213,14 +213,3 @@ exports.updateRoute = function(routeid, newRoute, callback){
             }
         });
 };
-
-exports.getListOfRoutes = function(listOfRoutes){
-    return null;
-    // for(var i = 0; i < listOfRoutes.length; i++){
-    //
-    // }
-    // require('deasync').loopWhile(function () {
-    //     console.log("still loading graph");
-    //     return !isGraphLoaded;
-    // });
-};

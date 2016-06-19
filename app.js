@@ -38,9 +38,9 @@ var express = require('express'),
     Price = require('./database/customerprice'),
     Managers = require('./database/managers'),
     Graph = require('./database/graph'),
-    logFile = require('./database/logFile.js').logFile;
-    findRoute = Graph.findRoute;
-
+    logFile = require('./database/logFile.js').logFile,
+    findRoute = Graph.findRoute,
+    logFile = require('./database/logFile').logFile;
 
 // Set up express
 app = express();
@@ -75,7 +75,7 @@ env.addFilter('isMailDestination', function(locationid, mail) {
 });
 
 env.addFilter('round', function(value){
-    value = parseInt(value);
+    value = parseFloat(value);
     return value.toFixed(2);
 });
 
@@ -134,7 +134,6 @@ router.get("/login", function (req, res) {
 });
 
 router.post("/login", function(req, res) {
-    console.log(req.body);
     var manager = req.body;
     var username = req.body.username;
     var password = req.body.password;
@@ -151,30 +150,81 @@ router.post("/login", function(req, res) {
 
 router.get("/logFile", function (req, res) {
     "use strict";
-    new logFile().loadXMLDoc(function (json) {
-        console.log("in callback");
-        console.log(json.events.event);
-        if (req.session.manager) {
-            // res.send(JSON.parse(json));
-            res.render('logFile', {events: json.events.event, loggedin: req.session.manager ? true : false});
-        }
-        else {
-            res.render('login', {loggedin: req.session.manager ? true : false});
-        }
-    });
+    if(req.session.manager){
+        new logFile().loadXMLDoc(function (json) {
+                res.render('logFile', {events: json.events.event, loggedin: req.session.manager ? true : false});
+        });
+    } else {
+        res.render('login', {loggedin: false});
+    }
 });
 
 router.get("/logFile/:logFileId", function(req, res){
     var index = req.params.logFileId-1;
     new logFile().loadXMLDoc(function (json) {
+        var totalcustomercost = 0;
+        var totalbusinesscost = 0;
+        var totalvolume = 0;
+        var totalweight = 0;
+        var totalmail = 0;
         //var event = json.events.event;
         console.log("in logfile id");
-        console.log(index);
-        console.log(json.events.event);
-        console.log(json.events.event[index]);
+        var mailEvents = [];
+        var mailStats = {};
+        for (var i = 0; i < (index + 1); i++) {
+            var event = json.events.event[i];
+            var data = event.data[0];
+            if (data.totalcustomercost) {
+                totalcustomercost += parseInt(data.totalcustomercost[0]);
+            }
+            if (data.totalbusinesscost) {
+                totalbusinesscost += parseInt(data.totalbusinesscost[0]);
+            }
+            if (event.type == "mail") {
+                totalmail += 1;
+            }
+            if (data.volume) {
+                totalvolume += parseInt(data.volume[0]);
+            }
+            if (data.weight) {
+                totalweight += parseInt(data.weight[0]);
+            }
+            if (event.type == "mail") {
+                mailEvents.push({
+                    event: event
+                })
+            }
+        }
+            console.log(mailEvents);
+            console.log("mailEvents.length: " + mailEvents.length);
+            for (var j = 0; j < mailEvents.length; j++){
+                var mail = mailEvents[j].event;
+                var origin = mail.data[0].origin[0];
+                var destination = mail.data[0].destination[0];
+                if (mailStats[mail.data[0].origin]){
+                    continue;
+                }
+                else{
+                    mailStats[mailEvents.origin] = [destination, 0, 0, 0];
+                }
+                console.log(j);
+                console.log("MAIL object: " + mail);
+                console.log("ORIGIN: " + origin);
+                console.log("DESTINATION: " + destination);
+                console.log(mailStats[mailEvents.origin]);
+            }
+
         //1. calculate business figures
         //2. show events[i]
-        res.render('logs', {events: json.events.event[index],index: index + 1, loggedin: req.session.manager ? true : false});
+        res.render('logs',
+            {customercost: totalcustomercost,
+                businesscost: totalbusinesscost,
+                volume: totalvolume,
+                weight: totalweight,
+                mails: totalmail,
+                events: json.events.event[index],
+                index: index + 1,
+                loggedin: req.session.manager ? true : false});
     });
 });
 
@@ -253,18 +303,23 @@ router.post("/addMail", function(req,res, next){
                     var mailFindRoute = findRoute(testMail);
                     console.log("mailFindRoute:");
                     console.log(mailFindRoute);
-                    var routes = Route.getListOfRoutes(mailFindRoute.routeTaken);
-                    if(mailFindRoute.routeTaken.length > 0 && !mailFindRoute.errorMessage) {
-                        mail.totalcustomercost = mailFindRoute.costToCustomer;
 
+                    if(mailFindRoute.routeTaken.length > 0 && !mailFindRoute.errorMessage) {
+                        mail.duration = mailFindRoute.duration;
+                        mail.totalcustomercost = mailFindRoute.costToCustomer;
                         mail.totalbusinesscost = mailFindRoute.costToCompany;
+                        req.session.mail = mail; //resave mail into session
                         res.render('confirmMail', {
                             mail: mail,
                             title: "Mails",
                             loggedin: req.session.manager ? true : false,
                             origin: originLocation,
                             destination: destinationLocation,
-                            mailActive: true
+                            mailActive: true,
+                            routes: mailFindRoute.routeTakenName,
+                            departureTime: mailFindRoute.departureTime,
+                            duration: mailFindRoute.duration,
+                            arrivalTime: mailFindRoute.estArrival
                         });
                     } else {
                         Location.getAllLocations(function(locations){
@@ -292,11 +347,12 @@ router.post("/addMail", function(req,res, next){
 
 router.get('/confirmMail', function(req,res){
     //insert mail
-    console.log
+    "use strict";
     var mail = req.session.mail;
     console.log('confirmMail');
     console.log(mail);
     Mail.insertMail(mail, function (result) {
+        new logFile().addEvent({type: 'mail', action: 'insert', data: mail});
         console.log("mail entered");
         console.log(result);
         Location.getAllLocations(function(locations){
@@ -313,7 +369,6 @@ router.get('/confirmMail', function(req,res){
                         notify: "Successfully inserted Mail"
                     });
                     req.session.mail = null;
-
                 } else {
                     //could not insert mail
                     res.render('mails', {
