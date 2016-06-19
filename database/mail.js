@@ -148,12 +148,12 @@ var Mail = function (dbFile) {
 
                 for (var i in fullMailAmount) {
                     mailAmount.push({
-                        origin: fullMailAmount[i].origin,
+                        origin: capitalizeFirstLetter(fullMailAmount[i].origin),
                         destinations: []
                     });
                     for (var j in fullMailAmount[i].destinations) {
                         mailAmount[i].destinations.push({
-                            destination: fullMailAmount[i].destinations[j].destination,
+                            destination: capitalizeFirstLetter(fullMailAmount[i].destinations[j].destination),
                             totalNumber: 0,
                             totalVolume: 0,
                             totalWeight: 0,
@@ -176,18 +176,25 @@ var Mail = function (dbFile) {
                     }
                 }
 
-                // also need to calculate critical routes!
+                // also need to calculate critical routes and durations!
+                // logic here is: for each origin, for each destination, for each priority, for each mail...
                 var criticalRoutes = [];
+                var durations = [];
 
                 for (var i in fullMailAmount) {
                     for (var j in fullMailAmount[i].destinations) {
                         for (var k in fullMailAmount[i].destinations[j].priorities) {
                             if (fullMailAmount[i].destinations[j].priorities[k].length > 0) {
                                 var count = 0;
+
                                 var income = 0;
                                 var expenses = 0;
+
+                                var duration = 0;
+
                                 for (var l in fullMailAmount[i].destinations[j].priorities[k]) {
                                     count++;
+                                    duration += fullMailAmount[i].destinations[j].priorities[k][l].duration;
                                     income += fullMailAmount[i].destinations[j].priorities[k][l].totalcustomercost;
                                     expenses += fullMailAmount[i].destinations[j].priorities[k][l].totalbusinesscost;
                                 }
@@ -196,12 +203,24 @@ var Mail = function (dbFile) {
 
                                 if (difference < 0) {
                                     criticalRoutes.push({
-                                        origin: fullMailAmount[i].origin,
-                                        destination: fullMailAmount[i].destinations[j].destination,
+                                        origin: capitalizeFirstLetter(fullMailAmount[i].origin),
+                                        destination: capitalizeFirstLetter(fullMailAmount[i].destinations[j].destination),
                                         priority: fullMailAmount[i].destinations[j].priorities[k][0].priority,
                                         difference: difference
                                     })
                                 }
+
+                                duration = duration/count;
+
+                                var hours = Math.floor(duration);
+                                var minutes = Math.floor((duration-hours)*60);
+
+                                durations.push({
+                                    origin: capitalizeFirstLetter(fullMailAmount[i].origin),
+                                    destination: capitalizeFirstLetter(fullMailAmount[i].destinations[j].destination),
+                                    priority: fullMailAmount[i].destinations[j].priorities[k][0].priority,
+                                    duration: hours + " hours, " + minutes + " minutes"
+                                })
                             }
                         }
                     }
@@ -224,21 +243,15 @@ var Mail = function (dbFile) {
                     weekTotal.expenses += weekRows[i].totalbusinesscost;
                 }
 
-                // looks nicer in capitals and sorted
+                // looks nicer sorted
 
                 mailAmount.sort(function(a, b){return a.origin > b.origin});
 
                 for (var i in mailAmount) {
-                    mailAmount[i].origin = capitalizeFirstLetter(mailAmount[i].origin);
-
                     mailAmount[i].destinations.sort(function(a, b){return a.destination > b.destination});
-
-                    for (var j in mailAmount[i].destinations) {
-                        mailAmount[i].destinations[j].destination = capitalizeFirstLetter(mailAmount[i].destinations[j].destination);
-                    }
                 }
 
-                callback(labels, series, range, dateOffset - 1, dateOffset + 1, weekTotal, mailAmount, criticalRoutes);
+                callback(labels, series, range, dateOffset - 1, dateOffset + 1, weekTotal, mailAmount, criticalRoutes, durations);
             }
         });
     },
