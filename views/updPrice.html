@@ -53,7 +53,7 @@
                     <div class="col-md-12">
                         <div class="card">
                             <div class="header">
-                                <h4 class="title">Add Update Customer Price</h4>
+                                <h4 class="title">Add New Customer Pricing</h4>
                                 {% if error %}
                                     {% for err in error %}
                                         <label class="error"> {{err}}</label>
@@ -123,19 +123,21 @@
                                     <div class="row">
                                         <div class="col-md-6">
                                             <div class="form-group">
-                                                <label for="WeightPrice">Weight ($/Kg)</label>
+                                                <label for="WeightPrice">Weight ($/g)</label>
                                                 <input type="number" id="WeightPrice" name="wgt" class="form-control border-input" placeholder="Weight" min="0" required>
                                             </div>
                                         </div>
                                         <div class="col-md-6">
                                             <div class="form-group">
-                                                <label for="VolPrice">Volume ($/L)</label>
+                                                <label for="VolPrice">Volume ($/cm³)</label>
                                                 <input type="number" id="VolPrice" name="vol" class="form-control border-input" placeholder="Volume" min="0" required>
                                             </div>
                                         </div>
                                     </div>
                                     </div>
-                                    <button type="submit" class="btn btn-info btn-fill btn-wd">Submit</button>
+                                    <div class="text-center pull-left">
+                                        <button type="submit" class="btn btn-info btn-fill btn-wd">Add Price</button>
+                                    </div>
                                     <div class="clearfix"></div>
                                 </form>
                             </div>
@@ -166,8 +168,8 @@
                                         <td><a href="/price/{{price.priceid}}">{{price.priceid}}</a></td>
                                         <td><a href="/locations/{{price.originid}}">{{price.origin | capitalize}}</a></td>
                                         <td><a href="/locations/{{price.destinationid}}">{{price.destination | capitalize}}</a></td>
-                                        <td>{{price.weightcost}}</td>
-                                        <td>{{price.volumecost}}</td>
+                                        <td class="weight money">{{price.weightcost}}</td>
+                                        <td class="volume money">{{price.volumecost}}</td>
                                         <td>{{price.priority}}</td>
                                     </tr>
                                     {% endfor %}
@@ -230,6 +232,9 @@
             timer: 300
         });
         {% endif %}
+        [].slice.call($('.money')).forEach(function(element){element.textContent = new Intl.NumberFormat('en-NZ', { style: 'currency', currency: 'NZD' }).format(element.textContent);});
+        [].slice.call($('.weight')).forEach(function(element){element.textContent = element.textContent + '/g'});
+        [].slice.call($('.volume')).forEach(function(element){element.textContent = element.textContent + '/cm³'});
     });
 
     function setPriorityVisibility(){

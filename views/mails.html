@@ -61,13 +61,14 @@
                                     </div>
                                 {% endif %}
                                     <form method="post" action="/addMail" id="mailform">
+                                    <div class="content">
                                         <div class="row">
                                             <div class="col-md-6">
                                                 <div class="form-group">
                                                     <label for="origin">Origin</label>
                                                     <select id="origin" name="origin" required>
                                                         {% for location in locations %}
-                                                        <option value={{location.locationid}} {% if location.locationid| isMailOrigin(mail)  %}selected{% endif %}>{{location.name}}</option>
+                                                        <option value={{location.locationid}} {% if location.locationid| isMailOrigin(mail)  %}selected{% endif %}>{{location.name|capitalize}}</option>
                                                         {% endfor %}
                                                     </select>
                                                 </div>
@@ -77,7 +78,7 @@
                                                     <label for="destination">Destination</label>
                                                     <select id="destination" name="destination" required>
                                                         {% for location in locations %}
-                                                        <option value={{location.locationid}} {% if location.locationid| isMailDestination(mail)  %}selected{% endif %}>{{location.name}}</option>
+                                                        <option value={{location.locationid}} {% if location.locationid| isMailDestination(mail)  %}selected{% endif %}>{{location.name|capitalize}}</option>
                                                         {% endfor %}
                                                     </select>
                                                 </div>
@@ -87,20 +88,20 @@
                                         <div class="row">
                                             <div class="col-md-4">
                                                 <div class="form-group">
-                                                    <label for="weight">Weight</label>
-                                                    <input type="number" id="weight" name="weight" class="form-control border-input" placeholder="Weight" {% if mail %}value = {{mail.weight}} {% endif %} required>
+                                                    <label for="weight">Weight (grams)</label>
+                                                    <input type="number" id="weight" name="weight" class="form-control border-input" placeholder="Weight" {% if mail %}value = {{mail.weight}} {% endif %} min="0" required>
                                                 </div>
                                             </div>
                                             <div class="col-md-4">
                                                 <div class="form-group">
-                                                    <label for="volume">Volume</label>
-                                                    <input type="number" id="volume" name="volume" class="form-control border-input" placeholder="Volume" {% if mail %}value = {{mail.volume}} {% endif %}required>
+                                                    <label for="volume">Volume (cm³)</label>
+                                                    <input type="number" id="volume" name="volume" class="form-control border-input" placeholder="Volume" {% if mail %}value = {{mail.volume}} {% endif %} min="0" required>
                                                 </div>
                                             </div>
                                             <div class="col-md-4">
                                                 <div class="form-group">
                                                     <label for="priority">Priority</label>
-                                                    <select id="priority" name="priority" class="form-control" required>
+                                                    <select id="priority" name="priority" required>
                                                         <option value="" selected="selected">(select priority)</option>
                                                         <option value="DOMESTIC STANDARD">Domestic Standard</option>
                                                         <option value="DOMESTIC AIR">Domestic Air</option>
@@ -109,6 +110,7 @@
                                                     </select>
                                                 </div>
                                             </div>
+                                        </div>
                                         </div>
                                         <div class="text-center pull-left">
                                             <button type="submit" class="btn btn-info btn-fill btn-wd">Submit Mail</button>
@@ -147,11 +149,11 @@
                                         <td>{{mail.date}}</td>
                                         <td>{{mail.origin | capitalize}}</td>
                                         <td>{{mail.destination | capitalize}}</td>
-                                        <td>{{mail.weight}}</td>
-                                        <td>{{mail.volume}}</td>
+                                        <td class="notmoney weight">{{mail.weight}}</td>
+                                        <td class="notmoney volume">{{mail.volume}}</td>
                                         <td>{{mail.priority}}</td>
-                                        <td>{{mail.totalcustomercost}}</td>
-                                        <td>{{mail.totalbusinesscost}}</td>
+                                        <td class="money">{{mail.totalcustomercost}}</td>
+                                        <td class="money">{{mail.totalbusinesscost}}</td>
                                     </tr>
                                     {% endfor %}
                                     </tbody>
@@ -194,6 +196,8 @@
 
         $('#destination').selectize();
 
+        $('#priority').selectize();
+
         {% if notify %}
         $.notify({
             icon: 'ti-email',
@@ -204,6 +208,11 @@
             timer: 300
         });
         {% endif %}
+
+        [].slice.call($('.money')).forEach(function(element){element.textContent = new Intl.NumberFormat('en-NZ', { style: 'currency', currency: 'NZD' }).format(element.textContent);});
+        [].slice.call($('.notmoney')).forEach(function(element){element.textContent = eval(element.textContent).toFixed(2)});
+        [].slice.call($('.weight')).forEach(function(element){element.textContent = element.textContent + ' g'});
+        [].slice.call($('.volume')).forEach(function(element){element.textContent = element.textContent + ' cm³'});
     });
 </script>
 <script type="text/javascript" src="/static/js/validation/mails.js"></script>
