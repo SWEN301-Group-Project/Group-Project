@@ -251,6 +251,10 @@ var Mail = function (dbFile) {
                     mailAmount[i].destinations.sort(function(a, b){return a.destination > b.destination});
                 }
 
+                criticalRoutes.sort(sortMail);
+
+                durations.sort(sortMail);
+
                 callback(labels, series, range, dateOffset - 1, dateOffset + 1, weekTotal, mailAmount, criticalRoutes, durations);
             }
         });
@@ -410,4 +414,16 @@ function capitalizeFirstLetter(string) {
     }
 
     return fullName.trim();
+}
+
+function sortMail(a, b) {
+    if (a.origin != b.origin) {
+        return a.origin > b.origin
+    }
+    else if (a.destination != b.destination) {
+        return a.destination > b.destination;
+    }
+    else {
+        return a.priority > b.priority;
+    }
 }
