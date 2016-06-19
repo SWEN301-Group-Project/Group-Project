@@ -219,7 +219,27 @@
                                     {% if data.day %}
                                     <p>Day:
                                         {% for day in data.day %}
-                                        {{day | capitalize}}
+                                        {% if day == 0 %}
+                                        Sunday
+                                        {% endif %}
+                                        {% if day == 1 %}
+                                        Monday
+                                        {% endif %}
+                                        {% if day == 2 %}
+                                        Tuesday
+                                        {% endif %}
+                                        {% if day == 3 %}
+                                        Wednesday
+                                        {% endif %}
+                                        {% if day == 4 %}
+                                        Thursday
+                                        {% endif %}
+                                        {% if day == 5 %}
+                                        Friday
+                                        {% endif %}
+                                        {% if day == 6 %}
+                                        Saturday
+                                        {% endif %}
                                         {% endfor %}
                                     </p>
                                     {% endif %}
