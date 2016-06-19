@@ -206,7 +206,7 @@ var Mail = function (dbFile) {
                                         origin: capitalizeFirstLetter(fullMailAmount[i].origin),
                                         destination: capitalizeFirstLetter(fullMailAmount[i].destinations[j].destination),
                                         priority: fullMailAmount[i].destinations[j].priorities[k][0].priority,
-                                        difference: difference
+                                        difference: "$" + difference.toFixed(2)
                                     })
                                 }
 
@@ -243,6 +243,22 @@ var Mail = function (dbFile) {
                     weekTotal.expenses += weekRows[i].totalbusinesscost;
                 }
 
+                // convert everything into readable format
+
+                for (var i in mailAmount) {
+                    for (var j in mailAmount[i].destinations) {
+                        mailAmount[i].destinations[j].totalVolume = mailAmount[i].destinations[j].totalVolume.toFixed(2) + " cm³";
+                        mailAmount[i].destinations[j].totalWeight = mailAmount[i].destinations[j].totalWeight.toFixed(2) + " kg";
+                        mailAmount[i].destinations[j].totalIncome = "$" + mailAmount[i].destinations[j].totalIncome.toFixed(2);
+                        mailAmount[i].destinations[j].totalExpenses = "$" + mailAmount[i].destinations[j].totalExpenses.toFixed(2);
+                    }
+                }
+
+                weekTotal.volume = weekTotal.volume.toFixed(2) + " cm³";
+                weekTotal.weight = weekTotal.weight.toFixed(2) + " kg";
+                weekTotal.income = "$" + weekTotal.income.toFixed(2);
+                weekTotal.expenses = "$" + weekTotal.expenses.toFixed(2);
+
                 // looks nicer sorted
 
                 mailAmount.sort(function(a, b){return a.origin > b.origin});
@@ -250,6 +266,10 @@ var Mail = function (dbFile) {
                 for (var i in mailAmount) {
                     mailAmount[i].destinations.sort(function(a, b){return a.destination > b.destination});
                 }
+
+                criticalRoutes.sort(sortMail);
+
+                durations.sort(sortMail);
 
                 callback(labels, series, range, dateOffset - 1, dateOffset + 1, weekTotal, mailAmount, criticalRoutes, durations);
             }
@@ -410,4 +430,16 @@ function capitalizeFirstLetter(string) {
     }
 
     return fullName.trim();
+}
+
+function sortMail(a, b) {
+    if (a.origin != b.origin) {
+        return a.origin > b.origin
+    }
+    else if (a.destination != b.destination) {
+        return a.destination > b.destination;
+    }
+    else {
+        return a.priority > b.priority;
+    }
 }
