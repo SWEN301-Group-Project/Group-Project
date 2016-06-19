@@ -418,4 +418,46 @@
 			<totalbusinesscost>154</totalbusinesscost>
 		</data>
 	</event>
+	<event>
+		<type>mail</type>
+		<action>insert</action>
+		<data>
+			<origin>1</origin>
+			<destination>2</destination>
+			<weight>1.2</weight>
+			<volume>2.3</volume>
+			<priority>DOMESTIC STANDARD</priority>
+			<duration>2.02247138886014</duration>
+			<totalcustomercost>30.299999999999997</totalcustomercost>
+			<totalbusinesscost>9.299999999999999</totalbusinesscost>
+		</data>
+	</event>
+	<event>
+		<type>mail</type>
+		<action>insert</action>
+		<data>
+			<origin>1</origin>
+			<destination>2</destination>
+			<weight>1.22</weight>
+			<volume>3.4566</volume>
+			<priority>DOMESTIC STANDARD</priority>
+			<duration>6.972202222212218</duration>
+			<totalcustomercost>40.8694</totalcustomercost>
+			<totalbusinesscost>12.8098</totalbusinesscost>
+		</data>
+	</event>
+	<event>
+		<type>mail</type>
+		<action>insert</action>
+		<data>
+			<origin>2</origin>
+			<destination>1</destination>
+			<weight>4</weight>
+			<volume>4</volume>
+			<priority>DOMESTIC STANDARD</priority>
+			<duration>5.876168888877146</duration>
+			<totalcustomercost>20</totalcustomercost>
+			<totalbusinesscost>60</totalbusinesscost>
+		</data>
+	</event>
 </events>

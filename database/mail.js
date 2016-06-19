@@ -206,7 +206,7 @@ var Mail = function (dbFile) {
                                         origin: capitalizeFirstLetter(fullMailAmount[i].origin),
                                         destination: capitalizeFirstLetter(fullMailAmount[i].destinations[j].destination),
                                         priority: fullMailAmount[i].destinations[j].priorities[k][0].priority,
-                                        difference: difference
+                                        difference: "$" + difference.toFixed(2)
                                     })
                                 }
 
@@ -242,6 +242,22 @@ var Mail = function (dbFile) {
                     weekTotal.income += weekRows[i].totalcustomercost;
                     weekTotal.expenses += weekRows[i].totalbusinesscost;
                 }
+
+                // convert everything into readable format
+
+                for (var i in mailAmount) {
+                    for (var j in mailAmount[i].destinations) {
+                        mailAmount[i].destinations[j].totalVolume = mailAmount[i].destinations[j].totalVolume.toFixed(2) + " cm³";
+                        mailAmount[i].destinations[j].totalWeight = mailAmount[i].destinations[j].totalWeight.toFixed(2) + " kg";
+                        mailAmount[i].destinations[j].totalIncome = "$" + mailAmount[i].destinations[j].totalIncome.toFixed(2);
+                        mailAmount[i].destinations[j].totalExpenses = "$" + mailAmount[i].destinations[j].totalExpenses.toFixed(2);
+                    }
+                }
+
+                weekTotal.volume = weekTotal.volume.toFixed(2) + " cm³";
+                weekTotal.weight = weekTotal.weight.toFixed(2) + " kg";
+                weekTotal.income = "$" + weekTotal.income.toFixed(2);
+                weekTotal.expenses = "$" + weekTotal.expenses.toFixed(2);
 
                 // looks nicer sorted
 
