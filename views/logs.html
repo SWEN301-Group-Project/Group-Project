@@ -35,13 +35,11 @@
 
 </head>
 <body>
-
 <div class="wrapper">
     {% include "includes/sidebar.html" %}
 
     <div class="main-panel">
         {% include "includes/navbar.html" %}
-
         <div class="content">
             <div class="container-fluid">
                 <div class="row">
@@ -49,7 +47,7 @@
                         <div class="card">
                             <div class="content">
                                 <div class="header">
-                                    <h4 class="title">Log File</h4>
+                                    <h4 class="title">Log Information</h4>
                                 </div>
                                 <div class="content">
                                     <p>Action:
@@ -251,25 +249,49 @@
                                     </p>
                                     {% endif %}
                                     {% endfor %}
-                                    <p>Total Revenue: {{customercost}}</p>
-                                    <p>Total Expenditure: {{businesscost}}</p>
-                                    <!--<p>Amount of Mail: </p>-->
-                                    <!--<p>Average Delivery Times: </p>-->
-                                    <!--<p>Critical Routes: </p>-->
-                                </div>
-                                <div class="footer">
-                                    <hr />
-                                    <div class="stats">
-                                        <a href="/logFile"><i class="ti-arrow-left"></i> Back to log file</a>
-                                    </div></br>
-                                    <div class="stats">
-                                        <a href ="/logFile/{{index - 1}}"><i class="ti-arrow-left"></i> Previous log</a>
-                                    </div>
-                                    <div class="stats pull-right">
-                                        <a class="pull-right" href ="/logFile/{{index + 1}}">Next log <i class="ti-arrow-right"></i></a>
-                                    </div>
                                 </div>
                             </div>
+                        </div>
+                        <div class="card">
+                            <div class="content">
+                                <div class="header">
+                                    <h4 class="title">Business Figures</h4>
+                                </div>
+                                <div class="content">
+                                    <p>Total Revenue: {{customercost}}</p>
+                                    <p>Total Expenditure: {{businesscost}}</p>
+                                    <p>Total Number of Events Processed: {{index}}</p>
+                                    <p>Amount of Mail from {{ori | capitalize}} to {{dest | capitalize}}: </p>
+                                    <table id="example-table" class="table table-striped table-responsive hover">
+                                        <thead>
+                                        <tr>
+                                            <th>Total Weight</th>
+                                            <th>Total Volume</th>
+                                            <th>Total Items</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr>
+                                            <td>{{totalWeight}}</td>
+                                            <td>{{totalVolume}}</td>
+                                            <td>{{totalItems}}</td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="footer">
+                        <hr />
+                        <div class="stats">
+                            <a href="/logFile"><i class="ti-arrow-left"></i> Back to log file</a>
+                        </div></br>
+                        <div class="stats">
+                            <a href ="/logFile/{{index - 1}}"><i class="ti-arrow-left"></i> Previous log</a>
+                        </div>
+                        <div class="stats pull-right">
+                            <a class="pull-right" href ="/logFile/{{index + 1}}">Next log <i class="ti-arrow-right"></i></a>
                         </div>
                     </div>
                 </div>
@@ -277,8 +299,6 @@
         </div>
     </div>
 </div>
-
-
 </body>
 
 <!--   Core JS Files   -->
@@ -290,5 +310,4 @@
 
 <!-- Datatables Plugin -->
 <script type="text/javascript" src="/static/js/datatables.min.js"></script>
-
 </html>
