@@ -1,87 +1,179 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <events>
 	<event>
-		<type>company</type>
-		<action>insert</action>
-		<data>
-			<name>NZ Post</name>
-			<type>Land</type>
-		</data>
-	</event>
-	<event>
 		<type>location</type>
-		<action>insert</action>
-		<data>
-			<name>Wellington</name>
-			<isInternational>0</isInternational>
-		</data>
-	</event>
-	<event>
-		<type>location</type>
-		<action>insert</action>
+		<action>create</action>
 		<data>
 			<name>Auckland</name>
 			<isInternational>0</isInternational>
 		</data>
 	</event>
+
 	<event>
-		<type>routes</type>
-		<action>insert</action>
+		<type>companies</type>
+		<action>create</action>
 		<data>
-			<company>1</company>
-			<origin>1</origin>
-			<destination>2</destination>
-			<type>Land</type>
-			<weightcost>2</weightcost>
-			<volumecost>2</volumecost>
-			<maxweight>5</maxweight>
-			<maxvolume>5</maxvolume>
-			<duration>3</duration>
-			<frequency>3</frequency>
-			<day>0</day>
+			<name>Air NZ</name>
+			<transport>Land</transport>
 		</data>
 	</event>
+
 	<event>
 		<type>price</type>
-		<action>insert</action>
+		<action>update</action>
 		<data>
-			<origin>1</origin>
-			<destination>2</destination>
-			<weightcost>3</weightcost>
-			<volumecost>3</volumecost>
-			<priority>DOMESTIC STANDARD</priority>
+			<to>Rome</to>
+			<from>Wellington</from>
+			<priority>International Air</priority>
+			<weightCost>3.0</weightCost>
+			<volumeCost>10.0</volumeCost>
 		</data>
 	</event>
+
+	<event>
+		<type>routes</type>
+		<action>create</action>
+		<data>
+			<routeid>2</routeid>
+			<company>Air NZ</company>
+			<transport>Air</transport>
+			<origin>Wellington</origin>
+			<destination>Sydney</destination>
+			<weightcost>5.0</weightcost>
+			<volumecost>3.0</volumecost>
+			<maxweight>5.0</maxweight>
+			<maxvolume>4.0</maxvolume>
+			<frequency>4</frequency>
+			<duration>10</duration>
+			<day>Tuesday</day>
+		</data>
+	</event>
+
 	<event>
 		<type>mail</type>
-		<action>insert</action>
+		<action>create</action>
 		<data>
-			<origin>1</origin>
-			<destination>2</destination>
-			<weight>2</weight>
-			<volume>2</volume>
-			<priority>DOMESTIC STANDARD</priority>
-			<duration>4.418337777780835</duration>
-			<totalcustomercost>12</totalcustomercost>
-			<totalbusinesscost>8</totalbusinesscost>
-			<date>2016-06-19T10:34:55.957Z</date>
+			<mailid>1</mailid>
+			<origin>Wellington</origin>
+			<destination>Hamilton</destination>
+			<weight>7.0</weight>
+			<volume>6.0</volume>
+			<priority>Domestic Air</priority>
+			<totalcustomercost>20</totalcustomercost>
+			<totalbusinesscost>15</totalbusinesscost>
+			<duration>12</duration>
 		</data>
 	</event>
+
 	<event>
-		<type>company</type>
-		<action>update</action>
+		<type>mail</type>
+		<action>create</action>
 		<data>
-			<name>NZ Post - changed</name>
-			<companyid>1</companyid>
+			<mailid>2</mailid>
+			<origin>Auckland</origin>
+			<destination>Sydney</destination>
+			<weight>4.0</weight>
+			<volume>3.0</volume>
+			<priority>International Air</priority>
+			<totalcustomercost>25</totalcustomercost>
+			<totalbusinesscost>20</totalbusinesscost>
+			<duration>7</duration>
 		</data>
 	</event>
+
 	<event>
-		<type>company</type>
-		<action>update</action>
+		<type>mail</type>
+		<action>create</action>
 		<data>
-			<name>NZ Post - changed</name>
-			<type>land</type>
-			<companyid>1</companyid>
+			<mailid>3</mailid>
+			<origin>Wellington</origin>
+			<destination>Auckland</destination>
+			<weight>4.0</weight>
+			<volume>4.0</volume>
+			<priority>Domestic Air</priority>
+			<totalcustomercost>15</totalcustomercost>
+			<totalbusinesscost>10</totalbusinesscost>
+			<duration>2</duration>
+		</data>
+	</event>
+
+	<event>
+		<type>mail</type>
+		<action>create</action>
+		<data>
+			<mailid>2</mailid>
+			<origin>Auckland</origin>
+			<destination>Sydney</destination>
+			<weight>4.0</weight>
+			<volume>3.0</volume>
+			<priority>International Air</priority>
+			<totalcustomercost>25</totalcustomercost>
+			<totalbusinesscost>20</totalbusinesscost>
+			<duration>4</duration>
+		</data>
+	</event>
+
+	<event>
+		<type>mail</type>
+		<action>create</action>
+		<data>
+			<mailid>2</mailid>
+			<origin>Auckland</origin>
+			<destination>Sydney</destination>
+			<weight>4.0</weight>
+			<volume>3.0</volume>
+			<priority>International Air</priority>
+			<totalcustomercost>25</totalcustomercost>
+			<totalbusinesscost>20</totalbusinesscost>
+			<duration>6</duration>
+		</data>
+	</event>
+
+	<event>
+		<type>mail</type>
+		<action>create</action>
+		<data>
+			<mailid>4</mailid>
+			<origin>Auckland</origin>
+			<destination>Singapore</destination>
+			<weight>4.0</weight>
+			<volume>3.0</volume>
+			<priority>International Air</priority>
+			<totalcustomercost>25</totalcustomercost>
+			<totalbusinesscost>20</totalbusinesscost>
+			<duration>10</duration>
+		</data>
+	</event>
+
+	<event>
+		<type>mail</type>
+		<action>create</action>
+		<data>
+			<mailid>4</mailid>
+			<origin>Auckland</origin>
+			<destination>Singapore</destination>
+			<weight>4.0</weight>
+			<volume>3.0</volume>
+			<priority>International Air</priority>
+			<totalcustomercost>25</totalcustomercost>
+			<totalbusinesscost>20</totalbusinesscost>
+			<duration>10</duration>
+		</data>
+	</event>
+
+	<event>
+		<type>mail</type>
+		<action>create</action>
+		<data>
+			<mailid>4</mailid>
+			<origin>Auckland</origin>
+			<destination>Singapore</destination>
+			<weight>4.0</weight>
+			<volume>3.0</volume>
+			<priority>Domestic Air</priority>
+			<totalcustomercost>25</totalcustomercost>
+			<totalbusinesscost>20</totalbusinesscost>
+			<duration>8</duration>
 		</data>
 	</event>
 </events>
