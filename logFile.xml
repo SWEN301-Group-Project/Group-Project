@@ -71,7 +71,73 @@
 			<totalbusinesscost>12</totalbusinesscost>
 			<originName>wellington</originName>
 			<destinationName>auckland</destinationName>
-			<date>2016-06-19T11:54:50.729Z</date>
+			<date>Sun Jun 19 2016 23:54:50 GMT+1200 (NZST)</date>
+		</data>
+	</event>
+	<event>
+		<type>location</type>
+		<action>insert</action>
+		<data>
+			<name>Singapore</name>
+			<isInternational>1</isInternational>
+		</data>
+	</event>
+	<event>
+		<type>company</type>
+		<action>insert</action>
+		<data>
+			<name>Air New Zealand</name>
+			<type>Air</type>
+		</data>
+	</event>
+	<event>
+		<type>routes</type>
+		<action>insert</action>
+		<data>
+			<company>2</company>
+			<origin>1</origin>
+			<destination>3</destination>
+			<type>Air</type>
+			<weightcost>5</weightcost>
+			<volumecost>5</volumecost>
+			<maxweight>15</maxweight>
+			<maxvolume>15</maxvolume>
+			<duration>7</duration>
+			<frequency>3</frequency>
+			<day>3</day>
+			<companyName>Air New Zealand</companyName>
+			<originName>wellington</originName>
+			<destinationName>singapore</destinationName>
+		</data>
+	</event>
+	<event>
+		<type>price</type>
+		<action>insert</action>
+		<data>
+			<origin>1</origin>
+			<destination>3</destination>
+			<weightcost>2</weightcost>
+			<volumecost>2</volumecost>
+			<priority>INTERNATIONAL AIR</priority>
+			<originName>wellington</originName>
+			<destinationName>singapore</destinationName>
+		</data>
+	</event>
+	<event>
+		<type>mail</type>
+		<action>insert</action>
+		<data>
+			<origin>1</origin>
+			<destination>3</destination>
+			<weight>2</weight>
+			<volume>2</volume>
+			<priority>INTERNATIONAL AIR</priority>
+			<duration>8.386707499972545</duration>
+			<totalcustomercost>8</totalcustomercost>
+			<totalbusinesscost>20</totalbusinesscost>
+			<originName>wellington</originName>
+			<destinationName>singapore</destinationName>
+			<date>Mon Jun 20 2016 10:36:50 GMT+1200 (NZST)</date>
 		</data>
 	</event>
 </events>

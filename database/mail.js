@@ -78,13 +78,17 @@ var Mail = function (dbFile) {
                 // speed issues.
                 for (var i in labels) {
                     labels[i] = labels[i] + ", " + date.getDate() + "/" + date.getMonth();
-
+/*
                     var stringDate = date.getFullYear() + '-'
                         + ('0' + (date.getMonth() + 1)).slice(-2) + '-'
                         + ('0' + (date.getDate())).slice(-2);
-
+                    console.log(stringDate);
+*/
+						  var stringDate = date.toLocaleDateString(); //gets date in dd/mm/yyyy format
+						  
                     for (var j in rows) {
-                        if (stringDate == rows[j].date.slice(0, 10)) {
+                    	var rowDate = new Date(rows[j].date); //parse the date
+                        if (stringDate == rowDate.toLocaleDateString()) {
                             series[0][i] += rows[j].totalcustomercost;
                             series[1][i] += rows[j].totalbusinesscost;
                             weekRows.push(rows[j]);
@@ -344,7 +348,7 @@ var Mail = function (dbFile) {
 //PostCondition: if return value > 0 ==> mail inserted sucessfully
         this.insertMail = function (mail, callback) {
             if (!mail.date){
-                mail.date = new Date().toISOString();
+                mail.date = new Date().toString();
             }
             if (!mail.duration){
                 mail.duration = 0.00;
