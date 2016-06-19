@@ -55,7 +55,7 @@
                     <div class="col-md-12">
                         <div class="card">
                             <div class="header">
-                                <h4 class="title">Add/Update Route Cost</h4>
+                                <h4 class="title">Add New Route Cost</h4>
                                 {% if error %}
                                     {% for err in error %}
                                         <label class="error"> {{err}}</label>
@@ -104,13 +104,13 @@
                                         <div class="row">
                                             <div class="col-md-6">
                                                 <div class="form-group">
-                                                    <label for="weightCost">Weight</label>
+                                                    <label for="weightCost">Weight ($/gram)</label>
                                                     <input type="number" id="weightCost" name="weightCost" class="form-control border-input" placeholder="Weight" required>
                                                 </div>
                                             </div>
                                             <div class="col-md-6">
                                                 <div class="form-group">
-                                                    <label for="volumeCost">Volume</label>
+                                                    <label for="volumeCost">Volume ($/cm³)</label>
                                                     <input type="number" id="volumeCost" name="volumeCost" class="form-control border-input" placeholder="Volume" required>
                                                 </div>
                                             </div>
@@ -120,13 +120,13 @@
                                         <div class="row">
                                             <div class="col-md-6">
                                                 <div class="form-group">
-                                                    <label for="weightLimit">Weight</label>
+                                                    <label for="weightLimit"> (grams)</label>
                                                     <input type="number" id="weightLimit" name="weightLimit" class="form-control border-input" placeholder="Weight" required>
                                                 </div>
                                             </div>
                                             <div class="col-md-6">
                                                 <div class="form-group">
-                                                    <label for="volumeLimit">Volume</label>
+                                                    <label for="volumeLimit">Volume (cm³)</label>
                                                     <input type="number" id="volumeLimit" name="volumeLimit" class="form-control border-input" placeholder="Volume" required>
                                                 </div>
                                             </div>
@@ -161,7 +161,9 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <button type="submit" class="btn btn-info btn-fill btn-wd">Submit</button>
+                                    <div class="text-center pull-left">
+                                        <button type="submit" class="btn btn-info btn-fill btn-wd">Add Route</button>
+                                    </div>
                                     <div class="clearfix"></div>
                                 </form>
                             </div>
@@ -185,6 +187,8 @@
                                         <th>Destination</th>
                                         <th>Weight-Cost</th>
                                         <th>Volume-Cost</th>
+                                        <th>Weight-Limit</th>
+                                        <th>Volume-Limit</th>
                                         <th>Freq</th>
                                         <th>Duration</th>
                                     </tr>
@@ -197,8 +201,10 @@
                                         <td class="fit">{{route.type | capitalize}}</a></td>
                                         <td><a href="/locations/{{route.originid}}">{{route.origin | capitalize}}</a></td>
                                         <td class="fit"><a href="/locations/{{route.destinationid}}">{{route.destination | capitalize}}</a></td>
-                                        <td>{{route.weightcost}}</td>
-                                        <td>{{route.volumecost}}</td>
+                                        <td class="money weightcost">{{route.weightcost}}</td>
+                                        <td class="money volumecost">{{route.volumecost}}</td>
+                                        <td class="maxweight">{{route.maxweight}}</td>
+                                        <td class="maxvolume">{{route.maxvolume}}</td>
                                         <td class="fit">{{route.frequency}} hrs</td>
                                         <td class="fit">{{route.duration}} hrs</td>
                                     </tr>
@@ -270,6 +276,14 @@
             timer: 300
         });
         {% endif %}
+        [].slice.call($('.money')).forEach(function(element){element.textContent = new Intl.NumberFormat('en-NZ', { style: 'currency', currency: 'NZD' }).format(element.textContent);});
+        [].slice.call($('.weightcost')).forEach(function(element){element.textContent = element.textContent + '/g'});
+        [].slice.call($('.volumecost')).forEach(function(element){element.textContent = element.textContent + '/cm³'});
+        [].slice.call($('.maxweight')).forEach(function(element){element.textContent = eval(element.textContent).toFixed(2) + ' g'});
+        [].slice.call($('.maxvolume')).forEach(function(element){element.textContent = eval(element.textContent).toFixed(2) + ' cm³'})
+
+
+
     });
 </script>
 <script type="text/javascript" src="/static/js/validation/transportcost.js"></script>
