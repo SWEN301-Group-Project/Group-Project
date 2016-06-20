@@ -343,12 +343,29 @@
                                         </tbody>
                                     </table>
                                     <p>Average Delivery Time: {{avgDelivery | round}} hours</p>
-                                    <p>Critical Routes: </p>
-                                    {% if criticalRoutes %}
-                                        {% for ori, criticalRoutes in criticalRoutes[orgin] %}
-                                        <li>{{ ori }}: {{ criticalRoutes[origin] }}</li>
-                                        {% endfor %}
                                     {% endif %}
+                                    {% if routes %}
+                                        <p>Critical Routes: </p>
+                                        <table class="table table-striped table-responsive hover">
+                                            <thead>
+                                            <tr>
+                                                <th>Origin</th>
+                                                <th>Destination</th>
+                                                <th>Priority</th>
+                                                <th>Average Difference</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            {% for route in routes %}
+                                            <tr>
+                                                <td>{{route.originName | capitalize}} </td>
+                                                <td>{{route.destinationName| capitalize}} </td>
+                                                <td>{{route.priority | capitalize}} </td>
+                                                <td>${{route.difference | round}}</td>
+                                            </tr>
+                                            {% endfor %}
+                                            </tbody>
+                                        </table>
                                     {% endif %}
                                 </div>
                                 <div class="footer">
