@@ -357,7 +357,7 @@ var findInternationalStandardRoute = function(mail, data){
         this.arrivalTime = sentDate + (this.currentNode.timeToHere * 24);
 
         //For the current node consider all of its unvisited neighbors
-        for (var j = 0; j < this.currentNode.segments; j++) {
+        for (var j = 0; j < this.currentNode.segments.length; j++) {
             var segment = this.currentNode.segments[j];
             if (!segment.endNode.visited && segment.maxWeight >= mail.weight && segment.maxVolume >= mail.volume) {
                 //Add weighting penalty for using air
