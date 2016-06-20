@@ -262,8 +262,8 @@ router.get("/logFile/:logFileId", function(req, res){
                         }
                         console.log(deliveryStats[origin][destination][priority]);
                         var data = deliveryStats[origin][destination][priority];
-                        var difference = Math.abs((data.customercost/parseFloat(data.count)) - (data.businesscost/parseFloat(data.count)));
-                        if(difference){
+                        var difference = (data.customercost/parseFloat(data.count)) - (data.businesscost/parseFloat(data.count));
+                        if(difference < 0){
                             if (!criticalRoutes[origin]){
                                 criticalRoutes[origin] = {};
                             }
