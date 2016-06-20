@@ -116,13 +116,13 @@
                                         <div class="row">
                                             <div class="col-md-6">
                                                 <div class="form-group">
-                                                    <label for="weightcost">Weight</label>
+                                                    <label for="weightcost">Weight ($/gram)</label>
                                                     <input type="number" id="weightcost" name="weightcost" class="form-control border-input" placeholder="Weight" {% if customerprice %}value = "{{customerprice.weightcost}}" {% endif %} min="0" required>
                                                 </div>
                                             </div>
                                             <div class="col-md-6">
                                                 <div class="form-group">
-                                                    <label for="volumecost">Volume</label>
+                                                    <label for="volumecost">Volume ($/cm³)</label>
                                                     <input type="number" id="volumecost" name="volumecost" class="form-control border-input" placeholder="Volume" {% if customerprice %}value = "{{customerprice.volumecost}}" {% endif %} min="0" required>
                                                 </div>
                                             </div>
