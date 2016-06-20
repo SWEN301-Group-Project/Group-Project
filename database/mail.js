@@ -203,7 +203,7 @@ var Mail = function (dbFile) {
                                     expenses += fullMailAmount[i].destinations[j].priorities[k][l].totalbusinesscost;
                                 }
 
-                                var difference = Math.abs((income-expenses)/count);
+                                var difference = (income-expenses)/count;
 
                                 if (difference < 0) {
                                     criticalRoutes.push({
@@ -252,14 +252,14 @@ var Mail = function (dbFile) {
                 for (var i in mailAmount) {
                     for (var j in mailAmount[i].destinations) {
                         mailAmount[i].destinations[j].totalVolume = mailAmount[i].destinations[j].totalVolume.toFixed(2) + " cm³";
-                        mailAmount[i].destinations[j].totalWeight = mailAmount[i].destinations[j].totalWeight.toFixed(2) + " kg";
+                        mailAmount[i].destinations[j].totalWeight = mailAmount[i].destinations[j].totalWeight.toFixed(2) + " g";
                         mailAmount[i].destinations[j].totalIncome = "$" + mailAmount[i].destinations[j].totalIncome.toFixed(2);
                         mailAmount[i].destinations[j].totalExpenses = "$" + mailAmount[i].destinations[j].totalExpenses.toFixed(2);
                     }
                 }
 
                 weekTotal.volume = weekTotal.volume.toFixed(2) + " cm³";
-                weekTotal.weight = weekTotal.weight.toFixed(2) + " kg";
+                weekTotal.weight = weekTotal.weight.toFixed(2) + " g";
                 weekTotal.income = "$" + weekTotal.income.toFixed(2);
                 weekTotal.expenses = "$" + weekTotal.expenses.toFixed(2);
 
