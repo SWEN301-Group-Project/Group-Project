@@ -171,6 +171,7 @@ router.get("/logFile/:logFileId", function(req, res){
         var totalmail = 0;
         var mailEvents = [];
         var mailStats = {};
+        var routes = [];
         var length = 0;
         for (var i = 0; i < (index + 1); i++) {
             var event = json.events.event[i];
@@ -261,7 +262,7 @@ router.get("/logFile/:logFileId", function(req, res){
                         }
                         console.log(deliveryStats[origin][destination][priority]);
                         var data = deliveryStats[origin][destination][priority];
-                        var difference = (data.customercost/data.count) - (data.businesscost/data.count);
+                        var difference = Math.abs((data.customercost/parseFloat(data.count)) - (data.businesscost/parseFloat(data.count)));
                         if(difference){
                             if (!criticalRoutes[origin]){
                                 criticalRoutes[origin] = {};
@@ -280,14 +281,23 @@ router.get("/logFile/:logFileId", function(req, res){
         for (var origin in criticalRoutes){
             for(var destination in criticalRoutes[origin]){
                 for(var priority in criticalRoutes[origin][destination]){
-                    console.log(criticalRoutes[origin][destination][priority]);
-                    console.log(origin);
-                    console.log(destination);
-                    console.log(priority);
+                    var data = {};
+                    data.originName = criticalRoutes[origin][destination][priority].originName;
+                    data.destinationName = criticalRoutes[origin][destination][priority].destinationName;
+                    data.priority = priority;
+                    data.difference = criticalRoutes[origin][destination][priority].difference;
+                    console.log(data);
+                    routes.push(data);
+                    // console.log(criticalRoutes[origin][destination][priority]);
+                    // console.log(origin);
+                    // console.log(destination);
+                    // console.log(priority);
                 }
             }
 
         }
+
+
 
         res.render('logs',
             {customercost: totalcustomercost,
@@ -304,7 +314,7 @@ router.get("/logFile/:logFileId", function(req, res){
                 totalVolume: (mailStats[origin] && mailStats[origin][destination]) ? mailStats[origin][destination].volume : 0,
                 totalItems: (mailStats[origin] && mailStats[origin][destination]) ? mailStats[origin][destination].mails : 0,
                 avgDelivery: (deliveryStats[origin] && deliveryStats[origin][destination] && deliveryStats[origin][destination][priority]) ? (deliveryStats[origin][destination][priority].duration/deliveryStats[origin][destination][priority].count) : 0,
-                // criticalRoutes: criticalRoutes[route] ? criticalRoutes[route] : null,
+                routes: routes.length ? routes : null,
                 loggedin: req.session.manager ? true : false});
     });
 });
