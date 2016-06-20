@@ -35,13 +35,11 @@
 
 </head>
 <body>
-
 <div class="wrapper">
     {% include "includes/sidebar.html" %}
 
     <div class="main-panel">
         {% include "includes/navbar.html" %}
-
         <div class="content">
             <div class="container-fluid">
                 <div class="row">
@@ -49,7 +47,7 @@
                         <div class="card">
                             <div class="content">
                                 <div class="header">
-                                    <h4 class="title">Log File</h4>
+                                    <h4 class="title">Log Information</h4>
                                 </div>
                                 <div class="content">
                                     <p>Action:
@@ -64,21 +62,21 @@
                                     </p>
                                     {% for data in events.data %}
                                     {% if data.name %}
-                                        <p>Name:
-                                            {% for name in data.name %}
-                                            {{name | capitalize}}
-                                            {% endfor %}
-                                        </p>
+                                    <p>Name:
+                                        {% for name in data.name %}
+                                        {{name | capitalize}}
+                                        {% endfor %}
+                                    </p>
                                     {% endif %}
 
                                     {% if data.isInternational %}
                                     <p>Delivery Type:
                                         {% for isInternational in data.isInternational %}
-                                            {% if isInternational == 1 %}
-                                                International
-                                            {% else %}
-                                                Domestic
-                                            {% endif %}
+                                        {% if isInternational == 1 %}
+                                        International
+                                        {% else %}
+                                        Domestic
+                                        {% endif %}
                                         {% endfor %}
                                     </p>
                                     {% endif %}
@@ -107,22 +105,6 @@
                                     </p>
                                     {% endif %}
 
-                                    {% if data.weightCost %}
-                                    <p>Weight Cost:
-                                        {% for weightCost in data.weightCost %}
-                                        {{weightCost | capitalize}}
-                                        {% endfor %}
-                                    </p>
-                                    {% endif %}
-
-                                    {% if data.volumeCost %}
-                                    <p>Volume Cost:
-                                        {% for volumeCost in data.volumeCost %}
-                                        {{volumeCost | capitalize}}
-                                        {% endfor %}
-                                    </p>
-                                    {% endif %}
-
                                     {% if data.transport %}
                                     <p>Transport method:
                                         {% for transport in data.transport %}
@@ -138,27 +120,58 @@
                                         {% endfor %}
                                     </p>
                                     {% endif %}
-
-                                    {% if data.origin %}
+                                    {% if data.originName %}
                                     <p>Origin:
-                                        {% for origin in data.origin %}
-                                        {{origin | capitalize}}
+                                        {% for originName in data.originName %}
+                                            {{originName | capitalize}}
                                         {% endfor %}
                                     </p>
+                                    {% else %}
+                                        {% if data.origin %}
+                                        <p>Origin:
+                                            {% for origin in data.origin %}
+                                            {{origin | capitalize}}
+                                            {% endfor %}
+                                        </p>
+                                        {% endif %}
                                     {% endif %}
 
-                                    {% if data.destination %}
+                                    {% if data.destinationName %}
                                     <p>Destination:
-                                        {% for destination in data.destination %}
-                                        {{destination | capitalize}}
+                                        {% for destinationName in data.destinationName %}
+                                        {{destinationName | capitalize}}
                                         {% endfor %}
                                     </p>
+                                    {% else %}
+                                        {% if data.destination %}
+                                        <p>Destination:
+                                            {% for destination in data.destination %}
+                                            {{destination | capitalize}}
+                                            {% endfor %}
+                                        </p>
+                                        {% endif %}
+                                    {% endif %}
+
+                                    {% if data.companyName %}
+                                    <p>Company:
+                                        {% for companyName in data.companyName%}
+                                        {{companyName | capitalize}}
+                                        {% endfor %}
+                                    </p>
+                                    {% else %}
+                                        {% if data.company %}
+                                        <p>Company:
+                                            {% for company in data.company%}
+                                            {{company | capitalize}}
+                                            {% endfor %}
+                                        </p>
+                                        {% endif %}
                                     {% endif %}
 
                                     {% if data.weightcost %}
                                     <p>Weight Cost:
                                         {% for weightcost in data.weightcost %}
-                                        {{weightcost | capitalize}}
+                                        ${{weightcost | round}}
                                         {% endfor %}
                                     </p>
                                     {% endif %}
@@ -166,7 +179,7 @@
                                     {% if data.volumecost %}
                                     <p>Volume Cost:
                                         {% for volumecost in data.volumecost %}
-                                        {{volumecost | capitalize}}
+                                        ${{volumecost | round}}
                                         {% endfor %}
                                     </p>
                                     {% endif %}
@@ -174,7 +187,7 @@
                                     {% if data.maxweight %}
                                     <p>Max Weight:
                                         {% for maxweight in data.maxweight %}
-                                        {{maxweight | capitalize}}
+                                        {{maxweight | round}} grams
                                         {% endfor %}
                                     </p>
                                     {% endif %}
@@ -182,7 +195,7 @@
                                     {% if data.maxvolume %}
                                     <p>Max Volume:
                                         {% for maxvolume in data.maxvolume %}
-                                        {{maxvolume | capitalize}}
+                                        {{maxvolume | round}} cm<sup>3</sup>
                                         {% endfor %}
                                     </p>
                                     {% endif %}
@@ -190,7 +203,7 @@
                                     {% if data.frequency %}
                                     <p>Frequency:
                                         {% for frequency in data.frequency %}
-                                        {{frequency | capitalize}}
+                                        {{frequency | round}}
                                         {% endfor %}
                                     </p>
                                     {% endif %}
@@ -198,7 +211,7 @@
                                     {% if data.duration %}
                                     <p>Duration:
                                         {% for duration in data.duration %}
-                                        {{duration | capitalize}}
+                                        {{duration | round}} hours
                                         {% endfor %}
                                     </p>
                                     {% endif %}
@@ -206,7 +219,27 @@
                                     {% if data.day %}
                                     <p>Day:
                                         {% for day in data.day %}
-                                        {{day | capitalize}}
+                                        {% if day == 0 %}
+                                        Sunday
+                                        {% endif %}
+                                        {% if day == 1 %}
+                                        Monday
+                                        {% endif %}
+                                        {% if day == 2 %}
+                                        Tuesday
+                                        {% endif %}
+                                        {% if day == 3 %}
+                                        Wednesday
+                                        {% endif %}
+                                        {% if day == 4 %}
+                                        Thursday
+                                        {% endif %}
+                                        {% if day == 5 %}
+                                        Friday
+                                        {% endif %}
+                                        {% if day == 6 %}
+                                        Saturday
+                                        {% endif %}
                                         {% endfor %}
                                     </p>
                                     {% endif %}
@@ -222,7 +255,7 @@
                                     {% if data.weight %}
                                     <p>Weight:
                                         {% for weight in data.weight %}
-                                        {{weight | capitalize}}
+                                        {{weight | round}} grams
                                         {% endfor %}
                                     </p>
                                     {% endif %}
@@ -230,7 +263,7 @@
                                     {% if data.volume %}
                                     <p>Volume:
                                         {% for volume in data.volume %}
-                                        {{volume | capitalize}}
+                                        {{volume | round}} cm<sup>3</sup>
                                         {% endfor %}
                                     </p>
                                     {% endif %}
@@ -238,7 +271,7 @@
                                     {% if data.totalcustomercost %}
                                     <p>Total Customer Cost:
                                         {% for totalcustomercost in data.totalcustomercost %}
-                                        {{totalcustomercost | capitalize}}
+                                        ${{totalcustomercost | round}}
                                         {% endfor %}
                                     </p>
                                     {% endif %}
@@ -246,28 +279,110 @@
                                     {% if data.totalbusinesscost %}
                                     <p>Total Business Cost:
                                         {% for totalbusinesscost in data.totalbusinesscost %}
-                                        {{totalbusinesscost | capitalize}}
+                                        ${{totalbusinesscost | round}}
                                         {% endfor %}
                                     </p>
                                     {% endif %}
                                     {% endfor %}
-                                    <!--<p>Total Revenue: </p>-->
-                                    <!--<p>Total Expenditure: </p>-->
-                                    <!--<p>Amount of Mail: </p>-->
-                                    <!--<p>Average Delivery Times: </p>-->
-                                    <!--<p>Critical Routes: </p>-->
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="content">
+                                <div class="header">
+                                    <h4 class="title">Business Figures</h4>
+                                </div>
+                                <div class="content">
+                                    <p>Total Revenue: ${{customercost | round}}</p>
+                                    <p>Total Expenditure: ${{businesscost | round}}</p>
+                                    <p>Total Number of Events Processed: {{index}}</p>
+                                    {% if mails %}
+                                    <p>Amount of Mail from
+                                        {% for data in events.data %}
+                                            {% if data.originName %}
+                                                {% for originName in data.originName %}
+                                                {{originName | capitalize}}
+                                                {% endfor %}
+                                            {% else %}
+                                                {% if data.origin %}
+                                                    {% for origin in data.origin %}
+                                                    {{origin | capitalize}}
+                                                    {% endfor %}
+                                                {% endif %}
+                                            {% endif %}
+
+                                         to
+
+                                            {% if data.destinationName %}
+                                                {% for destinationName in data.destinationName %}
+                                                   {{destinationName | capitalize}}
+                                                {% endfor %}
+                                            {% else %}
+                                                {% if data.destination %}
+                                                    {% for destination in data.destination %}
+                                                        {{destination | capitalize}}
+                                                    {% endfor %}
+                                                {% endif %}
+                                            {% endif %}
+                                        {% endfor %}
+                                    </p>
+                                    <table id="example-table" class="table table-striped table-responsive hover">
+                                        <thead>
+                                        <tr>
+                                            <th>Total Weight</th>
+                                            <th>Total Volume</th>
+                                            <th>Total Items</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr>
+                                            <td>{{totalWeight | round}} grams</td>
+                                            <td>{{totalVolume | round}} cm<sup>3</sup></td>
+                                            <td>{{totalItems}}</td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                    <p>Average Delivery Time: {{avgDelivery | round}} hours</p>
+                                    {% endif %}
+                                    {% if routes %}
+                                        <p>Critical Routes: </p>
+                                        <table class="table table-striped table-responsive hover">
+                                            <thead>
+                                            <tr>
+                                                <th>Origin</th>
+                                                <th>Destination</th>
+                                                <th>Priority</th>
+                                                <th>Average Difference</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            {% for route in routes %}
+                                            <tr>
+                                                <td>{{route.originName | capitalize}} </td>
+                                                <td>{{route.destinationName| capitalize}} </td>
+                                                <td>{{route.priority | capitalize}} </td>
+                                                <td>${{route.difference | round}}</td>
+                                            </tr>
+                                            {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    {% endif %}
                                 </div>
                                 <div class="footer">
                                     <hr />
                                     <div class="stats">
                                         <a href="/logFile"><i class="ti-arrow-left"></i> Back to log file</a>
-                                    </div></br>
+                                    </div>
+                                    {% if index > 1 %}
                                     <div class="stats">
                                         <a href ="/logFile/{{index - 1}}"><i class="ti-arrow-left"></i> Previous log</a>
                                     </div>
+                                    {% endif %}
+                                    {% if (index+ 1) <= length %}
                                     <div class="stats pull-right">
                                         <a class="pull-right" href ="/logFile/{{index + 1}}">Next log <i class="ti-arrow-right"></i></a>
                                     </div>
+                                    {% endif %}
                                 </div>
                             </div>
                         </div>
@@ -277,8 +392,6 @@
         </div>
     </div>
 </div>
-
-
 </body>
 
 <!--   Core JS Files   -->
@@ -290,5 +403,4 @@
 
 <!-- Datatables Plugin -->
 <script type="text/javascript" src="/static/js/datatables.min.js"></script>
-
 </html>

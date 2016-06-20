@@ -38,9 +38,9 @@ var express = require('express'),
     Price = require('./database/customerprice'),
     Managers = require('./database/managers'),
     Graph = require('./database/graph'),
-    logFile = require('./database/logFile.js').logFile;
-    findRoute = Graph.findRoute;
-
+    // logFile = require('./database/logFile.js').logFile,
+    findRoute = Graph.findRoute,
+    logFile = require('./database/logFile').logFile;
 
 // Set up express
 app = express();
@@ -75,7 +75,7 @@ env.addFilter('isMailDestination', function(locationid, mail) {
 });
 
 env.addFilter('round', function(value){
-    value = parseInt(value);
+    value = parseFloat(value);
     return value.toFixed(2);
 });
 
@@ -108,7 +108,7 @@ router.get("/stats", function(req, res) {
 router.get("/stats/:dateOffset", function(req, res) {
 	"use strict";
 
-    Mail.getMailStats(req.params.dateOffset, function(labels, series, range, prev, next, weekTotal, mailAmount, criticalRoutes){
+    Mail.getMailStats(req.params.dateOffset, function(labels, series, range, prev, next, weekTotal, mailAmount, criticalRoutes, durations){
         res.render('index', {
             title: 'Business Figures',
             loggedin: req.session.manager ? true : false,
@@ -120,7 +120,8 @@ router.get("/stats/:dateOffset", function(req, res) {
             nextDate: next,
             weekTotal: weekTotal,
             mailAmount: mailAmount,
-            criticalRoutes: criticalRoutes
+            criticalRoutes: criticalRoutes,
+            durations: durations
         });
     });
 
@@ -134,16 +135,15 @@ router.get("/login", function (req, res) {
 });
 
 router.post("/login", function(req, res) {
-    console.log(req.body);
     var manager = req.body;
     var username = req.body.username;
     var password = req.body.password;
     Managers.loginManager(username, password, function(result){
         if (result){
             req.session.manager = manager; //save user in session
-            res.render("index", {loggedin: req.session.manager ? true : false});
+            res.redirect('/stats/0')
         } else {
-            res.render("index", {loggedin: req.session.manager ? true : false, error: "Invalid code."});
+            res.render("login", {loggedin: req.session.manager ? true : false, error: "Invalid credentials. Please try again."});
         }
 
     });
@@ -151,37 +151,178 @@ router.post("/login", function(req, res) {
 
 router.get("/logFile", function (req, res) {
     "use strict";
-    new logFile().loadXMLDoc(function (json) {
-        console.log("in callback");
-        console.log(json.events.event);
-        if (req.session.manager) {
-            // res.send(JSON.parse(json));
-            res.render('logFile', {events: json.events.event, loggedin: req.session.manager ? true : false});
-        }
-        else {
-            res.render('login', {loggedin: req.session.manager ? true : false});
-        }
-    });
+    if(req.session.manager){
+        new logFile().loadXMLDoc(function (json) {
+                res.render('logFile', {events: json.events.event, loggedin: req.session.manager ? true : false});
+        });
+    } else {
+        res.render('login', {loggedin: false});
+    }
 });
 
 router.get("/logFile/:logFileId", function(req, res){
     var index = req.params.logFileId-1;
     new logFile().loadXMLDoc(function (json) {
-        //var event = json.events.event;
-        console.log("in logfile id");
-        console.log(index);
-        console.log(json.events.event);
-        console.log(json.events.event[index]);
-        //1. calculate business figures
-        //2. show events[i]
-        res.render('logs', {events: json.events.event[index],index: index + 1, loggedin: req.session.manager ? true : false});
+        var mail;
+        var totalcustomercost = 0;
+        var totalbusinesscost = 0;
+        var totalvolume = 0;
+        var totalweight = 0;
+        var totalmail = 0;
+        var mailEvents = [];
+        var mailStats = {};
+        var routes = [];
+        var length = 0;
+        for (var i = 0; i < (index + 1); i++) {
+            var event = json.events.event[i];
+            var data = event.data[0];
+            length = json.events.event.length;
+            if (data.totalcustomercost) {
+                totalcustomercost += parseFloat(data.totalcustomercost[0]);
+            }
+            if (data.totalbusinesscost) {
+                totalbusinesscost += parseFloat(data.totalbusinesscost[0]);
+            }
+            if (event.type == "mail") {
+                totalmail += 1;
+            }
+            if (data.volume) {
+                totalvolume += parseFloat(data.volume[0]);
+            }
+            if (data.weight) {
+                totalweight += parseFloat(data.weight[0]);
+            }
+            if (event.type == "mail") {
+                mailEvents.push({
+                    event: event
+                })
+            }
+        }
+
+        for (var j = 0; j < mailEvents.length; j++){
+            mail = mailEvents[j].event;
+            var origin = mail.data[0].origin[0];
+            var originName = mail.data[0].originName[0];
+            var destinationName = mail.data[0].destinationName[0];
+            var destination = mail.data[0].destination[0];
+            if (!mailStats[origin]){
+                mailStats[origin] = {};
+            }
+            if (mailStats[origin][destination]){
+                continue;
+            }
+            else {
+                mailStats[origin][destination] = {volume: 0, weight: 0, mails: 0};
+
+                for (var k = 0; k < mailEvents.length; k++) {
+                    var anotherMail = mailEvents[k].event;
+                    if (anotherMail.data[0].origin[0] == origin && anotherMail.data[0].destination[0] == destination) {
+                        mailStats[origin][destination].weight += parseFloat(anotherMail.data[0].weight[0]);
+                        mailStats[origin][destination].volume += parseFloat(anotherMail.data[0].volume[0]);
+                        mailStats[origin][destination].mails += 1;
+                    }
+                }
+            }
+            console.log(mailStats[origin][destination]);
+        }
+        var deliveryStats = {};
+        var criticalRoutes = {};
+        for (var j = 0; j < mailEvents.length; j++){
+            mail = mailEvents[j].event;
+            var origin = mail.data[0].origin[0];
+            var destination = mail.data[0].destination[0];
+            var priority = mail.data[0].priority[0];
+
+            if (!deliveryStats[origin]) {
+                deliveryStats[origin] = {};
+            }
+            if (!deliveryStats[origin][destination]){
+                deliveryStats[origin][destination] = {};
+            }
+            if(deliveryStats[origin][destination][priority]){
+                continue;
+            }
+            else {
+
+                for (var k = 0; k < mailEvents.length; k++) {
+                    var anotherMail = mailEvents[k].event;
+                    deliveryStats[origin][destination][priority] = {duration : 0, customercost: 0, businesscost: 0, count: 0};
+                    if (anotherMail.data[0].origin[0] == origin && anotherMail.data[0].destination[0] == destination) {
+
+                        for (var l = 0; l < mailEvents.length; l++) {
+                            var thirdMail = mailEvents[l].event;
+                            if (thirdMail.data[0].origin[0] == origin && thirdMail.data[0].destination[0] == destination && thirdMail.data[0].priority[0] == priority) {
+                                deliveryStats[origin][destination][priority].duration += parseFloat(thirdMail.data[0].duration[0]);
+                                deliveryStats[origin][destination][priority].count += 1;
+                                deliveryStats[origin][destination][priority].originName = originName;
+                                deliveryStats[origin][destination][priority].destinationName = destinationName;
+                                deliveryStats[origin][destination][priority].customercost += parseFloat(thirdMail.data[0].totalcustomercost[0]);
+                                deliveryStats[origin][destination][priority].businesscost += parseFloat(thirdMail.data[0].totalbusinesscost[0]);
+                            }
+                        }
+                        console.log(deliveryStats[origin][destination][priority]);
+                        var data = deliveryStats[origin][destination][priority];
+                        var difference = Math.abs((data.customercost/parseFloat(data.count)) - (data.businesscost/parseFloat(data.count)));
+                        if(difference){
+                            if (!criticalRoutes[origin]){
+                                criticalRoutes[origin] = {};
+                            }
+                            if (!criticalRoutes[origin][destination]){
+                                criticalRoutes[origin][destination] = {};
+                            }
+                            criticalRoutes[origin][destination][priority] = {originName : originName, destinationName: destinationName, difference: difference};
+                        }
+                        //
+                    }
+                }
+            }
+        }
+        console.log("printing criticalRoutes");
+        for (var origin in criticalRoutes){
+            for(var destination in criticalRoutes[origin]){
+                for(var priority in criticalRoutes[origin][destination]){
+                    var data = {};
+                    data.originName = criticalRoutes[origin][destination][priority].originName;
+                    data.destinationName = criticalRoutes[origin][destination][priority].destinationName;
+                    data.priority = priority;
+                    data.difference = criticalRoutes[origin][destination][priority].difference;
+                    console.log(data);
+                    routes.push(data);
+                    // console.log(criticalRoutes[origin][destination][priority]);
+                    // console.log(origin);
+                    // console.log(destination);
+                    // console.log(priority);
+                }
+            }
+
+        }
+
+
+
+        res.render('logs',
+            {customercost: totalcustomercost,
+                businesscost: totalbusinesscost,
+                volume: totalvolume,
+                weight: totalweight,
+                mails: totalmail,
+                events: json.events.event[index],
+                index: index + 1,
+                length: length,
+                ori: origin,
+                dest: destination,
+                totalWeight: (mailStats[origin] && mailStats[origin][destination]) ? mailStats[origin][destination].weight : 0,
+                totalVolume: (mailStats[origin] && mailStats[origin][destination]) ? mailStats[origin][destination].volume : 0,
+                totalItems: (mailStats[origin] && mailStats[origin][destination]) ? mailStats[origin][destination].mails : 0,
+                avgDelivery: (deliveryStats[origin] && deliveryStats[origin][destination] && deliveryStats[origin][destination][priority]) ? (deliveryStats[origin][destination][priority].duration/deliveryStats[origin][destination][priority].count) : 0,
+                routes: routes.length ? routes : null,
+                loggedin: req.session.manager ? true : false});
     });
 });
 
 router.get("/logout",function(req,res) {
     "use strict";
     req.session.manager = null;
-    res.render('index', {loggedin: req.session.manager ? true : false});
+    res.redirect('/stats/0');
 });
 
 router.get("/graph", function (req, res) {
@@ -253,18 +394,25 @@ router.post("/addMail", function(req,res, next){
                     var mailFindRoute = findRoute(testMail);
                     console.log("mailFindRoute:");
                     console.log(mailFindRoute);
-                    var routes = Route.getListOfRoutes(mailFindRoute.routeTaken);
-                    if(mailFindRoute.routeTaken.length > 0 && !mailFindRoute.errorMessage) {
-                        mail.totalcustomercost = mailFindRoute.costToCustomer;
 
+                    if(mailFindRoute.routeTaken.length > 0 && !mailFindRoute.errorMessage) {
+                        mail.duration = mailFindRoute.duration;
+                        mail.totalcustomercost = mailFindRoute.costToCustomer;
                         mail.totalbusinesscost = mailFindRoute.costToCompany;
+                        mail.originName = originLocation.name;
+                        mail.destinationName = destinationLocation.name;
+                        req.session.mail = mail; //resave mail into session
                         res.render('confirmMail', {
                             mail: mail,
                             title: "Mails",
                             loggedin: req.session.manager ? true : false,
                             origin: originLocation,
                             destination: destinationLocation,
-                            mailActive: true
+                            mailActive: true,
+                            routes: mailFindRoute.routeTakenName,
+                            departureTime: mailFindRoute.departureTime,
+                            duration: mailFindRoute.duration,
+                            arrivalTime: mailFindRoute.estArrival
                         });
                     } else {
                         Location.getAllLocations(function(locations){
@@ -292,11 +440,12 @@ router.post("/addMail", function(req,res, next){
 
 router.get('/confirmMail', function(req,res){
     //insert mail
-    console.log
+    "use strict";
     var mail = req.session.mail;
     console.log('confirmMail');
     console.log(mail);
     Mail.insertMail(mail, function (result) {
+        new logFile().addEvent({type: 'mail', action: 'insert', data: mail});
         console.log("mail entered");
         console.log(result);
         Location.getAllLocations(function(locations){
@@ -313,7 +462,6 @@ router.get('/confirmMail', function(req,res){
                         notify: "Successfully inserted Mail"
                     });
                     req.session.mail = null;
-
                 } else {
                     //could not insert mail
                     res.render('mails', {
@@ -335,7 +483,6 @@ router.get('/confirmMail', function(req,res){
 router.get("/mails", function(req, res) {
 	"use strict";
     Location.getAllLocations(function(locations){
-        console.log(locations);
         Mail.getAllMail(function(mails){
             res.render('mails', {
                 mailActive: true,

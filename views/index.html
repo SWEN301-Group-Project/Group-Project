@@ -126,8 +126,7 @@
                                     <th>Origin</th>
                                     <th>Destination</th>
                                     <th>Priority</th>
-                                    <th>Income</th>
-                                    <th>Expenses</th>
+                                    <th>Average Difference</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -136,8 +135,7 @@
                                     <td>{{route.origin}}</td>
                                     <td>{{route.destination}}</td>
                                     <td>{{route.priority}}</td>
-                                    <td>{{route.income}}</td>
-                                    <td>{{route.expenses}}</td>
+                                    <td>{{route.difference}}</td>
                                 </tr>
                                 {% endfor %}
                             </table>
@@ -147,30 +145,34 @@
                             <p class="stats-no-critical">no critical routes to show</p>
                         </div>
                         {% endif %}
+                        <div class="card">
+                            <table class="table table-striped table-responsive">
+                                <caption class="stats-table">Average Delivery Times</caption>
+                                <thead>
+                                <tr>
+                                    <th>Origin</th>
+                                    <th>Destination</th>
+                                    <th>Priority</th>
+                                    <th>Delivery Time</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for duration in durations %}
+                                <tr>
+                                    <td>{{duration.origin}}</td>
+                                    <td>{{duration.destination}}</td>
+                                    <td>{{duration.priority}}</td>
+                                    <td>{{duration.duration}}</td>
+                                </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
                     </div>
                 </div>
             </div>
         </div>
-
-
-        <footer class="footer">
-            <div class="container-fluid">
-                <nav class="pull-left">
-                    <ul>
-
-                        <li>
-                            <a href="/">
-                                Home
-                            </a>
-                        </li>
-                    </ul>
-                </nav>
-                <div class="copyright pull-right">
-                    &copy; <script>document.write(new Date().getFullYear())</script>, made with <i class="fa fa-heart heart"></i> using template from <a href="http://www.creative-tim.com">Creative Tim</a>
-                </div>
-            </div>
-        </footer>
-
     </div>
 </div>
 

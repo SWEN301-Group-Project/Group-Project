@@ -1,12 +1,8 @@
-/**
- * Created by elliot on 17/06/16.
- */
 
-var express = require('express');
-var router = express.Router();
-
-
-var Company = require('../database/company');
+var express = require('express'),
+    router = express.Router(),
+    logFile = require('../database/logFile').logFile,
+    Company = require('../database/company');
 
 //company
 router.get("/", function(req, res) {
@@ -19,7 +15,6 @@ router.get("/", function(req, res) {
 router.get("/:companyid", function(req, res){
     var companyid = req.params.companyid;
     Company.getCompanyById(companyid, function(company){
-        console.log(company);
         res.render('updateCompany', {
             companyActive: true,
             title: "Update Company",
@@ -30,18 +25,24 @@ router.get("/:companyid", function(req, res){
     });
 });
 
-router.post("/delete/:companyid", function(req,res){
+router.post("/delete/:companyid", function (req, res) {
     var companyid = req.params.companyid;
-
-    Company.deleteCompany(companyid, function(result){
-        console.log(result);
-        if(result){
-            //success
-            Company.getAllCompanies(function(allCompanies){
-                res.render('company', {companyActive: true, title: "Company", loggedin: req.session.manager ? true : false, companies: allCompanies, notify: "company successfully deleted", notifyType:"warning"});
-            });
-        } else {
-            Company.getCompanyById(companyid, function(company){
+    Company.getCompanyById(companyid, function (deleteCompany) {
+        Company.deleteCompany(companyid, function (result) {
+            if (result) {
+                //success
+                new logFile().addEvent({type: 'company', action: 'delete', data: deleteCompany});
+                Company.getAllCompanies(function (allCompanies) {
+                    res.render('company', {
+                        companyActive: true,
+                        title: "Company",
+                        loggedin: req.session.manager ? true : false,
+                        companies: allCompanies,
+                        notify: "company successfully deleted",
+                        notifyType: "warning"
+                    });
+                });
+            } else {
                 res.render('updateCompany', {
                     companyActive: true,
                     title: "Update Company",
@@ -51,8 +52,8 @@ router.post("/delete/:companyid", function(req,res){
                     notify: "Error deleting company: " + company.name,
                     notifyType: "danger"
                 });
-            });
-        }
+            }
+        });
     });
 });
 
@@ -60,8 +61,10 @@ router.post("/update/:companyid", function(req,res){
     var company = req.body;
     var companyid = req.params.companyid;
     Company.updateCompany(companyid, company, function(result){
-        console.log(result);
         if (result){
+            var data = company;
+            data.companyid = companyid;
+            new logFile().addEvent({type: 'company', action: 'update', data: data});
             Company.getAllCompanies(function(allCompanies){
                 res.render('company', {companyActive: true, title: "Company", loggedin: req.session.manager ? true : false, companies: allCompanies, notify: company.name + " successfully updated", notifyType: "warning"});
             });
@@ -83,7 +86,6 @@ router.post("/update/:companyid", function(req,res){
 });
 
 router.post("/", function (req, res) {
-    console.log(req.body);
     var newCompany = req.body;
     var error;
     if (!newCompany.name){
@@ -105,9 +107,9 @@ router.post("/", function (req, res) {
         });
     } else {
         Company.insertCompany(newCompany, function (result) {
-            console.log(result);
             Company.getAllCompanies(function (allCompanies) {
                 if (result.changes) {
+                    new logFile().addEvent({type: 'company', action: 'insert', data: newCompany});
                     res.render('company', {
                         companyActive: true,
                         title: "Company",

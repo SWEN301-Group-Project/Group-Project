@@ -68,9 +68,14 @@ exports.insertCompany = function(company, callback){
         company.name,
         company.type
     ], function(err){
-        if(err){console.log(err); callback(0);}
-        else{
-            callback(this);
+        if(err){console.log(err);
+            if(callback){
+                callback(0);
+            }
+        } else{
+            if(callback) {
+                callback(this);
+            }
         }
     });
 };
@@ -82,7 +87,9 @@ exports.deleteCompany = function(companyid, callback){
     db.run("DELETE FROM companies WHERE companyid = $id", {$id: companyid}, function(err){
         if(err){
             console.log("Error removing company with id: " + companyid);
-            callback(0);
+            if(callback) {
+                callback(0);
+            }
         }else{
             console.log(this);
             if(callback){
@@ -106,7 +113,9 @@ exports.updateCompany = function(companyid, newCompany, callback){
             console.log("Error updating company with id: " + companid);
         }else{
             console.log(this);
-            callback(this.changes);
+            if(callback) {
+                callback(this.changes);
+            }
         }
     });
 };

@@ -2,10 +2,10 @@
  * Created by harmansingh on 11/06/16.
  */
 
-var express = require('express');
-var router = express.Router();
-
-var Location = require('../database/location');
+var express = require('express'),
+    router = express.Router(),
+    logFile = require('../database/logFile').logFile,
+    Location = require('../database/location');
 
 
 router.get("/", function(req, res) {
@@ -30,27 +30,26 @@ router.get("/:locationid", function(req, res){
 
 router.post("/delete/:locationid", function(req,res){
     var locationid = req.params.locationid;
-
-    Location.deleteLocation(locationid, function(result){
-        if(result){
-            //success
-            Location.getAllLocations(function(allLocations){
-                res.render('location', {locationActive: true, title: "Location", loggedin: req.session.manager ? true : false, locations: allLocations, notify: "Location successfully deleted", notifyType:"warning"});
-            });
-        } else {
-            Location.getLocationById(locationid, function(location){
-                console.log(location);
-                res.render('updateLocation', {
-                    locationActive: true,
-                    title: "Update Location",
-                    loggedin: req.session.manager ? true : false,
-                    locationid: locationid,
-                    location: location,
-                    notify: "Error deleting location: " + location.name,
-                    notifyType: "danger"
+    Location.getLocationById(locationid, function(deleteLocation){
+        Location.deleteLocation(locationid, function(result){
+            if(result){
+                new logFile().addEvent({type: 'location', action: 'delete', data: deleteLocation});
+                //success
+                Location.getAllLocations(function(allLocations){
+                    res.render('location', {locationActive: true, title: "Location", loggedin: req.session.manager ? true : false, locations: allLocations, notify: "Location successfully deleted", notifyType:"warning"});
                 });
-            });
-        }
+            } else {
+                    res.render('updateLocation', {
+                        locationActive: true,
+                        title: "Update Location",
+                        loggedin: req.session.manager ? true : false,
+                        locationid: locationid,
+                        location: deleteLocation,
+                        notify: "Error deleting location: " + location.name,
+                        notifyType: "danger"
+                    });
+            }
+        });
     });
 });
 
@@ -59,13 +58,15 @@ router.post("/update/:locationid", function(req,res){
     var locationid = req.params.locationid;
     Location.updateLocation(locationid, location, function(result){
         if (result){
+            var data = location;
+            data.locationid = locationid;
+            new logFile().addEvent({type: 'location', action: 'update', data: data});
             Location.getAllLocations(function(allLocations){
                 res.render('location', {locationActive: true, title: "Location",loggedin: req.session.manager ? true : false,  locations: allLocations, notify: location.name + " successfully updated", notifyType: "warning"});
             });
         } else {
             //could not update the location
             Location.getLocationById(locationid, function(location){
-                console.log(location);
                 res.render('updateLocation', {
                     locationActive: true,
                     title: "Update Location",
@@ -81,7 +82,6 @@ router.post("/update/:locationid", function(req,res){
 });
 
 router.post("/", function(req, res){
-    console.log(req.body);
     var newLocation = req.body;
     var error;
     if (!newLocation.name) {
@@ -105,6 +105,7 @@ router.post("/", function(req, res){
         Location.insertLocation(newLocation, function (result) {
             Location.getAllLocations(function (allLocations) {
                 if (result.changes) {
+                    new logFile().addEvent({type: 'location', action: 'insert', data: newLocation});
                     res.render('location', {
                         locationActive: true,
                         title: "Location",

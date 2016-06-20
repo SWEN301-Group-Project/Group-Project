@@ -1,13 +1,9 @@
-/**
- * Created by elliot on 17/06/16.
- */
-
-var express = require('express');
-var router = express.Router();
-
-var Location = require('../database/location'),
-	Company = require('../database/company'),
-	Route = require('../database/routes');
+var express = require('express'),
+    router = express.Router(),
+    logFile = require('../database/logFile').logFile,
+    Location = require('../database/location'),
+    Company = require('../database/company'),
+    Route = require('../database/routes');
 
 
 router.get("/", function(req, res){
@@ -60,7 +56,7 @@ router.post("/", function(req, res){
     } else {
         console.log('insert');
         Company.getCompanyById(route.company, function(company){
-            Route.insertRoute({
+            var data = {
                 company: company.companyid,
                 origin: route.sourceLocation,
                 destination: route.destLocation,
@@ -72,9 +68,21 @@ router.post("/", function(req, res){
                 duration: route.duration,
                 frequency: route.frequency,
                 day: route.day
-            }, function (result) {
+            };
+            Route.insertRoute(data, function (result) {
                 console.log(result);
+                // Company.getCompanyById()
+                data.companyName = company.name;
                 Location.getAllLocations(function (allLocations) {
+                    for(var i = 0; i < allLocations.length; i++){
+                        if(allLocations[i].locationid == data.origin){
+                            data.originName = allLocations[i].name;
+                        }
+                        if(allLocations[i].locationid == data.destination){
+                            data.destinationName = allLocations[i].name;
+                        }
+                    }
+                    new logFile().addEvent({type: 'routes', action: 'insert', data: data});
                     Company.getAllCompanies(function (allCompanies) {
                         Route.getAllRoutes(function(routes){
                             res.render('updCost', {costActive: true, title: "Route Costs", loggedin: req.session.manager ? true : false, locations: allLocations, companies: allCompanies, routes: routes, notify: "route successfully added"});
@@ -90,7 +98,6 @@ router.post("/", function(req, res){
 router.get("/:routeid", function(req, res){
     var routeid = req.params.routeid;
     Route.getPriceById(routeid, function(route){
-        console.log(route);
         Location.getAllLocations(function(allLocations){
             Company.getAllCompanies(function(allCompanies){
                 res.render('updateCost', {
@@ -109,17 +116,25 @@ router.get("/:routeid", function(req, res){
 
 router.post("/delete/:routeid", function(req,res){
     var routeid = req.params.routeid;
-    Route.deleteRoute(routeid, function(result){
-       console.log(result);
-        Company.getAllCompanies(function(allCompanies){
-            Location.getAllLocations(function(allLocations){
-                if(result){
-                    Route.getAllRoutes(function(routes){
-                        res.render('updCost', {costActive: true, title: "Route Costs", loggedin: req.session.manager ? true : false, locations: allLocations, companies: allCompanies, routes: routes, notify: "route successfully deleted", notifyType:"warning"});
-                    });
-                } else {
-                    Route.getPriceById(routeid, function(route){
-                        console.log(route);
+    Route.getPriceById(routeid, function(route) {
+        Route.deleteRoute(routeid, function (result) {
+            Company.getAllCompanies(function (allCompanies) {
+                Location.getAllLocations(function (allLocations) {
+                    if (result) {
+                        new logFile().addEvent({type: 'routes', action: 'delete', data: route});
+                        Route.getAllRoutes(function (routes) {
+                            res.render('updCost', {
+                                costActive: true,
+                                title: "Route Costs",
+                                loggedin: req.session.manager ? true : false,
+                                locations: allLocations,
+                                companies: allCompanies,
+                                routes: routes,
+                                notify: "route successfully deleted",
+                                notifyType: "warning"
+                            });
+                        });
+                    } else {
                         res.render('updateCost', {
                             costActive: true,
                             title: "Update Route",
@@ -131,8 +146,8 @@ router.post("/delete/:routeid", function(req,res){
                             notify: "Error deleting route",
                             notifyType: "danger"
                         });
-                    });
-                }
+                    }
+                });
             });
         });
     });
@@ -142,17 +157,32 @@ router.post("/update/:routeid", function(req,res){
     var route = req.body;
     var routeid = req.params.routeid;
     Route.updateRoute(routeid, route, function(result){
-       console.log(result);
        Company.getAllCompanies(function(allCompanies){
            Location.getAllLocations(function(allLocations){
                if(result){
+                   var data = route;
+                   data.routeid = routeid;
+                   for(var i = 0; i < allLocations.length; i++){
+                       if(allLocations[i].locationid == data.origin){
+                           data.originName = allLocations[i].name;
+                       }
+                       if(allLocations[i].locationid == data.destination){
+                           data.destinationName = allLocations[i].name;
+                       }
+                   }
+                   for(var i = 0; i < allCompanies.length; i++){
+                       if(allCompanies[i].companyid == data.company){
+                           data.companyName = allCompanies[i].name;
+                           break;
+                       }
+                   }
+                   new logFile().addEvent({type: 'routes', action: 'update', data: data});
                    Route.getAllRoutes(function(routes){
                        res.render('updCost', {costActive: true, title: "Route Costs", loggedin: req.session.manager ? true : false, locations: allLocations, companies: allCompanies, routes: routes, notify: "route successfully updated", notifyType:"warning"});
                    });
                } else {
                    //could not update the route
                    Route.getPriceById(routeid, function(route){
-                       console.log(route);
                        res.render('updateCost', {
                            costActive: true,
                            title: "Update Route",

@@ -58,6 +58,7 @@
                                 </div>
                                 {% endif %}
                                 <form method="post" action="/locations/update/{{locationid}}" id="locationform">
+                                <div class="content">
                                     <div class="row">
                                         <div class="col-md-12">
                                             <div class="form-group">
@@ -72,18 +73,19 @@
                                             <div class="form-group">
                                                 <div class="radio">
                                                     <label>
-                                                        <input type="radio" name="isInternational" value="1" {% if location.isInternational == "1" %}checked{% endif %}>
+                                                        <input type="radio" name="isInternational" value="1" {% if location.isInternational %}checked{% endif %}>
                                                         International
                                                     </label>
                                                 </div>
                                                 <div class="radio">
                                                     <label>
-                                                        <input type="radio" name="isInternational" value="0" {% if not location.isInternational == "0" %}checked{% endif %}>
+                                                        <input type="radio" name="isInternational" value="0" {% if not location.isInternational %}checked{% endif %}>
                                                         Domestic
                                                     </label>
                                                 </div>
                                             </div>
                                         </div>
+                                    </div>
                                     </div>
                                     <div class="text-center pull-left">
                                         <button type="submit" class="btn btn-warning btn-fill btn-wd">Update</button>
@@ -105,26 +107,6 @@
 
             </div>
         </div>
-
-
-        <footer class="footer">
-            <div class="container-fluid">
-                <nav class="pull-left">
-                    <ul>
-
-                        <li>
-                            <a href="/">
-                                Home
-                            </a>
-                        </li>
-                    </ul>
-                </nav>
-                <div class="copyright pull-right">
-                    &copy; <script>document.write(new Date().getFullYear())</script>, made with <i class="fa fa-heart heart"></i> using template from <a href="http://www.creative-tim.com">Creative Tim</a>
-                </div>
-            </div>
-        </footer>
-
     </div>
 </div>
 
@@ -141,6 +123,9 @@
 
 <!--  Notifications Plugin    -->
 <script src="/static/js/bootstrap-notify.js"></script>
+
+<!-- Paper Dashboard Core javascript and methods for Demo purpose -->
+<script src="/static/js/paper-dashboard.js"></script>
 
 
 <script type="text/javascript" src="/static/selectize/js/standalone/selectize.min.js"></script>

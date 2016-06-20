@@ -36,7 +36,7 @@ var Mail = function (dbFile) {
     this.db = new sqlite3.Database(this._dbFile);
 
     this.getMailStats = function (stringOffset, callback) {
-        var stmt = "SELECT mailid, ORIGIN.name AS origin, DEST.name AS destination, weight, volume, priority, totalcustomercost, totalbusinesscost, date "
+        var stmt = "SELECT mailid, ORIGIN.name AS origin, DEST.name AS destination, weight, volume, priority, totalcustomercost, totalbusinesscost, duration, date "
             + "FROM mails "
             + "LEFT JOIN locations AS ORIGIN ON mails.origin = ORIGIN.locationid "
             + "LEFT JOIN locations AS DEST ON mails.destination = DEST.locationid";
@@ -78,13 +78,17 @@ var Mail = function (dbFile) {
                 // speed issues.
                 for (var i in labels) {
                     labels[i] = labels[i] + ", " + date.getDate() + "/" + date.getMonth();
-
+/*
                     var stringDate = date.getFullYear() + '-'
                         + ('0' + (date.getMonth() + 1)).slice(-2) + '-'
                         + ('0' + (date.getDate())).slice(-2);
-
+                    console.log(stringDate);
+*/
+						  var stringDate = date.toLocaleDateString(); //gets date in dd/mm/yyyy format
+						  
                     for (var j in rows) {
-                        if (stringDate == rows[j].date.slice(0, 10)) {
+                    	var rowDate = new Date(rows[j].date); //parse the date
+                        if (stringDate == rowDate.toLocaleDateString()) {
                             series[0][i] += rows[j].totalcustomercost;
                             series[1][i] += rows[j].totalbusinesscost;
                             weekRows.push(rows[j]);
@@ -148,12 +152,12 @@ var Mail = function (dbFile) {
 
                 for (var i in fullMailAmount) {
                     mailAmount.push({
-                        origin: fullMailAmount[i].origin,
+                        origin: capitalizeFirstLetter(fullMailAmount[i].origin),
                         destinations: []
                     });
                     for (var j in fullMailAmount[i].destinations) {
                         mailAmount[i].destinations.push({
-                            destination: fullMailAmount[i].destinations[j].destination,
+                            destination: capitalizeFirstLetter(fullMailAmount[i].destinations[j].destination),
                             totalNumber: 0,
                             totalVolume: 0,
                             totalWeight: 0,
@@ -176,28 +180,51 @@ var Mail = function (dbFile) {
                     }
                 }
 
-                // also need to calculate critical routes!
+                // also need to calculate critical routes and durations!
+                // logic here is: for each origin, for each destination, for each priority, for each mail...
                 var criticalRoutes = [];
+                var durations = [];
 
                 for (var i in fullMailAmount) {
                     for (var j in fullMailAmount[i].destinations) {
                         for (var k in fullMailAmount[i].destinations[j].priorities) {
                             if (fullMailAmount[i].destinations[j].priorities[k].length > 0) {
+                                var count = 0;
+
                                 var income = 0;
                                 var expenses = 0;
+
+                                var duration = 0;
+
                                 for (var l in fullMailAmount[i].destinations[j].priorities[k]) {
+                                    count++;
+                                    duration += fullMailAmount[i].destinations[j].priorities[k][l].duration;
                                     income += fullMailAmount[i].destinations[j].priorities[k][l].totalcustomercost;
                                     expenses += fullMailAmount[i].destinations[j].priorities[k][l].totalbusinesscost;
                                 }
-                                if (income < expenses) {
+
+                                var difference = Math.abs((income-expenses)/count);
+
+                                if (difference < 0) {
                                     criticalRoutes.push({
-                                        origin: fullMailAmount[i].origin,
-                                        destination: fullMailAmount[i].destinations[j].destination,
+                                        origin: capitalizeFirstLetter(fullMailAmount[i].origin),
+                                        destination: capitalizeFirstLetter(fullMailAmount[i].destinations[j].destination),
                                         priority: fullMailAmount[i].destinations[j].priorities[k][0].priority,
-                                        income: income,
-                                        expenses: expenses
+                                        difference: "$" + difference.toFixed(2)
                                     })
                                 }
+
+                                duration = duration/count;
+
+                                var hours = Math.floor(duration);
+                                var minutes = Math.floor((duration-hours)*60);
+
+                                durations.push({
+                                    origin: capitalizeFirstLetter(fullMailAmount[i].origin),
+                                    destination: capitalizeFirstLetter(fullMailAmount[i].destinations[j].destination),
+                                    priority: fullMailAmount[i].destinations[j].priorities[k][0].priority,
+                                    duration: hours + " hours, " + minutes + " minutes"
+                                })
                             }
                         }
                     }
@@ -220,33 +247,46 @@ var Mail = function (dbFile) {
                     weekTotal.expenses += weekRows[i].totalbusinesscost;
                 }
 
-                // looks nicer in capitals and sorted
+                // convert everything into readable format
+
+                for (var i in mailAmount) {
+                    for (var j in mailAmount[i].destinations) {
+                        mailAmount[i].destinations[j].totalVolume = mailAmount[i].destinations[j].totalVolume.toFixed(2) + " cm³";
+                        mailAmount[i].destinations[j].totalWeight = mailAmount[i].destinations[j].totalWeight.toFixed(2) + " kg";
+                        mailAmount[i].destinations[j].totalIncome = "$" + mailAmount[i].destinations[j].totalIncome.toFixed(2);
+                        mailAmount[i].destinations[j].totalExpenses = "$" + mailAmount[i].destinations[j].totalExpenses.toFixed(2);
+                    }
+                }
+
+                weekTotal.volume = weekTotal.volume.toFixed(2) + " cm³";
+                weekTotal.weight = weekTotal.weight.toFixed(2) + " kg";
+                weekTotal.income = "$" + weekTotal.income.toFixed(2);
+                weekTotal.expenses = "$" + weekTotal.expenses.toFixed(2);
+
+                // looks nicer sorted
 
                 mailAmount.sort(function(a, b){return a.origin > b.origin});
 
                 for (var i in mailAmount) {
-                    mailAmount[i].origin = capitalizeFirstLetter(mailAmount[i].origin);
-
                     mailAmount[i].destinations.sort(function(a, b){return a.destination > b.destination});
-
-                    for (var j in mailAmount[i].destinations) {
-                        mailAmount[i].destinations[j].destination = capitalizeFirstLetter(mailAmount[i].destinations[j].destination);
-                    }
                 }
 
-                callback(labels, series, range, dateOffset - 1, dateOffset + 1, weekTotal, mailAmount, criticalRoutes);
+                criticalRoutes.sort(sortMail);
+
+                durations.sort(sortMail);
+
+                callback(labels, series, range, dateOffset - 1, dateOffset + 1, weekTotal, mailAmount, criticalRoutes, durations);
             }
         });
     },
 
         //returns list of all mail objects
         this.getAllMail = function (callback) {
-            var stmt = "SELECT mailid, ORIGIN.name AS origin, DEST.name AS destination, weight, volume, priority, totalcustomercost, totalbusinesscost, date "
+            var stmt = "SELECT mailid, ORIGIN.name AS origin, DEST.name AS destination, weight, volume, priority, totalcustomercost, totalbusinesscost, duration, date "
                 + "FROM mails "
                 + "LEFT JOIN locations AS ORIGIN ON mails.origin = ORIGIN.locationid "
                 + "LEFT JOIN locations AS DEST ON mails.destination = DEST.locationid";
 
-//    var stmt = "SELECT * from mails";
             //need to join table with location
             this.db.all(stmt, function (err, rows) {
                 if (err) {
@@ -262,7 +302,7 @@ var Mail = function (dbFile) {
 //The paramter: dateAsString must be string representation of date.
 // e.g. new Date().toISOString();
         this.getMailByDate = function (dateAsString, callback) {
-            var stmt = "SELECT mailid, ORIGIN.name AS origin, DEST.name AS destination, weight, volume, priority, totalcustomercost, totalbusinesscost, date "
+            var stmt = "SELECT mailid, ORIGIN.name AS origin, DEST.name AS destination, weight, volume, priority, totalcustomercost, totalbusinesscost, duration, date "
                 + "FROM mails "
                 + "LEFT JOIN locations AS ORIGIN ON mails.origin = ORIGIN.locationid "
                 + "LEFT JOIN locations AS DEST ON mails.origin = DEST.locationid "
@@ -278,7 +318,7 @@ var Mail = function (dbFile) {
         },
 //returns mail object that has id == mailid
         this.getMailById = function (mailid, callback) {
-            var stmt = "SELECT mailid, ORIGIN.name AS origin, DEST.name AS destination, weight, volume, priority, totalcustomercost, totalbusinesscost, date "
+            var stmt = "SELECT mailid, ORIGIN.name AS origin, DEST.name AS destination, weight, volume, priority, totalcustomercost, totalbusinesscost, duration, date "
                 + "FROM mails "
                 + "LEFT JOIN locations AS ORIGIN ON mails.origin = ORIGIN.locationid "
                 + "LEFT JOIN locations AS DEST ON mails.origin = DEST.locationid "
@@ -307,7 +347,13 @@ var Mail = function (dbFile) {
 //Origin and destination are foreign keys so they must be integers
 //PostCondition: if return value > 0 ==> mail inserted sucessfully
         this.insertMail = function (mail, callback) {
-            var stmt = this.db.prepare("INSERT INTO mails (origin, destination, weight, volume, priority, totalcustomercost, totalbusinesscost, date) VALUES (?, ?, ?, ?, ?, ?, ?, ?) ");
+            if (!mail.date){
+                mail.date = new Date().toString();
+            }
+            if (!mail.duration){
+                mail.duration = 0.00;
+            }
+            var stmt = this.db.prepare("INSERT INTO mails (origin, destination, weight, volume, priority, totalcustomercost, totalbusinesscost, duration, date) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) ");
 
             stmt.run([
                 mail.origin,
@@ -317,15 +363,18 @@ var Mail = function (dbFile) {
                 mail.priority,
                 mail.totalcustomercost,
                 mail.totalbusinesscost,
-                new Date().toISOString()
-
+                mail.duration,
+                mail.date
             ], function (err) {
                 if (err) {
-                    callback(0)
+                    if(callback) {
+                        callback(0)
+                    }
                 }
                 else {
-                    console.log(this);
-                    callback(this.changes);
+                    if(callback) {
+                        callback(this.changes);
+                    }
                 }
             });
         },
@@ -352,7 +401,10 @@ var Mail = function (dbFile) {
 //the newMail object must be similar to mail object of insertMail paramters
 //Returns the number of rows changed
         this.updateMail = function (mailid, newMail, callback) {
-            this.db.run("UPDATE mails SET origin = $origin, destination=$destination, weight=$weight, volume=$volume, priority=$priority, totalcustomercost=$totalcustomercost, totalbusinesscost=$totalbusinesscost, date=$date WHERE mailid = $id", {
+            if (!newMail.duration){
+                newMail.duration = 0.00;
+            }
+            this.db.run("UPDATE mails SET origin = $origin, destination=$destination, weight=$weight, volume=$volume, priority=$priority, totalcustomercost=$totalcustomercost, totalbusinesscost=$totalbusinesscost, duration=$duration, date=$date WHERE mailid = $id", {
                 $id: mailid,
                 $origin: newMail.origin,
                 $destination: newMail.destination,
@@ -361,6 +413,7 @@ var Mail = function (dbFile) {
                 $priority: newMail.priority,
                 $totalcustomercost: newMail.totalcustomercost,
                 $totalbusinesscost: newMail.totalbusinesscost,
+                $duration: newMail.duration,
                 $date: new Date().toISOString()
             }, function (err) {
                 if (err) {
@@ -371,8 +424,7 @@ var Mail = function (dbFile) {
                 }
             });
         }
-
-
+    
 };
 
 module.exports.Mail = Mail;
@@ -387,4 +439,16 @@ function capitalizeFirstLetter(string) {
     }
 
     return fullName.trim();
+}
+
+function sortMail(a, b) {
+    if (a.origin != b.origin) {
+        return a.origin > b.origin
+    }
+    else if (a.destination != b.destination) {
+        return a.destination > b.destination;
+    }
+    else {
+        return a.priority > b.priority;
+    }
 }

@@ -5,7 +5,8 @@
   "main": "app.js",
   "scripts": {
     "test": "rm -r -f ./database/test2.db && ./node_modules/.bin/mocha -r mocha-cakes",
-    "start": "node app.js"
+    "start": "rm -r -f ./database/test.db && node app.js",
+    "start-win": "del database\\test.db && node app.js"
   },
   "version": "0.0.1",
   "author": "Team 9, 2016",

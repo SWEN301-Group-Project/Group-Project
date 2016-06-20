@@ -1,8 +1,6 @@
 var sqlite3 = require("sqlite3").verbose(),
-    assert = require("assert"),
     dbFile = "./database/test.db",
-    db = new sqlite3.Database(dbFile),
-    Location = require('./location');
+    db = new sqlite3.Database(dbFile);
 /*
 A mail object looks like:
 
@@ -44,7 +42,7 @@ exports.getAllPrices = function(callback){
             callback(rows);
         }
     });
-}
+};
 
 //returns customerprice objects where origin == origin parameter.
 //The paramter: origin must be location id.
@@ -63,7 +61,7 @@ exports.getPriceByOrigin = function(originid, callback){
             callback(rows);
         }
     });
-}
+};
 
 //returns customerprice objects where origin == origin parameter AND destination == destination parameter.
 //The paramters: origin and destination must be location id.
@@ -82,7 +80,7 @@ exports.getPriceByOriginAndDestination = function(originid, destinationid, callb
             callback(rows);
         }
     });
-}
+};
 
 //returns customerprices object by id
 exports.getPriceById = function(priceid, callback){
@@ -99,7 +97,7 @@ exports.getPriceById = function(priceid, callback){
             callback(customerprice);
         }
     });
-}
+};
 
 //Adds a new customerprice row to the customerprice table
 //The customerprice object must be similar to:
@@ -114,7 +112,6 @@ exports.getPriceById = function(priceid, callback){
 //PostCondition: if return value > 0 ==> customerprice inserted sucessfully
 exports.insertCustomerPrice = function(customerprice, callback){
 	var stmt = db.prepare("INSERT INTO customerprice (origin, destination, weightcost, volumecost, priority) VALUES (?, ?, ?, ?, ?) ");
-
 	stmt.run([
         customerprice.origin,
         customerprice.destination,
@@ -122,11 +119,14 @@ exports.insertCustomerPrice = function(customerprice, callback){
         customerprice.volumecost,
         customerprice.priority
     ], function(err){
-        if(err){
-            callback(0)}
-        else{
-            console.log(this);
-            callback(this.changes);
+        if(err) {
+            if (callback) {
+                callback(0);
+            }
+        }else{
+            if(callback) {
+                callback(this.changes);
+            }
         }
     });
 };
@@ -138,7 +138,9 @@ exports.deleteCustomerPrice = function(priceid, callback){
     db.run("DELETE FROM customerprice WHERE priceid = $id", {$id: priceid}, function(err){
         if(err){
             console.log("Error removing customerprice with id: " + priceid);
-            callback(0);
+            if(callback) {
+                callback(0);
+            }
         }else{
             console.log(this);
             if(callback){
@@ -147,7 +149,7 @@ exports.deleteCustomerPrice = function(priceid, callback){
         }
     });
 
-}
+};
 
 //updates a customerprice row specified by the id
 //the newCustomerPrice object must be similar to customerprice object of insertCustomerPrice paramter
@@ -156,16 +158,18 @@ exports.updateCustomerPrice = function(priceid, newCustomerPrice, callback){
     db.run("UPDATE customerprice SET origin = $origin, destination=$destination, weightcost=$weightcost, volumecost=$volumecost, priority=$priority WHERE priceid = $id", {
 		$id: priceid,
 		$origin: newCustomerPrice.origin,
-      $destination : newCustomerPrice.destination,
-      $weightcost: newCustomerPrice.weightcost,
-      $volumecost: newCustomerPrice.volumecost,
-      $priority: newCustomerPrice.priority
+        $destination: newCustomerPrice.destination,
+        $weightcost: newCustomerPrice.weightcost,
+        $volumecost: newCustomerPrice.volumecost,
+        $priority: newCustomerPrice.priority
     	}, function(err){
         if(err){
             console.log("Error updating customerprice with id: " + priceid);
+            console.log(err);
         }else{
-            console.log(this);
-            callback(this.changes);
+            if(callback) {
+                callback(this.changes);
+            }
         }
     });
-}
+};

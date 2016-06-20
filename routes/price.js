@@ -1,13 +1,8 @@
-/**
- * Created by elliot on 17/06/16.
- */
-
-var express = require('express');
-var router = express.Router();
-
-
-var Location = require('../database/location'),
-	Price = require('../database/customerprice');
+var express = require('express'),
+    router = express.Router(),
+    logFile = require('../database/logFile').logFile,
+    Location = require('../database/location'),
+    Price = require('../database/customerprice');
 
 
 router.get("/", function(req, res){
@@ -41,19 +36,36 @@ router.post("/", function(req, res){
         console.log('insert');
         console.log('origin: ' + price.sourceLocation);
         console.log('destination: ' + price.destLocation);
-
-        Price.insertCustomerPrice({
+        var data = {
             origin: price.sourceLocation,
             destination: price.destLocation,
             weightcost: price.wgt,
             volumecost: price.vol,
             priority: price.priority
-        }, function (result){
+        };
+        Price.insertCustomerPrice(data, function (result){
             console.log(result);
+
             Location.getAllLocations(function(allLocations){
-               Price.getAllPrices(function(allPrices){
-                   res.render('updPrice', {priceActive: true, title: "Customer Prices", loggedin: req.session.manager ? true : false, locations: allLocations, customerprices: allPrices, notify: "Price successfully inserted"});
-               });
+                for(var i = 0; i < allLocations.length; i++){
+                    if(allLocations[i].locationid == data.origin){
+                        data.originName = allLocations[i].name;
+                    }
+                    if(allLocations[i].locationid == data.destination){
+                        data.destinationName = allLocations[i].name;
+                    }
+                }
+                new logFile().addEvent({type: 'price', action: 'insert', data: data});
+                Price.getAllPrices(function (allPrices) {
+                    res.render('updPrice', {
+                        priceActive: true,
+                        title: "Customer Prices",
+                        loggedin: req.session.manager ? true : false,
+                        locations: allLocations,
+                        customerprices: allPrices,
+                        notify: "Price successfully inserted"
+                    });
+                });
             });
         });
     }
@@ -77,30 +89,39 @@ router.get("/:customerpriceid", function(req, res){
     });
 });
 
-router.post("/delete/:priceid", function(req,res){
+router.post("/delete/:priceid", function (req, res) {
     var priceid = req.params.priceid;
-    Price.deleteCustomerPrice(priceid, function(result){
-       console.log(result);
-        Location.getAllLocations(function(allLocations){
-           if(result){
-               Price.getAllPrices(function(allPrices){
-                   res.render('updPrice', {priceActive: true, title: "Customer Prices", loggedin: req.session.manager ? true : false, locations: allLocations, customerprices: allPrices, notify: "Price successfully deleted", notifyType:"warning"});
-               });
-           } else {
-               Price.getPriceById(priceid, function(customerprice){
-                   console.log(customerprice);
-                   res.render('updatePrice', {
-                       priceActive: true,
-                       title: "Customer Prices",
-                       loggedin: req.session.manager ? true : false,
-                       locations: allLocations,
-                       customerprice: customerprice,
-                       priceid: priceid,
-                       notify: "Error deleting price",
-                       notifyType: "danger"
-                   });
-               });
-           }
+    Price.getPriceById(priceid, function (deletePrice) {
+        Price.deleteCustomerPrice(priceid, function (result) {
+            console.log(result);
+            Location.getAllLocations(function (allLocations) {
+                if (result) {
+                    deletePrice.priceid = priceid;
+                    new logFile().addEvent({type: 'price', action: 'delete', data: deletePrice});
+                    Price.getAllPrices(function (allPrices) {
+                        res.render('updPrice', {
+                            priceActive: true,
+                            title: "Customer Prices",
+                            loggedin: req.session.manager ? true : false,
+                            locations: allLocations,
+                            customerprices: allPrices,
+                            notify: "Price successfully deleted",
+                            notifyType: "warning"
+                        });
+                    });
+                } else {
+                    res.render('updatePrice', {
+                        priceActive: true,
+                        title: "Customer Prices",
+                        loggedin: req.session.manager ? true : false,
+                        locations: allLocations,
+                        customerprice: deletePrice,
+                        priceid: priceid,
+                        notify: "Error deleting price",
+                        notifyType: "danger"
+                    });
+                }
+            });
         });
     });
 });
@@ -112,12 +133,22 @@ router.post("/update/:priceid", function(req,res){
        console.log(result);
         Location.getAllLocations(function(allLocations){
            if(result){
+               var data = customerprice;
+               data.priceid = priceid;
+               for(var i = 0; i < allLocations.length; i++){
+                   if(allLocations[i].locationid == data.origin){
+                       data.originName = allLocations[i].name;
+                   }
+                   if(allLocations[i].locationid == data.destination){
+                       data.destinationName = allLocations[i].name;
+                   }
+               }
+               new logFile().addEvent({type: 'price', action: 'update', data: data});
                Price.getAllPrices(function(allPrices){
                    res.render('updPrice', {priceActive: true, title: "Customer Prices", loggedin: req.session.manager ? true : false, locations: allLocations, customerprices: allPrices, notify: "Price successfully updated", notifyType:"warning"});
                });
            } else {
                Price.getPriceById(priceid, function(customerprice){
-                   console.log(customerprice);
                    res.render('updatePrice', {
                        priceActive: true,
                        title: "Customer Prices",

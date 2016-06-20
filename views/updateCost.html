@@ -100,13 +100,13 @@
                                         <div class="row">
                                             <div class="col-md-6">
                                                 <div class="form-group">
-                                                    <label for="weightcost">Weight</label>
+                                                    <label for="weightcost">Weight ($/gram)</label>
                                                     <input type="number" id="weightcost" name="weightcost" class="form-control border-input" placeholder="Weight" {% if route %}value = "{{route.weightcost}}" {% endif %} required>
                                                 </div>
                                             </div>
                                             <div class="col-md-6">
                                                 <div class="form-group">
-                                                    <label for="volumecost">Volume</label>
+                                                    <label for="volumecost">Volume ($/cm³)</label>
                                                     <input type="number" id="volumecost" name="volumecost" class="form-control border-input" placeholder="Volume" {% if route %}value = "{{route.volumecost}}" {% endif %} required>
                                                 </div>
                                             </div>
@@ -116,13 +116,13 @@
                                         <div class="row">
                                             <div class="col-md-6">
                                                 <div class="form-group">
-                                                    <label for="maxweight">Weight</label>
+                                                    <label for="maxweight">Weight (grams)</label>
                                                     <input type="number" id="maxweight" name="maxweight" class="form-control border-input" placeholder="Weight" {% if route %}value = "{{route.maxweight}}" {% endif %} required>
                                                 </div>
                                             </div>
                                             <div class="col-md-6">
                                                 <div class="form-group">
-                                                    <label for="maxvolume">Volume</label>
+                                                    <label for="maxvolume">Volume (cm³)</label>
                                                     <input type="number" id="maxvolume" name="maxvolume" class="form-control border-input" placeholder="Volume" {% if route %}value = "{{route.maxvolume}}" {% endif %} required>
                                                 </div>
                                             </div>
@@ -176,30 +176,6 @@
                 </div>
             </div>
         </div>
-
-
-        <footer class="footer">
-            <div class="container-fluid">
-                <nav class="pull-left">
-                    <ul>
-                        <li>
-                            <a href="/">
-                                Home
-                            </a>
-                        </li>
-                        <li>
-                            <a href="/cost">
-                                Routes
-                            </a>
-                        </li>
-                    </ul>
-                </nav>
-                <div class="copyright pull-right">
-                    &copy; <script>document.write(new Date().getFullYear())</script>, made with <i class="fa fa-heart heart"></i> using template from <a href="http://www.creative-tim.com">Creative Tim</a>
-                </div>
-            </div>
-        </footer>
-
     </div>
 </div>
 
@@ -217,6 +193,9 @@
 
 <!--  Notifications Plugin    -->
 <script src="/static/js/bootstrap-notify.js"></script>
+
+<!-- Paper Dashboard Core javascript and methods for Demo purpose -->
+<script src="/static/js/paper-dashboard.js"></script>
 
 <!-- Datatables Plugin -->
 <script type="text/javascript" src="/static/js/datatables.min.js"></script>

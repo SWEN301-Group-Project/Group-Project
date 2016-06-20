@@ -116,13 +116,13 @@
                                         <div class="row">
                                             <div class="col-md-6">
                                                 <div class="form-group">
-                                                    <label for="weightcost">Weight</label>
+                                                    <label for="weightcost">Weight ($/gram)</label>
                                                     <input type="number" id="weightcost" name="weightcost" class="form-control border-input" placeholder="Weight" {% if customerprice %}value = "{{customerprice.weightcost}}" {% endif %} min="0" required>
                                                 </div>
                                             </div>
                                             <div class="col-md-6">
                                                 <div class="form-group">
-                                                    <label for="volumecost">Volume</label>
+                                                    <label for="volumecost">Volume ($/cm³)</label>
                                                     <input type="number" id="volumecost" name="volumecost" class="form-control border-input" placeholder="Volume" {% if customerprice %}value = "{{customerprice.volumecost}}" {% endif %} min="0" required>
                                                 </div>
                                             </div>
@@ -145,30 +145,6 @@
                 </div>
             </div>
         </div>
-
-
-        <footer class="footer">
-            <div class="container-fluid">
-                <nav class="pull-left">
-                    <ul>
-
-                        <li>
-                            <a href="/">
-                                Home
-                            </a>
-                        </li>
-                        <li>
-                            <a href="/price">
-                                Prices
-                            </a>
-                        </li>
-                    </ul>
-                </nav>
-                <div class="copyright pull-right">
-                    &copy; <script>document.write(new Date().getFullYear())</script>, made with <i class="fa fa-heart heart"></i> using template from <a href="http://www.creative-tim.com">Creative Tim</a>
-                </div>
-            </div>
-        </footer>
     </div>
 </div>
 
@@ -184,6 +160,9 @@
 
 <!--  Notifications Plugin    -->
 <script src="/static/js/bootstrap-notify.js"></script>
+
+<!-- Paper Dashboard Core javascript and methods for Demo purpose -->
+<script src="/static/js/paper-dashboard.js"></script>
 
 <script type="text/javascript" src="/static/selectize/js/standalone/selectize.min.js"></script>
 <script>

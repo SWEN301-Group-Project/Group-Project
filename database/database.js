@@ -1,7 +1,14 @@
-var sqlite3 = require("sqlite3").verbose()
-    fs = require("fs")
-    assert = require("assert");
+var sqlite3 = require("sqlite3").verbose(),
+    logFile = require('./logFile').logFile,
+    fs = require("fs"),
+    Mail = require('./mail').Mail,
+    assert = require("assert"),
+    Company = require('./company'),
+    Location = require('./location'),
+    Route = require('./routes'),
+    Price = require('./customerprice');
 
+Mail = new Mail();
 /*
 This will be the database object that will be used to perform database queries
 The Database object will contain functions that will be invoked for specific
@@ -28,8 +35,9 @@ function Database(){
         }
         //initialise the database
         var db = new sqlite3.Database(this._dbFile);
+        var $this = this;
         db.serialize(function(){
-            //create the tables in paralle for efficiency.
+            //create the tables
             db.serialize(function(){
                 /*
                  database queries scheduled in parallelize function will run
@@ -75,6 +83,7 @@ function Database(){
                     + 'priority TEXT, '
                     + 'totalcustomercost REAL, '
                     + 'totalbusinesscost REAL, '
+                    + 'duration REAL, '
                     + 'date TEXT, ' //storing date as string since it is simplest to work with javascript date object
                     + 'FOREIGN KEY(origin) REFERENCES locations(locationid), '
                     + 'FOREIGN KEY(destination) REFERENCES locations(locationid) '
@@ -90,16 +99,227 @@ function Database(){
                     + 'FOREIGN KEY(origin) REFERENCES locations(locationid), '
                     + 'FOREIGN KEY(destination) REFERENCES locations(locationid) '
                     + ')');
-
                 db.run('CREATE TABLE IF NOT EXISTS managers ('
                     + 'managerid INTEGER PRIMARY KEY, '
                     + 'username TEXT, '
                     + 'password TEXT, '
                     + 'UNIQUE (username, password)'
                     + ')');
-                db.run('INSERT OR IGNORE INTO managers (username, password) VALUES ("admin","admin")');
-            })
+                db.run('INSERT OR IGNORE INTO managers (username, password) VALUES ("admin","admin")', function(){
+                    //
+                    // Dear fellow coder:
+                    //
+                    // Once you are done trying to 'optimize' this routine,
+                    // and have realized what a terrible mistake that was,
+                    // please increment the following counter as a warning
+                    // to the next guy:
+                    //
+                    // total_hours_wasted_here = 3
+                    //
+                    // When I wrote this, only God and I understood what I was doing
+                    // Now, God only knows
+                    //
+                    // Magic, Do not touch
+
+                    //initialise the table values from log file
+                    // I want to read the xml file after the database tables have been created. HACK HACK!!!
+                    $this.readLogFile();
+                    console.log('Loaded Data from XML document');
+                });
+            });
         });
+    };
+
+    this.readLogFile = function(callback){
+        //read the log file
+        //if logFile filename is given then set it as default logFile name otherwise use the default
+        var $this = this;
+        new logFile().loadXMLDoc(function (json) {
+            //the plugin stores the events as an event array so we rename it here for clarity and simplicity in code
+            var events = json.events.event;
+            var event;
+            if(events) {
+                for (var i = 0; i < events.length; i++) {
+                    /**
+                     * Now we iterate over each event in the log file
+                     *
+                     * There are 4 types of types:
+                     *  1. mail
+                     *      * a mail event
+                     *  2. location
+                     *      * a location event
+                     *  3. company
+                     *      * a company event
+                     *  4. route
+                     *      * a route event
+                     *  5. price
+                     *      * a customer price event
+                     */
+                    var eventAdded = false;
+                    event = events[i];
+                    if (event.type[0] == 'mail') {
+                        $this.readMailEvent(event, function(){
+                            eventAdded = true;
+                        });
+                    }
+                    else if (event.type[0].toLowerCase() == 'location') {
+                        $this.readLocationEvent(event, function(){
+                            eventAdded = true;
+                        });
+                    }
+                    else if (event.type[0].toLowerCase() == 'company') {
+                        $this.readCompanyEvent(event, function(){
+                            eventAdded = true;
+                        });
+                    }
+                    else if (event.type[0].toLowerCase() == 'routes') {
+                        $this.readRouteEvent(event, function(){
+                            eventAdded = true;
+                        });
+                    }
+                    else if (event.type[0].toLowerCase() == 'price') {
+                        $this.readPriceEvent(event, function(){
+                            eventAdded = true;
+                        });
+                    }
+                    else {
+                        console.log('Unknown event found: ');
+                        console.log(event);
+                        eventAdded = true;
+                    }
+                    //Wow look at this HACK : COOOOL
+                    require('deasync').loopWhile(function () {
+                        return !eventAdded;
+                    });
+                }
+            }
+            if(callback) {
+                callback();
+            }
+        });
+    };
+
+    this.readPriceEvent = function(priceEvent, callback){
+        var price = {};
+        for(var prop in priceEvent.data[0]){
+            price[prop] = priceEvent.data[0][prop][0];
+        }
+        if (priceEvent.action[0].toLowerCase() == 'insert'){
+            Price.insertCustomerPrice(price, function(){
+               callback();
+            });
+        }
+        if (priceEvent.action[0].toLowerCase() == 'update'){
+            Price.updateCustomerPrice(price.priceid, price, function(){
+                callback();
+            });
+        }
+        if (priceEvent.action[0].toLowerCase() == 'delete'){
+            Price.deleteCustomerPrice(price.priceid, function(){
+                callback();
+            });
+        }
+    };
+
+    this.readRouteEvent = function(routeEvent, callback){
+        var route = {};
+        for(var prop in routeEvent.data[0]){
+            route[prop] = routeEvent.data[0][prop][0];
+        }
+        if (routeEvent.action[0].toLowerCase() == 'insert'){
+            Route.insertRoute(route, function(){
+                callback();
+            });
+        }
+        if (routeEvent.action[0].toLowerCase() == 'update'){
+            Route.updateRoute(route.routeid, route, function(){
+                callback();
+            });
+        }
+        if (routeEvent.action[0].toLowerCase() == 'delete'){
+            Route.deleteRoute(route.routeid, function(){
+                callback();
+            });
+        }
+    };
+
+    this.readMailEvent = function(mailEvent, callback){
+        /**
+         * There are three types of applicable actions:
+         *  1. insert
+         *      * doesn't contain the id
+         */
+        var mail = {};
+        for(var prop in mailEvent.data[0]){
+            mail[prop] = mailEvent.data[0][prop][0];
+        }
+        if (mailEvent.action[0].toLowerCase() == 'insert'){
+            Mail.insertMail(mail, function(){
+                callback();
+            });
+        }
+    };
+
+    this.readCompanyEvent = function(companyEvent, callback){
+        /**
+         * There are three types of applicable actions:
+         *  1. insert
+         *      * doesn't contain the id
+         *  2. update
+         *      * must contain the id for reference
+         *  3. delete
+         *      * must contain the id for reference
+         */
+        var company = {};
+        for(var prop in companyEvent.data[0]){
+            company[prop] = companyEvent.data[0][prop][0];
+        }
+        if (companyEvent.action[0].toLowerCase() == 'insert'){
+            Company.insertCompany(company, function(){
+                callback();
+            });
+        }
+        if (companyEvent.action[0].toLowerCase() == 'update'){
+            Company.updateCompany(companyEvent.data[0].companyid[0],company, function(){
+                callback();
+            });
+        }
+        if (companyEvent.action[0].toLowerCase() == 'delete'){
+            Company.deleteCompany(company.companyid, function(){
+                callback();
+            });
+        }
+    };
+
+    this.readLocationEvent = function(locationEvent, callback){
+        /**
+         * There are three types of applicable actions:
+         *  1. insert
+         *      * doesn't contain the id
+         *  2. update
+         *      * must contain the id for reference
+         *  3. delete
+         *      * must contain the id for reference
+         */
+        var location = {};
+        for(var prop in locationEvent.data[0]){
+            location[prop] = locationEvent.data[0][prop][0];
+        }
+        if (locationEvent.action[0].toLowerCase() == 'insert'){
+            Location.insertLocation(location, function(){
+                callback();
+            });
+        }
+        if (locationEvent.action[0].toLowerCase() == 'update'){
+            Location.updateLocation(location.locationid, location, function(){
+                callback();
+            });
+        }
+        if (locationEvent.action[0].toLowerCase() == 'delete'){
+            Location.deleteLocation(location.locationid, function(){
+                callback();
+            })
+        }
     }
 }
 
