@@ -62,7 +62,7 @@
                                         </thead>
                                         <tbody>
                                         {% for event in events %}
-                                        <tr>
+                                        <tr onclick="window.location.href = '/logFile/{{loop.index}}'">
                                             <td><a href="/logFile/{{loop.index}}">{{loop.index}}</a></td>
                                             <td>{{event.type[0] | capitalize}}</td>
                                             <td>{{event.action[0] | capitalize}}</td>
