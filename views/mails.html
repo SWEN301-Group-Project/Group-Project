@@ -68,7 +68,9 @@
                                                     <label for="origin">Origin</label>
                                                     <select id="origin" name="origin" required>
                                                         {% for location in locations %}
-                                                        <option value={{location.locationid}} {% if location.locationid| isMailOrigin(mail)  %}selected{% endif %}>{{location.name|capitalize}}{% if location.isInternational %} - International{% endif %}</option>
+                                                        {% if location.isInternational == 0%}
+                                                            <option value={{location.locationid}} {% if location.locationid| isMailOrigin(mail)  %}selected{% endif %}>{{location.name|capitalize}}{% if location.isInternational %} - International{% endif %}</option>
+                                                        {% endif %}
                                                         {% endfor %}
                                                     </select>
                                                 </div>
