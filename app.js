@@ -245,11 +245,6 @@ router.get("/logFile/:logFileId", function(req, res){
                         for (var l = 0; l < mailEvents.length; l++) {
                             var thirdMail = mailEvents[l].event;
                             if (thirdMail.data[0].origin[0] == origin && thirdMail.data[0].destination[0] == destination && thirdMail.data[0].priority[0] == priority) {
-                                console.log("setting data for thirmail"); 
-                                  console.log('origin: '+ origin);
-        console.log('destination: ' + destination);
-        console.log('priority: ' + priority)
-                                console.log(thirdMail);
                                 deliveryStats[origin][destination][priority].duration += parseFloat(thirdMail.data[0].duration[0]);
                                 deliveryStats[origin][destination][priority].count += 1;
                                 deliveryStats[origin][destination][priority].originName = originName;
@@ -286,10 +281,6 @@ router.get("/logFile/:logFileId", function(req, res){
             }
 
         }
-<<<<<<< HEAD
-=======
-        
->>>>>>> a1a0a8ab4435b6ed2665ac7035c24199869a9f31
         res.render('logs',
             {logActive: true,
                 customercost: totalcustomercost,
