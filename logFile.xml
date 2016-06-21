@@ -335,4 +335,71 @@
 			<date>Tue Jun 21 2016 11:21:56 GMT+1200 (NZST)</date>
 		</data>
 	</event>
+	<event>
+		<type>mail</type>
+		<action>insert</action>
+		<data>
+			<origin>4</origin>
+			<destination>5</destination>
+			<weight>1</weight>
+			<volume>1</volume>
+			<priority>DOMESTIC STANDARD</priority>
+			<duration>7.97195083333645</duration>
+			<totalcustomercost>10</totalcustomercost>
+			<totalbusinesscost>6</totalbusinesscost>
+			<originName>rotorua</originName>
+			<destinationName>palmerston north</destinationName>
+			<date>Wed Jun 22 2016 10:01:44 GMT+1200 (NZST)</date>
+		</data>
+	</event>
+	<event>
+		<type>routes</type>
+		<action>insert</action>
+		<data>
+			<company>2</company>
+			<origin>6</origin>
+			<destination>2</destination>
+			<type>Land</type>
+			<weightcost>50</weightcost>
+			<volumecost>50</volumecost>
+			<maxweight>4</maxweight>
+			<maxvolume>4</maxvolume>
+			<duration>4</duration>
+			<frequency>4</frequency>
+			<day>0</day>
+			<companyName>NZ Post</companyName>
+			<destinationName>hamilton</destinationName>
+			<originName>christchurch</originName>
+		</data>
+	</event>
+	<event>
+		<type>price</type>
+		<action>insert</action>
+		<data>
+			<origin>6</origin>
+			<destination>2</destination>
+			<weightcost>5</weightcost>
+			<volumecost>5</volumecost>
+			<priority>DOMESTIC STANDARD</priority>
+			<destinationName>hamilton</destinationName>
+			<originName>christchurch</originName>
+		</data>
+	</event>
+	<event>
+		<type>mail</type>
+		<action>insert</action>
+		<data>
+			<origin>6</origin>
+			<destination>2</destination>
+			<weight>3</weight>
+			<volume>3</volume>
+			<priority>DOMESTIC AIR</priority>
+			<duration>5.350910555571318</duration>
+			<totalcustomercost>30</totalcustomercost>
+			<totalbusinesscost>300</totalbusinesscost>
+			<originName>christchurch</originName>
+			<destinationName>hamilton</destinationName>
+			<date>Wed Jun 22 2016 10:39:00 GMT+1200 (NZST)</date>
+		</data>
+	</event>
 </events>

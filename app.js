@@ -229,6 +229,8 @@ router.get("/logFile/:logFileId", function(req, res){
             var origin = mail.data[0].origin[0];
             var destination = mail.data[0].destination[0];
             var priority = mail.data[0].priority[0];
+            var originName = mail.data[0].originName[0];
+            var destinationName = mail.data[0].destinationName[0];
 
             if (!deliveryStats[origin]) {
                 deliveryStats[origin] = {};
@@ -258,8 +260,12 @@ router.get("/logFile/:logFileId", function(req, res){
                             }
                         }
                         var data = deliveryStats[origin][destination][priority];
+                        console.log('deliveryStats: ');
+                        console.log(data);
                         var difference = (data.customercost/parseFloat(data.count)) - (data.businesscost/parseFloat(data.count));
+
                         if(difference < 0){
+                            console.log(difference);
                             if (!criticalRoutes[origin]){
                                 criticalRoutes[origin] = {};
                             }
@@ -273,13 +279,15 @@ router.get("/logFile/:logFileId", function(req, res){
             }
         }
         for (var start in criticalRoutes){
-            for(var end in criticalRoutes[origin]){
+            for(var end in criticalRoutes[start]){
                 for(var pri in criticalRoutes[start][end]){
                     var data = {};
                     data.originName = criticalRoutes[start][end][pri].originName;
                     data.destinationName = criticalRoutes[start][end][pri].destinationName;
                     data.priority = pri;
-                    data.difference = criticalRoutes[start][destination][priority].difference;
+                    data.difference = criticalRoutes[start][end][pri].difference;
+                    console.log('routes');
+                    console.log(data);
                     routes.push(data);
                 }
             }
