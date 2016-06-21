@@ -192,13 +192,13 @@ router.get("/logFile/:logFileId", function(req, res){
                 })
             }
         }
-
+        var origin, destination;
         for (var j = 0; j < mailEvents.length; j++){
             mail = mailEvents[j].event;
-            var origin = mail.data[0].origin[0];
+            origin = mail.data[0].origin[0];
             var originName = mail.data[0].originName[0];
             var destinationName = mail.data[0].destinationName[0];
-            var destination = mail.data[0].destination[0];
+            destination = mail.data[0].destination[0];
             if (!mailStats[origin]){
                 mailStats[origin] = {};
             }
@@ -207,6 +207,7 @@ router.get("/logFile/:logFileId", function(req, res){
             }
             else {
                 mailStats[origin][destination] = {volume: 0, weight: 0, mails: 0};
+            // }
 
                 for (var k = 0; k < mailEvents.length; k++) {
                     var anotherMail = mailEvents[k].event;
@@ -214,6 +215,9 @@ router.get("/logFile/:logFileId", function(req, res){
                         mailStats[origin][destination].weight += parseFloat(anotherMail.data[0].weight[0]);
                         mailStats[origin][destination].volume += parseFloat(anotherMail.data[0].volume[0]);
                         mailStats[origin][destination].mails += 1;
+                        // console.log(origin);
+                        // console.log(destination);
+                        // console.log(mailStats[origin][destination]);
                     }
                 }
             }
@@ -268,14 +272,14 @@ router.get("/logFile/:logFileId", function(req, res){
                 }
             }
         }
-        for (var origin in criticalRoutes){
-            for(var destination in criticalRoutes[origin]){
-                for(var priority in criticalRoutes[origin][destination]){
+        for (var start in criticalRoutes){
+            for(var end in criticalRoutes[origin]){
+                for(var pri in criticalRoutes[start][end]){
                     var data = {};
-                    data.originName = criticalRoutes[origin][destination][priority].originName;
-                    data.destinationName = criticalRoutes[origin][destination][priority].destinationName;
-                    data.priority = priority;
-                    data.difference = criticalRoutes[origin][destination][priority].difference;
+                    data.originName = criticalRoutes[start][end][pri].originName;
+                    data.destinationName = criticalRoutes[start][end][pri].destinationName;
+                    data.priority = pri;
+                    data.difference = criticalRoutes[start][destination][priority].difference;
                     routes.push(data);
                 }
             }
