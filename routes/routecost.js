@@ -130,7 +130,7 @@ router.post("/delete/:routeid", function(req,res){
                                 locations: allLocations,
                                 companies: allCompanies,
                                 routes: routes,
-                                notify: "route successfully deleted",
+                                notify: "route successfully discontinued",
                                 notifyType: "warning"
                             });
                         });
@@ -143,7 +143,7 @@ router.post("/delete/:routeid", function(req,res){
                             route: route,
                             locations: allLocations,
                             companies: allCompanies,
-                            notify: "Error deleting route",
+                            notify: "Error discontinuing route",
                             notifyType: "danger"
                         });
                     }
