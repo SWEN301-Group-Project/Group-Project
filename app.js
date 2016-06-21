@@ -38,7 +38,6 @@ var express = require('express'),
     Price = require('./database/customerprice'),
     Managers = require('./database/managers'),
     Graph = require('./database/graph'),
-    // logFile = require('./database/logFile.js').logFile,
     findRoute = Graph.findRoute,
     logFile = require('./database/logFile').logFile;
 
@@ -85,14 +84,11 @@ env.addFilter("date", nunjucksDate);
 
 var router = express.Router();
 
-
 /**
  * Initialise the database.
  */
 var database = new Database().init();
 Mail = new Mail();
-
-//Graph.loadGraph();
 
 // redirects to the stats page by default, this could be another page.
 router.get("/", function(req, res) {
@@ -124,8 +120,6 @@ router.get("/stats/:dateOffset", function(req, res) {
             durations: durations
         });
     });
-
-    //res.render('index',{title: "Dashboard", homeActive: true});
 });
 
 // Login page
@@ -223,7 +217,6 @@ router.get("/logFile/:logFileId", function(req, res){
                     }
                 }
             }
-            console.log(mailStats[origin][destination]);
         }
         var deliveryStats = {};
         var criticalRoutes = {};
@@ -265,7 +258,6 @@ router.get("/logFile/:logFileId", function(req, res){
                                 deliveryStats[origin][destination][priority].businesscost += parseFloat(thirdMail.data[0].totalbusinesscost[0]);
                             }
                         }
-                        console.log(deliveryStats[origin][destination][priority]);
                         var data = deliveryStats[origin][destination][priority];
                         var difference = (data.customercost/parseFloat(data.count)) - (data.businesscost/parseFloat(data.count));
                         if(difference < 0){
@@ -277,12 +269,10 @@ router.get("/logFile/:logFileId", function(req, res){
                             }
                             criticalRoutes[origin][destination][priority] = {originName : originName, destinationName: destinationName, difference: difference};
                         }
-                        //
                     }
                 }
             }
         }
-        console.log("printing criticalRoutes");
         for (var origin in criticalRoutes){
             for(var destination in criticalRoutes[origin]){
                 for(var priority in criticalRoutes[origin][destination]){
@@ -291,16 +281,15 @@ router.get("/logFile/:logFileId", function(req, res){
                     data.destinationName = criticalRoutes[origin][destination][priority].destinationName;
                     data.priority = priority;
                     data.difference = criticalRoutes[origin][destination][priority].difference;
-                    console.log(data);
                     routes.push(data);
-                    // console.log(criticalRoutes[origin][destination][priority]);
-                    // console.log(origin);
-                    // console.log(destination);
-                    // console.log(priority);
                 }
             }
 
         }
+<<<<<<< HEAD
+=======
+        
+>>>>>>> a1a0a8ab4435b6ed2665ac7035c24199869a9f31
         res.render('logs',
             {logActive: true,
                 customercost: totalcustomercost,
