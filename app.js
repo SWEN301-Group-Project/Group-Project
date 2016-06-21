@@ -153,7 +153,7 @@ router.get("/logFile", function (req, res) {
     "use strict";
     if(req.session.manager){
         new logFile().loadXMLDoc(function (json) {
-                res.render('logFile', {events: json.events.event, loggedin: req.session.manager ? true : false});
+                res.render('logFile', {logActive : true, events: json.events.event, loggedin: req.session.manager ? true : false});
         });
     } else {
         res.render('login', {loggedin: false});
@@ -243,15 +243,20 @@ router.get("/logFile/:logFileId", function(req, res){
                 continue;
             }
             else {
-
+                deliveryStats[origin][destination][priority] = {duration : 0, customercost: 0, businesscost: 0, count: 0};
                 for (var k = 0; k < mailEvents.length; k++) {
                     var anotherMail = mailEvents[k].event;
-                    deliveryStats[origin][destination][priority] = {duration : 0, customercost: 0, businesscost: 0, count: 0};
+                    
                     if (anotherMail.data[0].origin[0] == origin && anotherMail.data[0].destination[0] == destination) {
 
                         for (var l = 0; l < mailEvents.length; l++) {
                             var thirdMail = mailEvents[l].event;
                             if (thirdMail.data[0].origin[0] == origin && thirdMail.data[0].destination[0] == destination && thirdMail.data[0].priority[0] == priority) {
+                                console.log("setting data for thirmail"); 
+                                  console.log('origin: '+ origin);
+        console.log('destination: ' + destination);
+        console.log('priority: ' + priority)
+                                console.log(thirdMail);
                                 deliveryStats[origin][destination][priority].duration += parseFloat(thirdMail.data[0].duration[0]);
                                 deliveryStats[origin][destination][priority].count += 1;
                                 deliveryStats[origin][destination][priority].originName = originName;
@@ -296,11 +301,9 @@ router.get("/logFile/:logFileId", function(req, res){
             }
 
         }
-
-
-
         res.render('logs',
-            {customercost: totalcustomercost,
+            {logActive: true,
+                customercost: totalcustomercost,
                 businesscost: totalbusinesscost,
                 volume: totalvolume,
                 weight: totalweight,
