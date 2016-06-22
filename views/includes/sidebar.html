@@ -49,6 +49,14 @@
                     <p>Companies</p>
                 </a>
             </li>
+            {% if loggedin %}
+            <li {% if logActive %} class ="active" {% endif %}>
+                <a href="/logFile">
+                    <i class="ti-files"></i>
+                    <p>Log File</p>
+                </a>
+            </li>
+            {% endif %}
         </ul>
     </div>
 </div>

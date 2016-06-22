@@ -4,6 +4,14 @@
 		<type>company</type>
 		<action>insert</action>
 		<data>
+			<name>Air New Zealand</name>
+			<type>Air</type>
+		</data>
+	</event>
+	<event>
+		<type>company</type>
+		<action>insert</action>
+		<data>
 			<name>NZ Post</name>
 			<type>Land</type>
 		</data>
@@ -20,58 +28,48 @@
 		<type>location</type>
 		<action>insert</action>
 		<data>
+			<name>Hamilton</name>
+			<isInternational>0</isInternational>
+		</data>
+	</event>
+	<event>
+		<type>location</type>
+		<action>insert</action>
+		<data>
 			<name>Auckland</name>
 			<isInternational>0</isInternational>
 		</data>
 	</event>
 	<event>
-		<type>routes</type>
+		<type>location</type>
 		<action>insert</action>
 		<data>
-			<company>1</company>
-			<origin>1</origin>
-			<destination>2</destination>
-			<type>Land</type>
-			<weightcost>3</weightcost>
-			<volumecost>3</volumecost>
-			<maxweight>7</maxweight>
-			<maxvolume>7</maxvolume>
-			<duration>8</duration>
-			<frequency>4</frequency>
-			<day>0</day>
-			<companyName>NZ Post</companyName>
-			<originName>wellington</originName>
-			<destinationName>auckland</destinationName>
+			<name>Rotorua</name>
+			<isInternational>0</isInternational>
 		</data>
 	</event>
 	<event>
-		<type>price</type>
+		<type>location</type>
 		<action>insert</action>
 		<data>
-			<origin>1</origin>
-			<destination>2</destination>
-			<weightcost>4</weightcost>
-			<volumecost>4</volumecost>
-			<priority>DOMESTIC STANDARD</priority>
-			<originName>wellington</originName>
-			<destinationName>auckland</destinationName>
+			<name>Palmerston North</name>
+			<isInternational>0</isInternational>
 		</data>
 	</event>
 	<event>
-		<type>mail</type>
+		<type>location</type>
 		<action>insert</action>
 		<data>
-			<origin>1</origin>
-			<destination>2</destination>
-			<weight>2</weight>
-			<volume>2</volume>
-			<priority>DOMESTIC STANDARD</priority>
-			<duration>8.086662777757738</duration>
-			<totalcustomercost>16</totalcustomercost>
-			<totalbusinesscost>12</totalbusinesscost>
-			<originName>wellington</originName>
-			<destinationName>auckland</destinationName>
-			<date>Sun Jun 19 2016 23:54:50 GMT+1200 (NZST)</date>
+			<name>Christchurch</name>
+			<isInternational>0</isInternational>
+		</data>
+	</event>
+		<event>
+		<type>location</type>
+		<action>insert</action>
+		<data>
+			<name>Dunedin</name>
+			<isInternational>0</isInternational>
 		</data>
 	</event>
 	<event>
@@ -83,11 +81,43 @@
 		</data>
 	</event>
 	<event>
-		<type>company</type>
+		<type>routes</type>
 		<action>insert</action>
 		<data>
-			<name>Air New Zealand</name>
+			<company>1</company>
+			<origin>1</origin>
+			<destination>3</destination>
 			<type>Air</type>
+			<weightcost>3</weightcost>
+			<volumecost>4</volumecost>
+			<maxweight>25</maxweight>
+			<maxvolume>25</maxvolume>
+			<duration>1</duration>
+			<frequency>2</frequency>
+			<day>4</day>
+			<companyName>Air New Zealand</companyName>
+			<originName>wellington</originName>
+			<destinationName>auckland</destinationName>
+		</data>
+	</event>
+	<event>
+		<type>routes</type>
+		<action>insert</action>
+		<data>
+			<company>1</company>
+			<origin>3</origin>
+			<destination>8</destination>
+			<type>Air</type>
+			<weightcost>12</weightcost>
+			<volumecost>12</volumecost>
+			<maxweight>30</maxweight>
+			<maxvolume>30</maxvolume>
+			<duration>14</duration>
+			<frequency>12</frequency>
+			<day>5</day>
+			<companyName>Air New Zealand</companyName>
+			<originName>auckland</originName>
+			<destinationName>singapore</destinationName>
 		</data>
 	</event>
 	<event>
@@ -95,19 +125,32 @@
 		<action>insert</action>
 		<data>
 			<company>2</company>
-			<origin>1</origin>
-			<destination>3</destination>
-			<type>Air</type>
+			<origin>6</origin>
+			<destination>7</destination>
+			<type>Land</type>
 			<weightcost>5</weightcost>
 			<volumecost>5</volumecost>
 			<maxweight>15</maxweight>
 			<maxvolume>15</maxvolume>
-			<duration>7</duration>
-			<frequency>3</frequency>
-			<day>3</day>
-			<companyName>Air New Zealand</companyName>
-			<originName>wellington</originName>
-			<destinationName>singapore</destinationName>
+			<duration>6</duration>
+			<frequency>6</frequency>
+			<day>6</day>
+			<companyName>NZ Post</companyName>
+			<originName>christchurch</originName>
+			<destinationName>dunedin</destinationName>
+		</data>
+	</event>
+	<event>
+		<type>price</type>
+		<action>insert</action>
+		<data>
+			<origin>6</origin>
+			<destination>7</destination>
+			<weightcost>4</weightcost>
+			<volumecost>4</volumecost>
+			<priority>DOMESTIC STANDARD</priority>
+			<originName>christchurch</originName>
+			<destinationName>dunedin</destinationName>
 		</data>
 	</event>
 	<event>
@@ -115,12 +158,45 @@
 		<action>insert</action>
 		<data>
 			<origin>1</origin>
-			<destination>3</destination>
-			<weightcost>2</weightcost>
-			<volumecost>2</volumecost>
+			<destination>8</destination>
+			<weightcost>20</weightcost>
+			<volumecost>20</volumecost>
 			<priority>INTERNATIONAL AIR</priority>
 			<originName>wellington</originName>
 			<destinationName>singapore</destinationName>
+		</data>
+	</event>
+	<event>
+		<type>routes</type>
+		<action>insert</action>
+		<data>
+			<company>2</company>
+			<origin>4</origin>
+			<destination>5</destination>
+			<type>Land</type>
+			<weightcost>3</weightcost>
+			<volumecost>3</volumecost>
+			<maxweight>15</maxweight>
+			<maxvolume>15</maxvolume>
+			<duration>6</duration>
+			<frequency>6</frequency>
+			<day>3</day>
+			<companyName>NZ Post</companyName>
+			<originName>rotorua</originName>
+			<destinationName>palmerston north</destinationName>
+		</data>
+	</event>
+	<event>
+		<type>price</type>
+		<action>insert</action>
+		<data>
+			<origin>4</origin>
+			<destination>5</destination>
+			<weightcost>5</weightcost>
+			<volumecost>5</volumecost>
+			<priority>DOMESTIC STANDARD</priority>
+			<originName>rotorua</originName>
+			<destinationName>palmerston north</destinationName>
 		</data>
 	</event>
 	<event>
@@ -128,16 +204,202 @@
 		<action>insert</action>
 		<data>
 			<origin>1</origin>
-			<destination>3</destination>
-			<weight>2</weight>
-			<volume>2</volume>
+			<destination>8</destination>
+			<weight>5</weight>
+			<volume>5</volume>
 			<priority>INTERNATIONAL AIR</priority>
-			<duration>8.386707499972545</duration>
-			<totalcustomercost>8</totalcustomercost>
-			<totalbusinesscost>20</totalbusinesscost>
+			<duration>16.32469620491611</duration>
+			<totalcustomercost>200</totalcustomercost>
+			<totalbusinesscost>155</totalbusinesscost>
 			<originName>wellington</originName>
 			<destinationName>singapore</destinationName>
-			<date>Mon Jun 20 2016 10:36:50 GMT+1200 (NZST)</date>
+			<date>Tue Jun 14 2016 11:20:17 GMT+1200 (NZST)</date>
+		</data>
+	</event>
+	<event>
+		<type>mail</type>
+		<action>insert</action>
+		<data>
+			<origin>6</origin>
+			<destination>7</destination>
+			<weight>5</weight>
+			<volume>5</volume>
+			<priority>DOMESTIC STANDARD</priority>
+			<duration>6.654525833320804</duration>
+			<totalcustomercost>40</totalcustomercost>
+			<totalbusinesscost>50</totalbusinesscost>
+			<originName>christchurch</originName>
+			<destinationName>dunedin</destinationName>
+			<date>Thu Jun 16 2016 11:20:45 GMT+1200 (NZST)</date>
+		</data>
+	</event>
+	<event>
+		<type>mail</type>
+		<action>insert</action>
+		<data>
+			<origin>4</origin>
+			<destination>5</destination>
+			<weight>3</weight>
+			<volume>3</volume>
+			<priority>DOMESTIC STANDARD</priority>
+			<duration>6.650828333338723</duration>
+			<totalcustomercost>30</totalcustomercost>
+			<totalbusinesscost>18</totalbusinesscost>
+			<originName>rotorua</originName>
+			<destinationName>palmerston north</destinationName>
+			<date>Sat Jun 18 2016 11:20:58 GMT+1200 (NZST)</date>
+		</data>
+	</event>
+	<event>
+		<type>mail</type>
+		<action>insert</action>
+		<data>
+			<origin>4</origin>
+			<destination>5</destination>
+			<weight>3</weight>
+			<volume>3</volume>
+			<priority>DOMESTIC STANDARD</priority>
+			<duration>6.650828333338723</duration>
+			<totalcustomercost>30</totalcustomercost>
+			<totalbusinesscost>18</totalbusinesscost>
+			<originName>rotorua</originName>
+			<destinationName>palmerston north</destinationName>
+			<date>Sun Jun 19 2016 16:20:58 GMT+1200 (NZST)</date>
+		</data>
+	</event>
+		<event>
+		<type>mail</type>
+		<action>insert</action>
+		<data>
+			<origin>6</origin>
+			<destination>7</destination>
+			<weight>5</weight>
+			<volume>5</volume>
+			<priority>DOMESTIC STANDARD</priority>
+			<duration>6.654525833320804</duration>
+			<totalcustomercost>40</totalcustomercost>
+			<totalbusinesscost>50</totalbusinesscost>
+			<originName>christchurch</originName>
+			<destinationName>dunedin</destinationName>
+			<date>Sun Jun 19 2016 17:20:45 GMT+1200 (NZST)</date>
+		</data>
+	</event>
+	<event>
+		<type>mail</type>
+		<action>insert</action>
+		<data>
+			<origin>1</origin>
+			<destination>8</destination>
+			<weight>6</weight>
+			<volume>8</volume>
+			<priority>INTERNATIONAL AIR</priority>
+			<duration>16.29550120892236</duration>
+			<totalcustomercost>280</totalcustomercost>
+			<totalbusinesscost>218</totalbusinesscost>
+			<originName>wellington</originName>
+			<destinationName>singapore</destinationName>
+			<date>Mon Jun 20 2016 11:21:09 GMT+1200 (NZST)</date>
+		</data>
+	</event>
+	<event>
+		<type>mail</type>
+		<action>insert</action>
+		<data>
+			<origin>1</origin>
+			<destination>8</destination>
+			<weight>9</weight>
+			<volume>9</volume>
+			<priority>INTERNATIONAL AIR</priority>
+			<duration>16.28922176535707</duration>
+			<totalcustomercost>360</totalcustomercost>
+			<totalbusinesscost>279</totalbusinesscost>
+			<originName>wellington</originName>
+			<destinationName>singapore</destinationName>
+			<date>Tue Jun 21 2016 11:21:20 GMT+1200 (NZST)</date>
+		</data>
+	</event>
+	<event>
+		<type>mail</type>
+		<action>insert</action>
+		<data>
+			<origin>6</origin>
+			<destination>7</destination>
+			<weight>7</weight>
+			<volume>8</volume>
+			<priority>DOMESTIC STANDARD</priority>
+			<duration>6.634763055539224</duration>
+			<totalcustomercost>60</totalcustomercost>
+			<totalbusinesscost>75</totalbusinesscost>
+			<originName>christchurch</originName>
+			<destinationName>dunedin</destinationName>
+			<date>Tue Jun 21 2016 11:21:56 GMT+1200 (NZST)</date>
+		</data>
+	</event>
+	<event>
+		<type>mail</type>
+		<action>insert</action>
+		<data>
+			<origin>4</origin>
+			<destination>5</destination>
+			<weight>1</weight>
+			<volume>1</volume>
+			<priority>DOMESTIC STANDARD</priority>
+			<duration>7.97195083333645</duration>
+			<totalcustomercost>10</totalcustomercost>
+			<totalbusinesscost>6</totalbusinesscost>
+			<originName>rotorua</originName>
+			<destinationName>palmerston north</destinationName>
+			<date>Wed Jun 22 2016 10:01:44 GMT+1200 (NZST)</date>
+		</data>
+	</event>
+	<event>
+		<type>routes</type>
+		<action>insert</action>
+		<data>
+			<company>2</company>
+			<origin>6</origin>
+			<destination>2</destination>
+			<type>Land</type>
+			<weightcost>50</weightcost>
+			<volumecost>50</volumecost>
+			<maxweight>4</maxweight>
+			<maxvolume>4</maxvolume>
+			<duration>4</duration>
+			<frequency>4</frequency>
+			<day>0</day>
+			<companyName>NZ Post</companyName>
+			<destinationName>hamilton</destinationName>
+			<originName>christchurch</originName>
+		</data>
+	</event>
+	<event>
+		<type>price</type>
+		<action>insert</action>
+		<data>
+			<origin>6</origin>
+			<destination>2</destination>
+			<weightcost>5</weightcost>
+			<volumecost>5</volumecost>
+			<priority>DOMESTIC STANDARD</priority>
+			<destinationName>hamilton</destinationName>
+			<originName>christchurch</originName>
+		</data>
+	</event>
+	<event>
+		<type>mail</type>
+		<action>insert</action>
+		<data>
+			<origin>6</origin>
+			<destination>2</destination>
+			<weight>3</weight>
+			<volume>3</volume>
+			<priority>DOMESTIC AIR</priority>
+			<duration>5.350910555571318</duration>
+			<totalcustomercost>30</totalcustomercost>
+			<totalbusinesscost>300</totalbusinesscost>
+			<originName>christchurch</originName>
+			<destinationName>hamilton</destinationName>
+			<date>Wed Jun 22 2016 10:39:00 GMT+1200 (NZST)</date>
 		</data>
 	</event>
 </events>

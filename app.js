@@ -38,7 +38,6 @@ var express = require('express'),
     Price = require('./database/customerprice'),
     Managers = require('./database/managers'),
     Graph = require('./database/graph'),
-    // logFile = require('./database/logFile.js').logFile,
     findRoute = Graph.findRoute,
     logFile = require('./database/logFile').logFile;
 
@@ -85,14 +84,11 @@ env.addFilter("date", nunjucksDate);
 
 var router = express.Router();
 
-
 /**
  * Initialise the database.
  */
 var database = new Database().init();
 Mail = new Mail();
-
-//Graph.loadGraph();
 
 // redirects to the stats page by default, this could be another page.
 router.get("/", function(req, res) {
@@ -124,8 +120,6 @@ router.get("/stats/:dateOffset", function(req, res) {
             durations: durations
         });
     });
-
-    //res.render('index',{title: "Dashboard", homeActive: true});
 });
 
 // Login page
@@ -153,7 +147,7 @@ router.get("/logFile", function (req, res) {
     "use strict";
     if(req.session.manager){
         new logFile().loadXMLDoc(function (json) {
-                res.render('logFile', {events: json.events.event, loggedin: req.session.manager ? true : false});
+                res.render('logFile', {logActive : true, events: json.events.event, loggedin: req.session.manager ? true : false});
         });
     } else {
         res.render('login', {loggedin: false});
@@ -198,13 +192,13 @@ router.get("/logFile/:logFileId", function(req, res){
                 })
             }
         }
-
+        var origin, destination;
         for (var j = 0; j < mailEvents.length; j++){
             mail = mailEvents[j].event;
-            var origin = mail.data[0].origin[0];
+            origin = mail.data[0].origin[0];
             var originName = mail.data[0].originName[0];
             var destinationName = mail.data[0].destinationName[0];
-            var destination = mail.data[0].destination[0];
+            destination = mail.data[0].destination[0];
             if (!mailStats[origin]){
                 mailStats[origin] = {};
             }
@@ -213,6 +207,7 @@ router.get("/logFile/:logFileId", function(req, res){
             }
             else {
                 mailStats[origin][destination] = {volume: 0, weight: 0, mails: 0};
+            // }
 
                 for (var k = 0; k < mailEvents.length; k++) {
                     var anotherMail = mailEvents[k].event;
@@ -220,10 +215,12 @@ router.get("/logFile/:logFileId", function(req, res){
                         mailStats[origin][destination].weight += parseFloat(anotherMail.data[0].weight[0]);
                         mailStats[origin][destination].volume += parseFloat(anotherMail.data[0].volume[0]);
                         mailStats[origin][destination].mails += 1;
+                        // console.log(origin);
+                        // console.log(destination);
+                        // console.log(mailStats[origin][destination]);
                     }
                 }
             }
-            console.log(mailStats[origin][destination]);
         }
         var deliveryStats = {};
         var criticalRoutes = {};
@@ -232,6 +229,8 @@ router.get("/logFile/:logFileId", function(req, res){
             var origin = mail.data[0].origin[0];
             var destination = mail.data[0].destination[0];
             var priority = mail.data[0].priority[0];
+            var originName = mail.data[0].originName[0];
+            var destinationName = mail.data[0].destinationName[0];
 
             if (!deliveryStats[origin]) {
                 deliveryStats[origin] = {};
@@ -243,10 +242,10 @@ router.get("/logFile/:logFileId", function(req, res){
                 continue;
             }
             else {
-
+                deliveryStats[origin][destination][priority] = {duration : 0, customercost: 0, businesscost: 0, count: 0};
                 for (var k = 0; k < mailEvents.length; k++) {
                     var anotherMail = mailEvents[k].event;
-                    deliveryStats[origin][destination][priority] = {duration : 0, customercost: 0, businesscost: 0, count: 0};
+                    
                     if (anotherMail.data[0].origin[0] == origin && anotherMail.data[0].destination[0] == destination) {
 
                         for (var l = 0; l < mailEvents.length; l++) {
@@ -260,10 +259,13 @@ router.get("/logFile/:logFileId", function(req, res){
                                 deliveryStats[origin][destination][priority].businesscost += parseFloat(thirdMail.data[0].totalbusinesscost[0]);
                             }
                         }
-                        console.log(deliveryStats[origin][destination][priority]);
                         var data = deliveryStats[origin][destination][priority];
-                        var difference = Math.abs((data.customercost/parseFloat(data.count)) - (data.businesscost/parseFloat(data.count)));
-                        if(difference){
+                        console.log('deliveryStats: ');
+                        console.log(data);
+                        var difference = (data.customercost/parseFloat(data.count)) - (data.businesscost/parseFloat(data.count));
+
+                        if(difference < 0){
+                            console.log(difference);
                             if (!criticalRoutes[origin]){
                                 criticalRoutes[origin] = {};
                             }
@@ -272,35 +274,28 @@ router.get("/logFile/:logFileId", function(req, res){
                             }
                             criticalRoutes[origin][destination][priority] = {originName : originName, destinationName: destinationName, difference: difference};
                         }
-                        //
                     }
                 }
             }
         }
-        console.log("printing criticalRoutes");
-        for (var origin in criticalRoutes){
-            for(var destination in criticalRoutes[origin]){
-                for(var priority in criticalRoutes[origin][destination]){
+        for (var start in criticalRoutes){
+            for(var end in criticalRoutes[start]){
+                for(var pri in criticalRoutes[start][end]){
                     var data = {};
-                    data.originName = criticalRoutes[origin][destination][priority].originName;
-                    data.destinationName = criticalRoutes[origin][destination][priority].destinationName;
-                    data.priority = priority;
-                    data.difference = criticalRoutes[origin][destination][priority].difference;
+                    data.originName = criticalRoutes[start][end][pri].originName;
+                    data.destinationName = criticalRoutes[start][end][pri].destinationName;
+                    data.priority = pri;
+                    data.difference = criticalRoutes[start][end][pri].difference;
+                    console.log('routes');
                     console.log(data);
                     routes.push(data);
-                    // console.log(criticalRoutes[origin][destination][priority]);
-                    // console.log(origin);
-                    // console.log(destination);
-                    // console.log(priority);
                 }
             }
 
         }
-
-
-
         res.render('logs',
-            {customercost: totalcustomercost,
+            {logActive: true,
+                customercost: totalcustomercost,
                 businesscost: totalbusinesscost,
                 volume: totalvolume,
                 weight: totalweight,

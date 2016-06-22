@@ -112,11 +112,11 @@ var findDomesticRoute = function (mail, data) {
             return this.data;
         }
         //date and time mail arrived at current node
-        this.arrivalTime = sentDate + this.currentNode.travelPenalty;
+        this.arrivalTime = sentDate + (this.currentNode.timeToHere * 24);
 
         //For the current node consider all of its unvisited neighbors
         for (var i = 0; i < this.currentNode.segments.length; i++){
-        // for (var segmentId in this.currentNode.segments) {
+        // for (var segmentId in this.currentNode.segments)
             var segment = this.currentNode.segments[i];
             if (!segment.endNode.visited && segment.maxWeight >= mail.weight && segment.maxVolume >= mail.volume) {
                 //calculate time for next departure
@@ -135,7 +135,7 @@ var findDomesticRoute = function (mail, data) {
                 }
 
                 this.waitTime = (segment.frequency - ((24 * this.days + this.hours) % segment.frequency));
-            }
+
             //if the currentNode is the origin, the wait time is also the departure time
             if(this.currentNode === nodes[mail.origin]){
               this.data.departureTime = this.waitTime;
@@ -150,6 +150,7 @@ var findDomesticRoute = function (mail, data) {
                 segment.endNode.fromSegment = segment;
                 this.currentNode.waitTime = this.waitTime;
             }
+          }
         }
         //When we are done considering all of the neighbors of the current node,
         //remove node from unvisited
@@ -353,10 +354,10 @@ var findInternationalStandardRoute = function(mail, data){
             return this.data;
         }
 
-        this.arrivalTime = sentDate + this.currentNode.travelPenalty;
+        this.arrivalTime = sentDate + (this.currentNode.timeToHere * 24);
 
         //For the current node consider all of its unvisited neighbors
-        for (var j = 0; j < this.currentNode.segments; j++) {
+        for (var j = 0; j < this.currentNode.segments.length; j++) {
             var segment = this.currentNode.segments[j];
             if (!segment.endNode.visited && segment.maxWeight >= mail.weight && segment.maxVolume >= mail.volume) {
                 //Add weighting penalty for using air
