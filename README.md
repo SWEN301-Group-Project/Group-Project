@@ -10,15 +10,21 @@ By:
    
 ## Getting Started
 
-To begin development:   
-1. run: `npm start` to remove the database and load data from xml     
-2. Install node onto system   
-5. run: `npm start` or `node app.js` to launch the web app
+### Prerequisites
+* Node ~5.7.1
+
+### To begin development:   
+
+1. Install node onto system   
+2. run: `npm install` to install the node modules
+3. run: `npm start` to launch the web app
 
 ## Testing
 
 Tests are found in the 'test' folder.
 To run the tests, run `npm test`
+
+A test matrix and other files can be found [here](https://drive.google.com/folderview?id=0B2oEfdUbeIKfNHlnSzVQR1JXdEE&usp=sharing)
 
 ## Bugs and Issues
 
