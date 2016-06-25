@@ -497,8 +497,12 @@ router.get("/mails", function(req, res) {
 // Use the router routes in our application
 app.use('/', router);
 
+
+var PORT = process.env.PORT || 3000;
+
+
 // Start the server listening
-var server = app.listen(3000, function() {
+var server = app.listen(PORT, function() {
 	var port = server.address().port;
 	console.log('KPSmart App listening on port %s.', port);
 });
