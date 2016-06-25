@@ -8,7 +8,7 @@ logFile.xml
 
 # Ignore database
 test.db
-.database/test.db
+database/test.db
 
 # Runtime data
 pids
