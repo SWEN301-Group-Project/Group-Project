@@ -2,12 +2,15 @@
 # Group-Project   
 SWEN303 - KPSmart web application
 By: 
-* Harman Singh
-* Neel Patel
-* David Thomsen
-* Elliot Wilde
-* Paige Halliwell
+* Team Leader: Harman Singh
+* Chief Requirement Analyst: Neel Patel
+* Chief Tester: David Thomsen
+* Chief Programmer: Elliot Wilde
+* Chief Designer: Paige Halliwell
    
+## Note
+Username and Password for the manager are both *`admin`*
+
 ## Getting Started
 
 ### Prerequisites
